@@ -19,6 +19,7 @@ import { DeleteRoleHandler } from './commands/handlers/delete-role/delete-role.h
 import { AssignAdminRoleHandler } from './commands/handlers/assign-admin-role/assign-admin-role.handler.js';
 import { RevokeAdminRoleHandler } from './commands/handlers/revoke-admin-role/revoke-admin-role.handler.js';
 import { RecordAdminAuditHandler } from './commands/handlers/record-admin-audit/record-admin-audit.handler.js';
+import { RecordTransactionalAdminAuditHandler } from './commands/handlers/record-transactional-admin-audit/record-transactional-admin-audit.handler.js';
 import { ListAdminsHandler } from './queries/handlers/list-admins/list-admins.handler.js';
 import { GetAdminHandler } from './queries/handlers/get-admin/get-admin.handler.js';
 import { ListRolesHandler } from './queries/handlers/list-roles/list-roles.handler.js';
@@ -43,6 +44,7 @@ import { GetAuditEventHandler } from './queries/handlers/get-audit-event/get-aud
     AssignAdminRoleHandler,
     RevokeAdminRoleHandler,
     RecordAdminAuditHandler,
+    RecordTransactionalAdminAuditHandler,
     ListAdminsHandler,
     GetAdminHandler,
     ListRolesHandler,

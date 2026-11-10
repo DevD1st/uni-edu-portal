@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { lastValueFrom, of } from 'rxjs';
 import {
   AUDIT_ACTION,
+  TRANSACTIONAL_AUDIT_SUCCESS,
   RecordAdminAuditCommand,
   auditAttempt,
 } from '#shared/admin-authorization/audit.contracts.js';
@@ -46,6 +47,8 @@ export class AdminAuditInterceptor implements NestInterceptor {
         await this.commands.execute(new RecordAdminAuditCommand(attempt));
       throw error;
     }
+    if (this.reflector.get(TRANSACTIONAL_AUDIT_SUCCESS, context.getHandler()))
+      return of(result);
     const attempt = auditAttempt(request, action, 'succeeded', result);
     if (attempt)
       await this.commands.execute(new RecordAdminAuditCommand(attempt));

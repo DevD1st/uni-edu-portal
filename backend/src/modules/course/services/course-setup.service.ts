@@ -1,4 +1,5 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
 import type { EntityManager } from 'typeorm';
 import { writeTransaction } from '#core/database/database-write.js';
@@ -8,6 +9,7 @@ import {
   LogService,
 } from '#core/logging/services/log.service.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
+import { RecordTransactionalAdminAuditCommand } from '#shared/admin-authorization/audit.contracts.js';
 import {
   authorizedDepartments,
   hasPrivilege,
@@ -32,6 +34,7 @@ export class CourseSetupService {
   constructor(
     private readonly database: DataSource,
     private readonly authorization: AdminAuthorizationService,
+    private readonly commands: CommandBus,
     @Inject(LOG_PROVIDER) private readonly log: LogService,
   ) {
     log.setContext(CourseSetupService.name);
@@ -223,12 +226,16 @@ export class CourseSetupService {
           HttpStatus.NOT_FOUND,
           'The course offering could not be found.',
         );
-      await this.authorization.require(
+      const actor = await this.authorization.require(
         actorId,
         'manage_department',
         offering.departmentId,
         manager,
       );
+      const before = {
+        lecturerId: offering.lecturerId,
+        status: offering.status,
+      };
       const status = input.status ?? offering.status;
       const lecturerId =
         input.lecturerId === undefined ? offering.lecturerId : input.lecturerId;
@@ -241,6 +248,7 @@ export class CourseSetupService {
           status === 'active',
         );
       }
+      let resultGroupId: string | undefined;
       if (changedLecturer) {
         // Keep the roster and offering on the same lecturer under the offering lock.
         const groups = manager.getRepository<ResultGroup>('ResultGroup');
@@ -259,11 +267,32 @@ export class CourseSetupService {
             );
           group.lecturerId = lecturerId;
           await groups.save(group);
+          resultGroupId = group.id;
         }
       }
       offering.lecturerId = lecturerId;
       offering.status = status;
-      return repository.save(offering);
+      const updated = await repository.save(offering);
+      await this.commands.execute(
+        new RecordTransactionalAdminAuditCommand(
+          manager,
+          actorId,
+          actor.adminId,
+          [
+            {
+              action: 'academic.offering.update',
+              targetId: offering.id,
+              changes: { before, after: { lecturerId, status } },
+              metadata: {
+                departmentId: offering.departmentId,
+                offeringId: offering.id,
+                resultGroupId,
+              },
+            },
+          ],
+        ),
+      );
+      return updated;
     });
     this.log.log('Course offering updated', {
       actorUserId: actorId,

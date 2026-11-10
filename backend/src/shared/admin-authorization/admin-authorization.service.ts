@@ -42,8 +42,9 @@ export class AdminAuthorizationService {
   async requireAnyScope(
     userId: string,
     privilege: Privilege,
+    manager?: EntityManager,
   ): Promise<AdminAccess> {
-    const access = await this.resolve(userId);
+    const access = await this.resolve(userId, manager);
     if (!hasAnyScope(access, privilege))
       throw new ApplicationError(
         HttpStatus.FORBIDDEN,

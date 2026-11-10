@@ -361,16 +361,18 @@ For example, if Computer Science and Mathematics both include `CSC101`, they eac
 
 ### Grading and approval
 
+See the [results workflow guide](results-workflow.md) for the routes, scoped privileges, API examples, and GPA calculations.
+
 | Action | Required state and authority | Outcome |
 | --- | --- | --- |
-| Save marks | The group is pending or has corrections requested. The active assigned lecturer has the teaching privilege in this department. | Valid marks are saved as a draft. The lecturer can enter marks before closing the roster. The roster closes only through the explicit close action. |
+| Save marks | The group is pending or has corrections requested. The active assigned lecturer has `teach_course` and `grade_result` in this department. | Valid marks are saved as a draft. The lecturer can enter marks before closing the roster. The roster closes only through the explicit close action. |
 | Close registration | The group is pending and the roster is open. The active assigned lecturer has the teaching privilege in this department. | The roster closes permanently and the actor and time are recorded. No further enrollment or replacement batch is allowed. |
-| Submit or resubmit | The group is pending or has corrections requested, the roster is closed, and both marks are present for every enrollment. The active assigned lecturer submits. | The group becomes submitted. Scores are locked for review. |
+| Submit or resubmit | The group is pending or has corrections requested, the roster is closed, and both marks are present for every enrollment. The active assigned lecturer has `teach_course` and `grade_result` in this department. | The group becomes submitted. Scores are locked for review. |
 | Approve | The group is submitted. The active admin has `approve_result` for the owning department. | The transaction assigns the grade band to each enrollment, records approval, and publishes the group. The approver may also be the submitting lecturer. |
-| Request corrections | The group is submitted. The active admin has review authority in the owning department and supplies feedback. | The group becomes `correction_requested`. The assigned lecturer can edit scores and resubmit. The roster stays closed. |
-| Reopen grading | The group is submitted or approved. The active admin has `reopen_result` in the owning department and supplies a reason. | The group becomes pending and the roster stays closed. If it was approved, record the previous scores and awards in the audit trail and clear the current grade awards in the same transaction. Student views show results again after reapproval. |
+| Request corrections | The group is submitted. The active admin has `review_result` in the owning department and supplies feedback. | The group becomes `correction_requested`. The assigned lecturer can edit scores and resubmit. The roster stays closed. |
+| Reopen grading | The group is submitted or approved. The active admin has `reopen_result` in the owning department and selects an audit reason code. | The group becomes pending and the roster stays closed. If it was approved, record the previous scores and awards in the audit trail and clear the current grade awards in the same transaction. Student views show results again after reapproval. |
 
-Lock the offering and result group in the same order when saving marks or changing state. Derive the department from the offering on the server. Confirm the enrollment belongs to the group before writing a mark. Check the actor’s current scope and assignment in the command handler even when the HTTP guard already ran. Record marks, roster closures, submissions, decisions, reopenings, and reassignments in the audit trail. An accepted result correction never adds a student to a closed roster.
+Lock the offering and result group in the same order when saving marks or changing state. Derive the department from the offering on the server. Confirm the enrollment belongs to the group before writing a mark. Saving and submitting marks requires both teaching and grading authority in the offering’s department. Check the actor’s current scope and assignment in the command handler even when the HTTP guard already ran. Record marks, roster closures, submissions, decisions, reopenings, and reassignments in the audit trail. An accepted result correction never adds a student to a closed roster.
 
 The demo policy uses **30 marks for CA and 70 for the exam**. These are proposed seed values. Each version defines its own component maxima and bands.
 
@@ -390,7 +392,7 @@ The backend uses currently approved results for statements, semester GPA, and CG
 | Experience | Data and authority |
 | --- | --- |
 | Student | The authenticated account owns its profile, registrations, and results. The BFF returns available courses, registered courses and unit totals, and approved academic history. Printable registration and result statements use the same access checks. |
-| Lecturer | A teaching grant in the offering’s department and the lecturer assignment permit viewing the roster, entering marks, closing registration, and submitting results. Course and student performance summaries are limited to assigned offerings. |
+| Lecturer | A teaching grant in the offering’s department and the lecturer assignment permit viewing the roster and closing registration. Entering marks and submitting results also require a grading grant in that department. Course and student performance summaries are limited to assigned offerings. |
 | HOD or departmental admin | Scoped grants cover the enabled actions for the department, such as managing students, lecturer profiles, curriculum, and offerings, viewing course registrations, and reviewing results. The privilege for a write must be available in the affected department. |
 | Super Admin | A university-wide assignment provides the privileges for managing faculties, departments, programmes, terms, courses, accounts, and roles, and for viewing university-wide activity and academic reports. |
 

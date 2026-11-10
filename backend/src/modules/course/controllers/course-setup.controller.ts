@@ -20,7 +20,10 @@ import {
   AdminPrivilegeGuard,
   RequireAdminPrivilege,
 } from '#shared/admin-authorization/admin-privilege.guard.js';
-import { AuditAdminMutation } from '#shared/admin-authorization/audit.contracts.js';
+import {
+  AuditAdminMutation,
+  AuditTransactionalAdminMutation,
+} from '#shared/admin-authorization/audit.contracts.js';
 import { AcademicIdParamsDto } from '#shared/http/academic-id-params.dto.js';
 import { ApiDtoResponse } from '#shared/http/api-dto-response.decorator.js';
 import {
@@ -145,7 +148,7 @@ export class CourseSetupController {
   @Patch('offerings/:id')
   @ApiDtoResponse(OfferingResponseDto)
   @RequireAdminPrivilege('manage_department')
-  @AuditAdminMutation('academic.offering.update')
+  @AuditTransactionalAdminMutation('academic.offering.update')
   updateOffering(
     @CurrentAccount() actor: AccountPrincipal,
     @Param() { id }: AcademicIdParamsDto,

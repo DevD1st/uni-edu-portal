@@ -7,7 +7,10 @@ import {
   LogService,
 } from '#core/logging/services/log.service.js';
 import { ADMIN_AUDIT_ACTIONS } from '#shared/admin-authorization/audit.contracts.js';
-import type { AuditAttempt } from '#shared/admin-authorization/audit.contracts.js';
+import type {
+  AuditAttempt,
+  RecordTransactionalAdminAuditCommand,
+} from '#shared/admin-authorization/audit.contracts.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
 import { Admin } from '../entity/admins.entity.js';
 import type { ListAuditEventsDto } from '../dtos/admin-audit.dto.js';
@@ -43,11 +46,7 @@ export class AdminAuditService {
         targetId: attempt.targetId,
         reason: attempt.reason,
         outcome: attempt.outcome,
-        changes: attempt.status
-          ? { status: attempt.status }
-          : attempt.lecturerId !== undefined
-            ? { lecturerId: attempt.lecturerId }
-            : undefined,
+        changes: attempt.status ? { status: attempt.status } : undefined,
         ...requestContext.getStore(),
       });
     } catch (error: unknown) {
@@ -57,6 +56,41 @@ export class AdminAuditService {
         outcome: attempt.outcome,
         errorType: error instanceof Error ? error.name : 'UnknownError',
       });
+    }
+  }
+
+  async recordTransaction(
+    message: RecordTransactionalAdminAuditCommand,
+  ): Promise<void> {
+    try {
+      await this.repository.appendInTransaction(
+        message.manager,
+        message.events.map((event) => ({
+          ...ADMIN_AUDIT_ACTIONS[event.action],
+          action: event.action,
+          outcome: 'succeeded',
+          actorUserId: message.actorUserId,
+          actorAdminId: message.actorAdminId,
+          targetId: event.targetId,
+          reason: event.action === 'result.reopen' ? event.reason : undefined,
+          changes: event.changes,
+          metadata: event.metadata,
+          ...requestContext.getStore(),
+        })),
+      );
+    } catch (error: unknown) {
+      this.log.error('Transactional administrator audit write failed', {
+        actorUserId: message.actorUserId,
+        eventCount: message.events.length,
+        errorType: error instanceof Error ? error.name : 'UnknownError',
+      });
+      // A valid mutation must roll back when its required audit cannot be saved.
+      throw new ApplicationError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'We could not record this change. Please try again.',
+        undefined,
+        error,
+      );
     }
   }
 

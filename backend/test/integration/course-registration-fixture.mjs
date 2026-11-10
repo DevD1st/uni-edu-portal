@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { verifyResultsWorkflow } from './results-workflow-fixture.mjs';
 
 export async function verifyCourseRegistration({
   request,
@@ -351,10 +352,11 @@ export async function verifyCourseRegistration({
     roleId: hodRole.id,
     departmentId: second.id,
   });
+  const receivingHod = await signIn(receivingHodEmail, 'admin');
   await post(
     adminRegistrations + '/students/' + ada.id,
     selection(extraDelivery.id),
-    await signIn(receivingHodEmail, 'admin'),
+    receivingHod,
     403,
   );
   const summary = await get(registrations + '/' + term.id, ada.token);
@@ -444,4 +446,30 @@ export async function verifyCourseRegistration({
   const finalRoster = await get(lecturerPath + extraDelivery.id + '/roster');
   assert.equal(finalRoster.items.length, competingRegistration.ok ? 2 : 1);
   await post(registrations, selection(extraDelivery.id), ada.token, 409);
+  await verifyResultsWorkflow({
+    request,
+    url,
+    staffToken,
+    hod,
+    receivingHod,
+    teacher,
+    lecturer,
+    hodRole,
+    faculty,
+    first,
+    second,
+    term,
+    termInput,
+    level,
+    shared,
+    optional,
+    mathematics,
+    database,
+    ada,
+    ben,
+    other,
+    enrolled,
+    delegated,
+    differentDepartment,
+  });
 }

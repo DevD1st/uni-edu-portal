@@ -9,8 +9,8 @@ import { verifyCourseRegistration } from './course-registration-fixture.mjs';
 const enabled = process.env.UEMP_RUN_INTEGRATION === '1';
 
 test(
-  'migrations and the account API enforce session, role, audit, and redaction rules',
-  { skip: !enabled, timeout: 90_000 },
+  'account, registration and results workflows enforce session, scope and publication rules',
+  { skip: !enabled, timeout: 120_000 },
   async () => {
     assert.equal(process.env.APP_ENV, 'test');
     assert.ok(
@@ -523,7 +523,7 @@ async function checkOpenApi(url) {
         /^2/.test(status),
       );
       assert.ok(success, label);
-      if (path.endsWith('/summary/download')) {
+      if (path.endsWith('/download')) {
         assert.equal(
           operation.responses[success].content['text/plain'].schema.type,
           'string',

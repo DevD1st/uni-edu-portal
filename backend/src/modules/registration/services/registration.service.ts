@@ -1,4 +1,5 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
 import type { EntityManager } from 'typeorm';
 import { writeTransaction } from '#core/database/database-write.js';
@@ -8,6 +9,7 @@ import {
   LogService,
 } from '#core/logging/services/log.service.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
+import { RecordTransactionalAdminAuditCommand } from '#shared/admin-authorization/audit.contracts.js';
 import {
   authorizedDepartments,
   hasPrivilege,
@@ -73,6 +75,7 @@ export class RegistrationService {
   constructor(
     private readonly database: DataSource,
     private readonly authorization: AdminAuthorizationService,
+    private readonly commands: CommandBus,
     @Inject(LOG_PROVIDER) private readonly log: LogService,
   ) {
     log.setContext(RegistrationService.name);
@@ -299,7 +302,7 @@ export class RegistrationService {
     offeringId: string,
   ): Promise<RosterClosureResponseDto> {
     const result = await writeTransaction(this.database, async (manager) => {
-      const { adminId } = await this.requireTeaching(
+      const { adminId, departmentId } = await this.requireTeaching(
         manager,
         actorId,
         offeringId,
@@ -320,6 +323,16 @@ export class RegistrationService {
         group.registrationClosedAt = new Date();
         group.registrationClosedByAdminId = adminId;
         await repository.save(group);
+        await this.commands.execute(
+          new RecordTransactionalAdminAuditCommand(manager, actorId, adminId, [
+            {
+              action: 'registration.close_roster',
+              targetId: group.id,
+              changes: { before: 'opened', after: 'closed' },
+              metadata: { departmentId, offeringId, resultGroupId: group.id },
+            },
+          ]),
+        );
       }
       return { id: group.id, offeringId, closedAt: group.registrationClosedAt };
     });
@@ -551,7 +564,7 @@ export class RegistrationService {
         HttpStatus.FORBIDDEN,
         'Only the lecturer assigned to this offering can access its roster.',
       );
-    return access;
+    return { adminId: access.adminId, departmentId: offering.departmentId };
   }
 
   private async rosterPage(

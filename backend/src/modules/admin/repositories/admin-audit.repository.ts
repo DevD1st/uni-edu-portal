@@ -2,13 +2,17 @@ import { databaseWrite } from '#core/database/database-write.js';
 import { ApplicationError } from '#core/http/application-error.js';
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import type { DeepPartial } from 'typeorm';
+import type { DeepPartial, EntityManager } from 'typeorm';
 import { validate as isUuid } from 'uuid';
 import { AdminAuditEvent } from '../entity/admin-audit-events.entity.js';
 import type { ListAuditEventsDto } from '../dtos/admin-audit.dto.js';
 
 export interface IAdminAuditRepository {
   append(event: DeepPartial<AdminAuditEvent>): Promise<void>;
+  appendInTransaction(
+    manager: EntityManager,
+    events: DeepPartial<AdminAuditEvent>[],
+  ): Promise<void>;
   find(id: string): Promise<AdminAuditEvent | null>;
   list(
     input: ListAuditEventsDto,
@@ -23,6 +27,17 @@ export class AdminAuditRepository implements IAdminAuditRepository {
     const repository = this.database.getRepository(AdminAuditEvent);
     await databaseWrite(() =>
       repository.save(repository.create(input), { reload: false }),
+    );
+  }
+
+  async appendInTransaction(
+    manager: EntityManager,
+    events: DeepPartial<AdminAuditEvent>[],
+  ): Promise<void> {
+    if (!events.length) return;
+    const repository = manager.getRepository(AdminAuditEvent);
+    await databaseWrite(() =>
+      repository.save(repository.create(events), { reload: false, chunk: 200 }),
     );
   }
 

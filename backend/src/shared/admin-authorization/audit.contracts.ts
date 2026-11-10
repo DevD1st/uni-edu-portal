@@ -1,6 +1,7 @@
-import { SetMetadata } from '@nestjs/common';
+import { applyDecorators, SetMetadata } from '@nestjs/common';
 import { Command } from '@nestjs/cqrs';
 import type { Request } from 'express';
+import type { EntityManager } from 'typeorm';
 import { validate as isUuid } from 'uuid';
 import type { AccountRequest } from '../auth/account-context.js';
 
@@ -76,13 +77,109 @@ export const ADMIN_AUDIT_ACTIONS = {
     category: 'academic',
     targetType: 'result_group',
   },
+  'result.marks.save': {
+    category: 'results',
+    targetType: 'student_registered_course',
+  },
+  'result.grade.award': {
+    category: 'results',
+    targetType: 'student_registered_course',
+  },
+  'result.grade.clear': {
+    category: 'results',
+    targetType: 'student_registered_course',
+  },
+  'result.submit': { category: 'results', targetType: 'result_group' },
+  'result.approve': { category: 'results', targetType: 'result_group' },
+  'result.request_corrections': {
+    category: 'results',
+    targetType: 'result_group',
+  },
+  'result.reopen': { category: 'results', targetType: 'result_group' },
 } as const;
 
 export type AuditAction = keyof typeof ADMIN_AUDIT_ACTIONS;
 export type AuditOutcome = 'succeeded' | 'failed' | 'denied';
 export const AUDIT_ACTION = Symbol('AUDIT_ACTION');
+export const TRANSACTIONAL_AUDIT_SUCCESS = Symbol(
+  'TRANSACTIONAL_AUDIT_SUCCESS',
+);
 export const AuditAdminMutation = (action: AuditAction) =>
   SetMetadata(AUDIT_ACTION, action);
+
+export const AuditTransactionalAdminMutation = (
+  action: TransactionalAuditEvent['action'],
+) =>
+  applyDecorators(
+    AuditAdminMutation(action),
+    SetMetadata(TRANSACTIONAL_AUDIT_SUCCESS, true),
+  );
+
+export interface AuditMarks {
+  caScore: number | null;
+  examScore: number | null;
+  awardedGradeSystemId: string | null;
+}
+
+export const RESULT_REOPEN_REASONS = [
+  'mark_correction',
+  'review_error',
+  'administrative_request',
+] as const;
+export type ResultReopenReason = (typeof RESULT_REOPEN_REASONS)[number];
+
+type AuditResultStatus =
+  | 'pending'
+  | 'submitted'
+  | 'approved'
+  | 'correction_requested';
+type AuditAssignment = {
+  lecturerId: string | null;
+  status: 'active' | 'inactive';
+};
+
+// Domain events accept only structured identifiers, scores and state changes.
+export type TransactionalAuditEvent = {
+  targetId: string;
+  metadata: {
+    offeringId: string;
+    departmentId: string;
+    resultGroupId?: string;
+  };
+} & (
+  | {
+      action: 'result.marks.save' | 'result.grade.award' | 'result.grade.clear';
+      changes: { before: AuditMarks; after: AuditMarks };
+    }
+  | {
+      action: 'result.submit' | 'result.approve' | 'result.request_corrections';
+      changes: { before: AuditResultStatus; after: AuditResultStatus };
+    }
+  | {
+      action: 'result.reopen';
+      changes: { before: 'submitted' | 'approved'; after: 'pending' };
+      reason: ResultReopenReason;
+    }
+  | {
+      action: 'registration.close_roster';
+      changes: { before: 'opened'; after: 'closed' };
+    }
+  | {
+      action: 'academic.offering.update';
+      changes: { before: AuditAssignment; after: AuditAssignment };
+    }
+);
+
+export class RecordTransactionalAdminAuditCommand extends Command<void> {
+  constructor(
+    readonly manager: EntityManager,
+    readonly actorUserId: string,
+    readonly actorAdminId: string,
+    readonly events: readonly TransactionalAuditEvent[],
+  ) {
+    super();
+  }
+}
 
 export interface AuditAttempt {
   action: AuditAction;
@@ -91,7 +188,6 @@ export interface AuditAttempt {
   targetId?: string;
   reason?: 'insufficient_privilege' | 'request_failed';
   status?: 'active' | 'suspended';
-  lecturerId?: string | null;
 }
 
 export class RecordAdminAuditCommand extends Command<void> {
@@ -109,14 +205,18 @@ export function auditAttempt(
   if (request.account?.role !== 'admin') return undefined;
   const data =
     response && typeof response === 'object'
-      ? (response as { id?: unknown; status?: unknown; lecturerId?: unknown })
+      ? (response as { id?: unknown; status?: unknown })
       : undefined;
   const candidates = [
     request.params.grantId,
     request.params.userId,
     request.params.roleId,
     data?.id,
-    action.startsWith('academic.') ? request.params.id : undefined,
+    action.startsWith('academic.') ||
+    (action.startsWith('result.') &&
+      ADMIN_AUDIT_ACTIONS[action].targetType === 'result_group')
+      ? request.params.id
+      : undefined,
     action.startsWith('user.') &&
     !request.params.userId &&
     action !== 'user.create_student'
@@ -137,11 +237,6 @@ export function auditAttempt(
     actorUserId: request.account.userId,
     targetId,
     status,
-    ...(action === 'academic.offering.update' &&
-    (data?.lecturerId === null ||
-      (typeof data?.lecturerId === 'string' && isUuid(data.lecturerId)))
-      ? { lecturerId: data.lecturerId }
-      : {}),
     reason:
       outcome === 'denied'
         ? 'insufficient_privilege'

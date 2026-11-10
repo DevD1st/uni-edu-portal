@@ -20,6 +20,8 @@ import { AcademicSetupController } from '../dist/modules/academic-reference/cont
 import { CourseSetupController } from '../dist/modules/course/controllers/course-setup.controller.js';
 import { DepartmentRegistrationController } from '../dist/modules/registration/controllers/department-registration.controller.js';
 import { LecturerRegistrationController } from '../dist/modules/registration/controllers/lecturer-registration.controller.js';
+import { LecturerResultsController } from '../dist/modules/results/controllers/lecturer-results.controller.js';
+import { DepartmentResultsController } from '../dist/modules/results/controllers/department-results.controller.js';
 
 test('a privilege can only use the department scope of the grant that supplied it', () => {
   const access = {
@@ -47,6 +49,8 @@ test('every account and admin mutation has a semantic audit action', () => {
     CourseSetupController,
     DepartmentRegistrationController,
     LecturerRegistrationController,
+    LecturerResultsController,
+    DepartmentResultsController,
   ]) {
     for (const method of Object.getOwnPropertyNames(controller.prototype)) {
       const handler = controller.prototype[method];

@@ -1,0 +1,122 @@
+import { HttpStatus, Injectable } from '@nestjs/common';
+import type { EntityManager } from 'typeorm';
+import { ApplicationError } from '#core/http/application-error.js';
+import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
+import { hasPrivilege } from '#shared/admin-authorization/privilege.js';
+import type { AdminAccess } from '#shared/admin-authorization/privilege.js';
+import { ResultGroup } from '../entity/result-groups.entity.js';
+
+type ReviewPrivilege = 'approve_result' | 'review_result' | 'reopen_result';
+type ResultScope = 'teaching' | 'grading' | 'department' | ReviewPrivilege;
+
+export interface ResultContext {
+  actor: AdminAccess;
+  group: ResultGroup;
+  offering: {
+    id: string;
+    departmentId: string;
+    lecturerId: string | null;
+    gradingPolicyId: string;
+  };
+}
+
+@Injectable()
+export class ResultAccessService {
+  constructor(private readonly authorization: AdminAuthorizationService) {}
+
+  async department(
+    actorId: string,
+    departmentId: string,
+    manager: EntityManager,
+  ): Promise<void> {
+    const access = await this.authorization.resolve(actorId, manager);
+    this.requireDepartmentReview(access, departmentId);
+  }
+
+  async load(
+    actorId: string,
+    groupId: string,
+    scope: ResultScope,
+    manager: EntityManager,
+    lock = false,
+  ): Promise<ResultContext> {
+    // Registration, reassignment and result changes all lock the offering before its group.
+    const [offering] = await manager.query<ResultContext['offering'][]>(
+      'SELECT o.id, o.department_id AS "departmentId", o.lecturer_id AS "lecturerId", o.grading_policy_id AS "gradingPolicyId" ' +
+        'FROM course_offerings o JOIN result_groups g ON g.course_offering_id = o.id WHERE g.id = $1' +
+        (lock ? ' FOR UPDATE OF o' : ''),
+      [groupId],
+    );
+    const group =
+      offering &&
+      (await manager.getRepository(ResultGroup).findOne({
+        where: { id: groupId },
+        lock: lock ? { mode: 'pessimistic_write' } : undefined,
+      }));
+    if (!offering || !group)
+      throw new ApplicationError(
+        HttpStatus.NOT_FOUND,
+        'The result group could not be found.',
+      );
+
+    // Use the same connection for the group and its grants, including for read snapshots.
+    const departmentId = offering.departmentId;
+    let actor: AdminAccess;
+    if (scope === 'teaching' || scope === 'grading') {
+      actor = await this.authorization.require(
+        actorId,
+        'teach_course',
+        departmentId,
+        manager,
+      );
+      if (
+        offering.lecturerId !== actor.adminId ||
+        group.lecturerId !== actor.adminId
+      )
+        throw new ApplicationError(
+          HttpStatus.FORBIDDEN,
+          'Only the assigned lecturer can access this teaching roster.',
+        );
+      if (
+        scope === 'grading' &&
+        !hasPrivilege(actor, 'grade_result', departmentId)
+      )
+        throw new ApplicationError(
+          HttpStatus.FORBIDDEN,
+          'You do not have permission to grade results in this department.',
+        );
+    } else if (scope === 'department') {
+      actor = await this.authorization.resolve(actorId, manager);
+      this.requireDepartmentReview(actor, departmentId);
+      if (!group.submittedAt)
+        throw new ApplicationError(
+          HttpStatus.NOT_FOUND,
+          'The result group has not been submitted for departmental review.',
+        );
+    } else {
+      actor = await this.authorization.require(
+        actorId,
+        scope,
+        departmentId,
+        manager,
+      );
+    }
+    return { actor, group, offering };
+  }
+
+  private requireDepartmentReview(
+    access: AdminAccess,
+    departmentId: string,
+  ): void {
+    if (
+      !hasPrivilege(access, 'review_result', departmentId) &&
+      !hasPrivilege(access, 'approve_result', departmentId) &&
+      !hasPrivilege(access, 'reopen_result', departmentId)
+    ) {
+      throw new ApplicationError(
+        HttpStatus.FORBIDDEN,
+        'You do not have permission to review results in this department.',
+      );
+    }
+  }
+}
