@@ -5,6 +5,7 @@
 - Keep the Next.js student portal in `apps/student` and the React/Vite staff portal in `apps/admin`. Run workspace commands from `frontend/` with the pinned pnpm version. Keep one frontend lockfile and pin direct dependencies.
 - Shared code lives in `packages/*` and uses the `@uemp/*` scope with `workspace:*`. Applications may import public package exports. Packages never import apps or route implementations. Avoid dependencies between app internals.
 - Keep route composition, feature copy, API endpoint adapters, authorization, and product workflows inside the owning app. Group new product modules under `src/features/<domain>`. Extract shared behavior when both apps can use the same contract.
+- Keep student route files focused on loading data and composing the page. Put domain UI in the feature’s `components/` directory and server-only data access in its `server/` directory. Share student-specific presentation inside the portal feature.
 - Keep TypeScript strict. Treat API payloads, URL parameters, storage, and environment variables as untrusted. Use explicit types and validation at boundaries. Keep generated OpenAPI types in `packages/api-contracts` and regenerate them from the backend contract after endpoint changes.
 
 ## Design and accessibility

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { studentAccount } from "../../features/auth/server/session";
 import { accountName } from "../../features/portal/server/student-profile";
-import { StudentShell } from "../../features/portal/student-shell";
+import { StudentShell } from "../../features/portal/components/student-shell";
 
 export const dynamic = "force-dynamic";
 

@@ -131,6 +131,12 @@ async function cookieId() {
   return value && idPattern.test(value) ? value : null;
 }
 
+export async function studentApi() {
+  const id = await cookieId();
+  if (!id) throw sessionEnded();
+  return authenticated(id);
+}
+
 export const studentAccount = cache(async () => {
   const id = await cookieId();
   if (!id) return null;
@@ -205,16 +211,23 @@ export function verifyMutationOrigin(request: Request) {
     throw new ApiError("Open the student portal to continue.", 403);
 }
 
-export function safeAuthError(error: unknown) {
+export function safeAuthError(
+  error: unknown,
+  fallback = "Sign-in is temporarily unavailable. Try again.",
+) {
   const statusCode =
     error instanceof ApiError && error.status >= 400 ? error.status : 503;
-  const message =
-    error instanceof ApiError
-      ? error.message
-      : "Sign-in is temporarily unavailable. Try again.";
+  const message = error instanceof ApiError ? error.message : fallback;
   const requestId = error instanceof ApiError ? error.requestId : undefined;
   return Response.json(
-    { statusCode, message, ...(requestId ? { requestId } : {}) },
+    {
+      statusCode,
+      message,
+      ...(error instanceof ApiError && error.details.length
+        ? { errors: error.details }
+        : {}),
+      ...(requestId ? { requestId } : {}),
+    },
     {
       status: statusCode,
       headers: { "cache-control": "no-store" },

@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { apiOrigin, demoAdminHeaders, demoSemester } from "./support/demo-api";
 
 const studentOrigin = "http://localhost:3001";
 const adminOrigin = "http://localhost:3002";
@@ -15,6 +18,7 @@ async function signIn(page: Page, account: string) {
 }
 
 async function verifyLayout(page: Page) {
+  const original = page.viewportSize();
   for (const width of widths) {
     await page.setViewportSize({ width, height: 900 });
     await expect
@@ -27,6 +31,7 @@ async function verifyLayout(page: Page) {
       return loaded.some((face) => face.status === "loaded");
     }),
   ).toBe(true);
+  if (original) await page.setViewportSize(original);
 }
 
 async function verifyA11y(page: Page) {
@@ -148,4 +153,261 @@ test("HOD review scope and university-wide staff permissions stay separate", asy
   await page.getByLabel("Color theme").selectOption("dark");
   await verifyLayout(page);
   await verifyA11y(page);
+});
+
+async function mobileNavigate(page: Page, label: string) {
+  await page.getByRole("button", { name: "Open navigation" }).tap();
+  await page
+    .getByRole("dialog", { name: "Navigation" })
+    .getByRole("link", { name: label, exact: true })
+    .tap();
+}
+
+test.describe("student workflows on a phone", () => {
+  test.use({
+    viewport: { width: 320, height: 780 },
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 2,
+  });
+
+  test("a new student can sign up, edit their profile, and register from a phone", async ({
+    page,
+    context,
+    request,
+  }) => {
+    const email = "browser-" + randomUUID() + "@example.test";
+    const signupPassword = "Demo signup password 42";
+    await page.goto(studentOrigin + "/sign-up");
+    await verifyLayout(page);
+    await verifyA11y(page);
+    await page.getByLabel("First name").fill("Ada");
+    await page.getByLabel("Last name").fill("Student");
+    await page.getByLabel("Email address").fill(email);
+    await page.getByLabel("Password", { exact: true }).fill(signupPassword);
+    const confirmation = page.getByLabel("Confirm password");
+    await confirmation.fill("Different demo password");
+    await page
+      .getByLabel("Faculty", { exact: true })
+      .selectOption({ label: "Demo Faculty of Science" });
+    await page
+      .getByLabel("Department", { exact: true })
+      .selectOption({ label: "Demo Computing" });
+    await page
+      .getByLabel("Programme", { exact: true })
+      .selectOption({ label: "Demo Computer Science" });
+    await page.getByLabel("Academic level", { exact: true }).selectOption({ index: 1 });
+    await page.getByRole("button", { name: "Create account" }).tap();
+    await expect(confirmation).toBeFocused();
+    await expect(confirmation).toHaveAccessibleDescription(
+      "Enter the same password in both fields.",
+    );
+    await confirmation.fill(signupPassword);
+    await page.getByRole("button", { name: "Create account" }).tap();
+    await expect(page).toHaveURL(/\/sign-in\?created=1$/);
+    await page.getByLabel("Email address").fill(email);
+    await page.getByLabel("Password", { exact: true }).fill(signupPassword);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Welcome, Ada" })).toBeVisible();
+
+    await mobileNavigate(page, "My profile");
+    await page.getByLabel("First name").fill("Amaka");
+    await page.getByRole("button", { name: "Save profile" }).click();
+    await expect(page.getByText("Your profile was updated.")).toBeVisible();
+    await page.reload();
+    await expect(page.getByLabel("First name")).toHaveValue("Amaka");
+    await expect(page.getByText("Demo Computer Science")).toBeVisible();
+
+    const semester = await demoSemester(request);
+    await semester.setLimit(2);
+    try {
+      await mobileNavigate(page, "Course registration");
+      const review = page.getByRole("button", { name: "Review selection" });
+      await expect(review).toBeDisabled();
+      await expect(
+        page.getByRole("checkbox", { name: /DEMO101|DEMO102|DEMO105|DEMO106/ }),
+      ).toHaveCount(0);
+      const discrete = page.getByRole("checkbox", { name: /DEMO103/ });
+      const data = page.getByRole("checkbox", { name: /DEMO104.*Data and Society/ });
+      await discrete.check();
+      await data.check();
+      await expect(review).toBeDisabled();
+      await expect(
+        page.getByText("Remove at least 2 credit units to stay within your limit."),
+      ).toBeVisible();
+      await discrete.uncheck();
+      await expect(page.getByText("1 selected · 2 credit units")).toBeVisible();
+      await review.tap();
+      const dialog = page.getByRole("dialog", { name: "Confirm course registration" });
+      await expect(dialog.getByText("2 of 2 credit units")).toBeVisible();
+      await verifyA11y(page);
+
+      await semester.setLimit(1);
+      await dialog.getByRole("button", { name: "Register courses" }).tap();
+      await expect(
+        page.getByRole("region", { name: "Available courses" }).getByRole("alert"),
+      ).toContainText("exceeds the semester limit");
+      await expect(
+        page.getByText("Remove at least 1 credit unit to stay within your limit."),
+      ).toBeVisible();
+      await expect(review).toBeDisabled();
+      await semester.setLimit(2);
+      await page.reload();
+      await data.check();
+      await review.tap();
+      const submission = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url() === studentOrigin + "/api/student/registrations",
+      );
+      await dialog.getByRole("button", { name: "Register courses" }).click();
+      await expect(
+        page.getByRole("heading", { name: "Registration summary" }),
+      ).toBeVisible();
+      await expect(page.getByText("Your courses were registered.")).toBeVisible();
+      await expect(page.getByRole("row", { name: /DEMO104/ })).toHaveCount(1);
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+        .toBeLessThanOrEqual(320);
+
+      const file = page.waitForEvent("download");
+      await page.getByRole("button", { name: "Download registration summary" }).click();
+      const summary = await file;
+      expect(summary.suggestedFilename()).toBe("course-registration.txt");
+      expect(await readFile(await summary.path(), "utf8")).toContain("Total units: 2");
+
+      const registration = (await submission).postDataJSON();
+      const denied = await context.request.post(
+        studentOrigin + "/api/student/registrations",
+        {
+          headers: { Origin: adminOrigin },
+          data: registration,
+        },
+      );
+      expect(denied.status()).toBe(403);
+      const duplicate = await context.request.post(
+        studentOrigin + "/api/student/registrations",
+        {
+          headers: { Origin: studentOrigin },
+          data: registration,
+        },
+      );
+      expect(duplicate.status()).toBe(409);
+      await page.getByRole("link", { name: "Back to course registration" }).click();
+      await expect(page.getByRole("checkbox", { name: /DEMO104/ })).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("region", { name: "Registration history" })
+          .getByText("2 credit units"),
+      ).toBeVisible();
+
+      await mobileNavigate(page, "Results");
+      await page
+        .getByRole("region", { name: "Result statements" })
+        .getByRole("link", { name: /First Semester/ })
+        .tap();
+      await expect(
+        page.getByText("No grades have been published for this semester"),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("definition").filter({ hasText: "Unavailable" }),
+      ).toHaveCount(2);
+    } finally {
+      await semester.setLimit(semester.maxUnits);
+    }
+  });
+
+  test("student results show and download only the signed-in student's published grades", async ({
+    page,
+    request,
+  }) => {
+    await page.goto(studentOrigin + "/results");
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await signIn(page, "student-maya");
+    await mobileNavigate(page, "Results");
+    await expect(
+      page.getByRole("region", { name: "Cumulative GPA" }).getByText("4.00"),
+    ).toBeVisible();
+    await page
+      .getByRole("region", { name: "Result statements" })
+      .getByRole("link", { name: /First Semester/ })
+      .click();
+    await expect(page.getByRole("heading", { name: "Result statement" })).toBeVisible();
+    const grades = page.getByRole("region", { name: "Published grades" });
+    await expect(grades.getByRole("heading", { name: /DEMO105/ })).toBeVisible();
+    await expect(grades.getByText("Grade B", { exact: true })).toBeVisible();
+    await expect(grades.getByText("65.00", { exact: true })).toBeVisible();
+    await expect(grades.getByText("DEMO106")).toHaveCount(0);
+    await verifyLayout(page);
+    await page.setViewportSize({ width: 768, height: 840 });
+    await expect(
+      page
+        .getByRole("table", { name: "Published grades" })
+        .getByRole("row", { name: /DEMO105.*65\.00.*B/ }),
+    ).toBeVisible();
+    await page.getByLabel("Color theme").selectOption("dark");
+    await page.setViewportSize({ width: 390, height: 840 });
+    await verifyA11y(page);
+    const file = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Download result statement" }).click();
+    const statement = await file;
+    expect(statement.suggestedFilename()).toBe("result-statement.txt");
+    const contents = await readFile(await statement.path(), "utf8");
+    expect(contents).toContain("DEMO105");
+    expect(contents).toContain("CGPA: 4.00");
+    expect(contents).not.toContain("DEMO106");
+
+    const semester = new URL(page.url()).pathname.split("/").at(-1);
+    const denied = await request.get(
+      studentOrigin + "/api/student/results/" + semester + "/download",
+    );
+    expect(denied.status()).toBe(401);
+
+    const headers = await demoAdminHeaders(request, "hod");
+    const access = await request.get(apiOrigin + "/v1/admin/admins/me/authorization", {
+      headers,
+    });
+    expect(access.status()).toBe(200);
+    const departmentId = (await access.json()).grants.find(
+      (grant: { systemKey: string }) => grant.systemKey === "hod",
+    )?.departmentId;
+    const queue = await request.get(apiOrigin + "/v1/admin/results", {
+      headers,
+      params: { departmentId },
+    });
+    expect(queue.status()).toBe(200);
+    const groupId = (await queue.json()).items.find(
+      (group: { code: string }) => group.code === "DEMO106",
+    )?.id;
+    if (!groupId)
+      throw new Error("DEMO106 must be awaiting review in the disposable demo.");
+    const resultPath = apiOrigin + "/v1/admin/results/" + groupId;
+    const approval = await request.post(resultPath + "/approve", { headers, data: {} });
+    expect(approval.status()).toBe(200);
+    try {
+      await page.reload();
+      await expect(grades.getByRole("heading", { name: /DEMO106/ })).toBeVisible();
+      await expect(
+        page.getByRole("definition").filter({ hasText: "4.40" }),
+      ).toHaveCount(2);
+    } finally {
+      const reopen = await request.post(resultPath + "/reopen", {
+        headers,
+        data: { reason: "mark_correction" },
+      });
+      expect(reopen.status()).toBe(200);
+      const lecturer = await demoAdminHeaders(request, "lecturer");
+      const submission = await request.post(
+        apiOrigin + "/v1/lecturer/results/" + groupId + "/submit",
+        { headers: lecturer, data: {} },
+      );
+      expect(submission.status()).toBe(200);
+    }
+    await page.reload();
+    await expect(grades.getByRole("heading", { name: /DEMO105/ })).toBeVisible();
+    await expect(grades.getByRole("heading", { name: /DEMO106/ })).toHaveCount(0);
+    await expect(page.getByRole("definition").filter({ hasText: "4.00" })).toHaveCount(
+      2,
+    );
+  });
 });

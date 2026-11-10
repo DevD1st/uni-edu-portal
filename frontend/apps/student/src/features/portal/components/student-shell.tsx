@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, LogOut, UserRound } from "lucide-react";
+import {
+  BookOpen,
+  ClipboardList,
+  GraduationCap,
+  LogOut,
+  UserRound,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Banner, Button, PortalShell } from "@uemp/ui";
 
@@ -46,6 +52,18 @@ export function StudentShell({
               active: path === "/overview",
             },
             {
+              href: "/registration",
+              label: "Course registration",
+              icon: ClipboardList,
+              active: path === "/registration" || path.startsWith("/registration/"),
+            },
+            {
+              href: "/results",
+              label: "Results",
+              icon: GraduationCap,
+              active: path === "/results" || path.startsWith("/results/"),
+            },
+            {
               href: "/account",
               label: "My profile",
               icon: UserRound,
@@ -57,6 +75,7 @@ export function StudentShell({
       link={({ href, className, active, onNavigate, children: label }) => (
         <Link
           href={href}
+          prefetch={false}
           className={className}
           aria-current={active ? "page" : undefined}
           {...(onNavigate ? { onNavigate } : {})}

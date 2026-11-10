@@ -2,3 +2,68 @@
 @import "@uemp/theme";
 @import "@uemp/ui/styles.css";
 @source "../../../../packages/ui/src";
+
+.student-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uemp-space-4) var(--uemp-space-8);
+}
+
+.student-metrics dt {
+  color: var(--uemp-muted);
+  font-size: var(--uemp-text-sm);
+}
+
+.student-metrics dd {
+  font-size: 1.5rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-course-list,
+.student-record-list {
+  border-block-start: 1px solid var(--uemp-line);
+  overflow-wrap: anywhere;
+}
+
+.student-course-list > li,
+.student-record-list > li {
+  border-block-end: 1px solid var(--uemp-line);
+  padding-block: var(--uemp-space-2);
+}
+
+.student-record-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--uemp-space-1) var(--uemp-space-4);
+  min-block-size: var(--uemp-touch);
+  align-items: center;
+}
+
+.student-grade-list > li {
+  border-block-start: 1px solid var(--uemp-line);
+  padding-block: var(--uemp-space-3);
+}
+
+.student-grade-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--uemp-space-2);
+  overflow-wrap: anywhere;
+}
+
+.student-grade-marks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--uemp-space-2);
+  margin-block-start: var(--uemp-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.student-grade-marks dt {
+  color: var(--uemp-muted);
+  font-size: var(--uemp-text-sm);
+}

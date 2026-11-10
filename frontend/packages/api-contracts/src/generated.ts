@@ -95,6 +95,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/signup/student": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_signUp_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/lecturer/offerings": {
         parameters: {
             query?: never;
@@ -103,6 +119,118 @@ export interface paths {
             cookie?: never;
         };
         get: operations["LecturerRegistrationController_offerings_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentRegistrationController_terms_v1"];
+        put?: never;
+        post: operations["StudentRegistrationController_register_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/registrations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentRegistrationController_summary_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/registrations/{id}/summary/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentRegistrationController_download_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/registrations/available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentRegistrationController_available_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentResultsController_history_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/results/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentResultsController_statement_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/student/results/{id}/statement/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StudentResultsController_download_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -124,7 +252,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["UsersController_update_v1"];
         trace?: never;
     };
 }
@@ -276,6 +404,114 @@ export interface components {
              */
             grants: components["schemas"]["AdminAuthorizationGrantResponseDto"][];
         };
+        AvailableCourseDto: {
+            /**
+             * @description Canonical course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * @description Title of the course.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Department-owned delivery of the course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        AvailableCoursesResponseDto: {
+            /**
+             * @description Eligible courses with open rosters.
+             * @example [
+             *       {
+             *         "offeringId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "units": 3
+             *       }
+             *     ]
+             */
+            courses: components["schemas"]["AvailableCourseDto"][];
+            /**
+             * @description Maximum total credit units a student can register in the semester.
+             * @example 24
+             */
+            maxUnits: number;
+            /**
+             * @description Credit units already registered in this semester.
+             * @example 0
+             */
+            registeredUnits: number;
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+        };
+        CreateStudentDto: {
+            /**
+             * Format: uuid
+             * @description Student’s current academic level.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicLevelId?: string | null;
+            /**
+             * Format: uuid
+             * @description Student’s programme of study.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseOfStudyId?: string | null;
+            /**
+             * Format: uuid
+             * @description Student’s department. It can be inferred from the programme.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId?: string | null;
+            /**
+             * Format: email
+             * @description Email used to sign in.
+             * @example ada.okafor@example.test
+             */
+            email: string;
+            /**
+             * Format: uuid
+             * @description Student’s faculty. It can be inferred from the department.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            facultyId?: string | null;
+            /**
+             * @description Given name, if provided.
+             * @example Ada
+             */
+            firstName?: string | null;
+            /**
+             * @description Family name, if provided.
+             * @example Okafor
+             */
+            lastName?: string | null;
+            /**
+             * Format: password
+             * @description Password used to sign in.
+             * @example Example-only-password!
+             */
+            password: string;
+        };
         DepartmentResponseDto: {
             /**
              * Format: uuid
@@ -339,6 +575,18 @@ export interface components {
              */
             name: string;
         };
+        ProfileDto: {
+            /**
+             * @description Given name, if provided.
+             * @example Ada
+             */
+            firstName?: string | null;
+            /**
+             * @description Family name, if provided.
+             * @example Okafor
+             */
+            lastName?: string | null;
+        };
         ProgrammeResponseDto: {
             /**
              * Format: uuid
@@ -364,12 +612,270 @@ export interface components {
              */
             programType: "undergrad" | "postgrad" | "masters" | "doctorate";
         };
+        PublishedCourseResultDto: {
+            /**
+             * Format: date-time
+             * @description Time of the approval that published this result.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            approvedAt: string;
+            /**
+             * @description Continuous assessment mark.
+             * @example 24.5
+             */
+            caScore: number;
+            /**
+             * @description University catalog course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * @description Examination mark.
+             * @example 49.25
+             */
+            examScore: number;
+            /**
+             * @description Letter grade on the offering’s grading scale.
+             * @example A
+             * @enum {string}
+             */
+            grade: "A" | "B" | "C" | "D" | "E" | "F";
+            /**
+             * @description Grade points per credit unit.
+             * @example 5
+             */
+            gradePoint: number;
+            /**
+             * Format: uuid
+             * @description Published course enrollment ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Course title.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * @description Combined CA and examination mark.
+             * @example 73.75
+             */
+            totalScore: number;
+            /**
+             * @description Credit units recorded at registration.
+             * @example 3
+             */
+            units: number;
+        };
         RefreshDto: {
             /**
              * @description Refresh token from the current session.
              * @example eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.example-signature
              */
             refreshToken: string;
+        };
+        RegisteredCourseDto: {
+            /**
+             * @description Canonical course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Title of the course.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Department-owned delivery of the course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * Format: uuid
+             * @description Roster created for the offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            resultGroupId: string;
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        RegisteredTermDto: {
+            /**
+             * @description Academic level saved in the semester record.
+             * @example 100 Level
+             */
+            academicLevel: string;
+            /**
+             * @description Academic session label.
+             * @example 2026/2027
+             */
+            academicSession: string;
+            /**
+             * @description Department saved in the semester record.
+             * @example Computing
+             */
+            department: string;
+            /**
+             * @description Faculty saved in the semester record.
+             * @example Faculty of Science
+             */
+            faculty: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Programme saved in the semester record.
+             * @example BSc Computer Science
+             */
+            programme: string;
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Name of the semester.
+             * @example First Semester
+             */
+            semesterName: string;
+            /**
+             * @description Total credit units registered in this term.
+             * @example 3
+             */
+            totalUnits: number;
+        };
+        RegisteredTermsResponseDto: {
+            /**
+             * @description Semesters in which the student has a saved registration.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "semesterId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "semesterName": "First Semester",
+             *         "academicSession": "2026/2027",
+             *         "faculty": "Faculty of Science",
+             *         "department": "Computing",
+             *         "programme": "BSc Computer Science",
+             *         "academicLevel": "100 Level",
+             *         "totalUnits": 3
+             *       }
+             *     ]
+             */
+            terms: components["schemas"]["RegisteredTermDto"][];
+        };
+        RegistrationSummaryResponseDto: {
+            /**
+             * @description Academic level saved in the semester record.
+             * @example 100 Level
+             */
+            academicLevel: string;
+            /**
+             * @description Academic session label.
+             * @example 2026/2027
+             */
+            academicSession: string;
+            /**
+             * @description The student’s confirmed courses.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "offeringId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "units": 3,
+             *         "resultGroupId": "0191e192-67ad-746b-9acb-c850234b408a"
+             *       }
+             *     ]
+             */
+            courses: components["schemas"]["RegisteredCourseDto"][];
+            /**
+             * @description Department saved in the semester record.
+             * @example Computing
+             */
+            department: string;
+            /**
+             * @description Faculty saved in the semester record.
+             * @example Faculty of Science
+             */
+            faculty: string;
+            /**
+             * @description Student’s given name, if available.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Student’s family name, if available.
+             * @example Okafor
+             */
+            lastName: string | null;
+            /**
+             * @description The student’s issued matriculation number, if available.
+             * @example 26/1/2/3/42
+             */
+            matricNumber: string | null;
+            /**
+             * @description Programme saved in the semester record.
+             * @example BSc Computer Science
+             */
+            programme: string;
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Name of the semester.
+             * @example First Semester
+             */
+            semesterName: string;
+            /**
+             * @description Total credit units registered in this term.
+             * @example 3
+             */
+            totalUnits: number;
+        };
+        RegistrationWriteDto: {
+            /**
+             * @description Unique offering IDs selected for this semester.
+             * @example [
+             *       "0191e192-67ad-746b-9acb-c850234b408a"
+             *     ]
+             */
+            offeringIds: string[];
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
         };
         ResultGroupPageDto: {
             /**
@@ -587,6 +1093,166 @@ export interface components {
              * @example 26/1/2/3/42
              */
             matricNumber: string | null;
+        };
+        StudentResultHistoryDto: {
+            /**
+             * @description Credit-weighted GPA across all currently approved terms, or null without approved units.
+             * @example 4.5
+             */
+            cgpa: number | null;
+            /**
+             * @description Terms in the student’s academic history.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "semesterId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "semesterName": "First Semester",
+             *         "academicSession": "2026/2027",
+             *         "department": "Computing",
+             *         "programme": "BSc Computer Science",
+             *         "academicLevel": "100 Level",
+             *         "approvedUnits": 3,
+             *         "gpa": 5
+             *       }
+             *     ]
+             */
+            terms: components["schemas"]["StudentResultTermDto"][];
+        };
+        StudentResultStatementDto: {
+            /**
+             * @description Academic level saved on the semester record.
+             * @example 100 Level
+             */
+            academicLevel: string;
+            /**
+             * @description Academic session label.
+             * @example 2026/2027
+             */
+            academicSession: string;
+            /**
+             * @description Credit units of all currently approved courses in the semester.
+             * @example 3
+             */
+            approvedUnits: number;
+            /**
+             * @description Credit-weighted GPA across all currently approved terms, or null without approved units.
+             * @example 4.5
+             */
+            cgpa: number | null;
+            /**
+             * @description Currently approved results belonging to this student and semester.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "units": 3,
+             *         "caScore": 24.5,
+             *         "examScore": 49.25,
+             *         "totalScore": 73.75,
+             *         "grade": "A",
+             *         "gradePoint": 5,
+             *         "approvedAt": "2026-11-10T10:30:00.000Z"
+             *       }
+             *     ]
+             */
+            courses: components["schemas"]["PublishedCourseResultDto"][];
+            /**
+             * @description Department saved on the semester record.
+             * @example Computing
+             */
+            department: string;
+            /**
+             * @description Student’s given name, when available.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * @description Semester GPA, or null when no approved units exist.
+             * @example 5
+             */
+            gpa: number | null;
+            /**
+             * Format: uuid
+             * @description Student’s saved semester record ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Student’s family name, when available.
+             * @example Okafor
+             */
+            lastName: string | null;
+            /**
+             * @description Student’s matriculation number, when available.
+             * @example 26/1/2/3/42
+             */
+            matricNumber: string | null;
+            /**
+             * @description Programme saved on the semester record.
+             * @example BSc Computer Science
+             */
+            programme: string;
+            /**
+             * Format: uuid
+             * @description Academic semester ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Name of the semester.
+             * @example First Semester
+             */
+            semesterName: string;
+        };
+        StudentResultTermDto: {
+            /**
+             * @description Academic level saved on the semester record.
+             * @example 100 Level
+             */
+            academicLevel: string;
+            /**
+             * @description Academic session label.
+             * @example 2026/2027
+             */
+            academicSession: string;
+            /**
+             * @description Credit units of all currently approved courses in the semester.
+             * @example 3
+             */
+            approvedUnits: number;
+            /**
+             * @description Department saved on the semester record.
+             * @example Computing
+             */
+            department: string;
+            /**
+             * @description Semester GPA, or null when no approved units exist.
+             * @example 5
+             */
+            gpa: number | null;
+            /**
+             * Format: uuid
+             * @description Student’s saved semester record ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Programme saved on the semester record.
+             * @example BSc Computer Science
+             */
+            programme: string;
+            /**
+             * Format: uuid
+             * @description Academic semester ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Name of the semester.
+             * @example First Semester
+             */
+            semesterName: string;
         };
         TeachingOfferingDto: {
             /**
@@ -917,6 +1583,38 @@ export interface operations {
             };
         };
     };
+    AuthController_signUp_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStudentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
     LecturerRegistrationController_offerings_v1: {
         parameters: {
             query?: never;
@@ -945,6 +1643,249 @@ export interface operations {
             };
         };
     };
+    StudentRegistrationController_terms_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisteredTermsResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentRegistrationController_register_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationSummaryResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentRegistrationController_summary_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationSummaryResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentRegistrationController_download_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentRegistrationController_available_v1: {
+        parameters: {
+            query?: {
+                /** @description Semester used for course registration. */
+                semesterId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailableCoursesResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentResultsController_history_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResultHistoryDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentResultsController_statement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResultStatementDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    StudentResultsController_download_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
     UsersController_me_v1: {
         parameters: {
             query?: never;
@@ -953,6 +1894,38 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    UsersController_update_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {

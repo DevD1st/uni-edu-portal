@@ -2,14 +2,22 @@ import { readFile, writeFile } from "node:fs/promises";
 import openapiTS, { astToString } from "openapi-typescript";
 
 const operations = {
+  "/v1/auth/signup/student": ["post"],
   "/v1/auth/sign-in": ["post"],
   "/v1/auth/refresh": ["post"],
   "/v1/auth/sign-out": ["post"],
-  "/v1/users/me": ["get"],
+  "/v1/users/me": ["get", "patch"],
   "/v1/admin/admins/me/authorization": ["get"],
   "/v1/academic-references": ["get"],
   "/v1/lecturer/offerings": ["get"],
   "/v1/admin/results": ["get"],
+  "/v1/student/registrations": ["get", "post"],
+  "/v1/student/registrations/available": ["get"],
+  "/v1/student/registrations/{id}": ["get"],
+  "/v1/student/registrations/{id}/summary/download": ["get"],
+  "/v1/student/results": ["get"],
+  "/v1/student/results/{id}": ["get"],
+  "/v1/student/results/{id}/statement/download": ["get"],
 };
 
 async function loadContract() {
@@ -58,7 +66,7 @@ for (const [path, methods] of Object.entries(operations)) {
   );
 }
 
-// Keep this package focused on the routes the foundation actually uses.
+// Include the schemas referenced by the routes used in the portals.
 function includeSchema(name) {
   if (Object.hasOwn(schemas, name)) return;
   const schema = source.components?.schemas?.[name];
