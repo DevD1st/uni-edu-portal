@@ -40,12 +40,7 @@ export class AdminManagementService {
   }
 
   async createAdmin(actorUserId: string, input: CreateAdminDto) {
-    const departmentId = input.departmentId ?? null;
-    if (departmentId && !input.roleId)
-      throw new ApplicationError(
-        HttpStatus.BAD_REQUEST,
-        'A department requires a role assignment',
-      );
+    const departmentId = input.departmentId?.toLowerCase() ?? null;
     const email = input.email.trim().toLowerCase();
     if (email.endsWith('@redacted.invalid'))
       throw new ApplicationError(
@@ -60,6 +55,29 @@ export class AdminManagementService {
         departmentId,
         manager,
       );
+      const hodProvision =
+        departmentId !== null &&
+        actor.grants.some(
+          (grant) =>
+            grant.systemKey === 'hod' &&
+            grant.departmentId === departmentId &&
+            grant.privileges.includes('create_admin') &&
+            grant.privileges.includes('manage_department'),
+        );
+      const roleId =
+        input.roleId ??
+        (hodProvision
+          ? (
+              await manager
+                .getRepository(Role)
+                .findOneByOrFail({ systemKey: 'lecturer' })
+            ).id
+          : undefined);
+      if (departmentId && !roleId)
+        throw new ApplicationError(
+          HttpStatus.BAD_REQUEST,
+          'Choose a role to create an administrator in this department.',
+        );
       const users = manager.getRepository<User>('User');
       const user = await users.save(
         users.create({
@@ -74,11 +92,17 @@ export class AdminManagementService {
       const admin = await admins.save(
         admins.create({ userId: user.id, createdByAdminId: actor.adminId }),
       );
-      const grant = input.roleId
-        ? await this.writeGrant(manager, actorUserId, admin.id, {
-            roleId: input.roleId,
-            departmentId,
-          })
+      const grant = roleId
+        ? await this.writeGrant(
+            manager,
+            actorUserId,
+            admin.id,
+            {
+              roleId,
+              departmentId,
+            },
+            hodProvision ? actor : undefined,
+          )
         : undefined;
       return { id: admin.id, userId: user.id, grant };
     });
@@ -375,21 +399,28 @@ export class AdminManagementService {
     actorUserId: string,
     adminId: string,
     input: AssignAdminRoleDto,
+    initialHod?: AdminAccess,
   ) {
     const departmentId = input.departmentId ?? null;
-    const actor = await this.authorization.require(
-      actorUserId,
-      'manage_admin_roles',
-      departmentId,
-      manager,
-    );
     const role = await manager.getRepository(Role).findOne({
       where: { id: input.roleId },
       lock: { mode: 'pessimistic_read' },
     });
+    // Only account creation can use the HOD exception for this one seeded role.
+    const lecturerProvision =
+      role?.systemKey === 'lecturer' ? initialHod : undefined;
+    const actor =
+      lecturerProvision ??
+      (await this.authorization.require(
+        actorUserId,
+        'manage_admin_roles',
+        departmentId,
+        manager,
+      ));
     if (!role)
       throw new ApplicationError(HttpStatus.NOT_FOUND, 'Role was not found');
-    requireDelegable(actor, role.privileges as Privilege[], departmentId);
+    if (!lecturerProvision)
+      requireDelegable(actor, role.privileges as Privilege[], departmentId);
     if (
       role.systemKey === 'super_admin' &&
       (departmentId !== null || !hasGlobalSuperAdmin(actor))

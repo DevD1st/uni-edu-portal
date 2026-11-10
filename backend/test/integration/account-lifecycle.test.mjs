@@ -4,6 +4,7 @@ import test from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { v7 as uuidv7 } from 'uuid';
+import { verifyCourseRegistration } from './course-registration-fixture.mjs';
 
 const enabled = process.env.UEMP_RUN_INTEGRATION === '1';
 
@@ -479,6 +480,15 @@ test(
         staffToken,
       );
       await request('GET', '/v1/admin/users', 403, undefined, delegateToken);
+      await verifyCourseRegistration({
+        request,
+        url,
+        staffToken,
+        password,
+        suffix,
+        level,
+        database,
+      });
     } finally {
       if (app) await app.close();
       if (database.isInitialized) await database.destroy();
@@ -513,7 +523,13 @@ async function checkOpenApi(url) {
         /^2/.test(status),
       );
       assert.ok(success, label);
-      if (success !== '204') {
+      if (path.endsWith('/summary/download')) {
+        assert.equal(
+          operation.responses[success].content['text/plain'].schema.type,
+          'string',
+          label,
+        );
+      } else if (success !== '204') {
         assert.ok(
           operation.responses[success].content['application/json'].schema.$ref,
           label,

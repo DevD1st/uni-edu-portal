@@ -18,6 +18,64 @@ export const ADMIN_AUDIT_ACTIONS = {
   'role.create': { category: 'access', targetType: 'role' },
   'role.update': { category: 'access', targetType: 'role' },
   'role.delete': { category: 'access', targetType: 'role' },
+  'academic.faculty.create': { category: 'academic', targetType: 'faculty' },
+  'academic.faculty.update': { category: 'academic', targetType: 'faculty' },
+  'academic.faculty.current_semester': {
+    category: 'academic',
+    targetType: 'faculty',
+  },
+  'academic.department.create': {
+    category: 'academic',
+    targetType: 'department',
+  },
+  'academic.department.update': {
+    category: 'academic',
+    targetType: 'department',
+  },
+  'academic.programme.create': {
+    category: 'academic',
+    targetType: 'programme',
+  },
+  'academic.programme.update': {
+    category: 'academic',
+    targetType: 'programme',
+  },
+  'academic.session.create': {
+    category: 'academic',
+    targetType: 'academic_session',
+  },
+  'academic.session.update': {
+    category: 'academic',
+    targetType: 'academic_session',
+  },
+  'academic.semester.create': { category: 'academic', targetType: 'semester' },
+  'academic.semester.update': { category: 'academic', targetType: 'semester' },
+  'academic.course.create': { category: 'academic', targetType: 'course' },
+  'academic.course.update': { category: 'academic', targetType: 'course' },
+  'academic.curriculum.add': {
+    category: 'academic',
+    targetType: 'course_of_study_course',
+  },
+  'academic.curriculum.remove': {
+    category: 'academic',
+    targetType: 'course_of_study_course',
+  },
+  'academic.offering.create': {
+    category: 'academic',
+    targetType: 'course_offering',
+  },
+  'academic.offering.update': {
+    category: 'academic',
+    targetType: 'course_offering',
+  },
+  'registration.register_for_student': {
+    category: 'academic',
+    targetType: 'user',
+  },
+  'registration.close_roster': {
+    category: 'academic',
+    targetType: 'result_group',
+  },
 } as const;
 
 export type AuditAction = keyof typeof ADMIN_AUDIT_ACTIONS;
@@ -33,6 +91,7 @@ export interface AuditAttempt {
   targetId?: string;
   reason?: 'insufficient_privilege' | 'request_failed';
   status?: 'active' | 'suspended';
+  lecturerId?: string | null;
 }
 
 export class RecordAdminAuditCommand extends Command<void> {
@@ -50,13 +109,14 @@ export function auditAttempt(
   if (request.account?.role !== 'admin') return undefined;
   const data =
     response && typeof response === 'object'
-      ? (response as { id?: unknown; status?: unknown })
+      ? (response as { id?: unknown; status?: unknown; lecturerId?: unknown })
       : undefined;
   const candidates = [
     request.params.grantId,
     request.params.userId,
     request.params.roleId,
     data?.id,
+    action.startsWith('academic.') ? request.params.id : undefined,
     action.startsWith('user.') &&
     !request.params.userId &&
     action !== 'user.create_student'
@@ -77,6 +137,11 @@ export function auditAttempt(
     actorUserId: request.account.userId,
     targetId,
     status,
+    ...(action === 'academic.offering.update' &&
+    (data?.lecturerId === null ||
+      (typeof data?.lecturerId === 'string' && isUuid(data.lecturerId)))
+      ? { lecturerId: data.lecturerId }
+      : {}),
     reason:
       outcome === 'denied'
         ? 'insufficient_privilege'

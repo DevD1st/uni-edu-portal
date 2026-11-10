@@ -6,6 +6,36 @@ import { ApplicationError } from '../http/application-error.js';
 const constraintMessages = new Map([
   ['uq_users_email_role', 'This email already has an account of that type.'],
   ['uq_roles_name', 'A role with this name already exists.'],
+  ['uq_faculties_normalized_name', 'A faculty with this name already exists.'],
+  [
+    'uq_departments_faculty_normalized_name',
+    'A department with this name already exists in the faculty.',
+  ],
+  [
+    'uq_courses_of_study_department_name',
+    'A programme with this name already exists in the department.',
+  ],
+  [
+    'uq_academic_sessions_start_year_end_year',
+    'An academic session for these years already exists.',
+  ],
+  [
+    'uq_semesters_academic_session_id_term_number',
+    'This academic session already has a semester with this number.',
+  ],
+  ['uq_courses_code', 'A course with this code already exists.'],
+  [
+    'uq_course_of_study_courses_course_of_study_id_course_id',
+    'This course is already in the programme curriculum.',
+  ],
+  [
+    'uq_course_offerings_course_id_department_id_semester_i_1ea71667',
+    'The course already has an offering in this department, semester, and level.',
+  ],
+  [
+    'uq_student_registered_courses_student_register_semeste_fd2b7f07',
+    'This course is already registered in this semester.',
+  ],
   [
     'uq_admin_roles_global',
     'This administrator already has this university-wide role.',

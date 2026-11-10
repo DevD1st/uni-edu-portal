@@ -1,6 +1,6 @@
 # University Education Management Portal API
 
-This backend slice includes the initial PostgreSQL schema, authentication, student account and placement management, administrator accounts and scoped role grants, academic reference lookups, and administrator audit history. Course, registration, result, and grading entities are in their owning modules. Their workflow endpoints are a subsequent slice.
+The API supports authentication, account and role management, academic and course setup, student registration, and lecturer rosters. The PostgreSQL schema also includes grading and result records for the results workflow.
 
 ## Run locally
 
@@ -18,11 +18,20 @@ For local development with PostgreSQL and Redis already running, run `npm ci`, `
 | Authentication | `POST /v1/auth/signup/student`, `POST /v1/auth/sign-in`, `POST /v1/auth/refresh`, `POST /v1/auth/sign-out` |
 | Student or admin self-service | `GET`, `PATCH`, `DELETE /v1/users/me`, and `PATCH /v1/users/me/password` |
 | Academic lookup | `GET /v1/academic-references` |
+| Academic setup | `GET /v1/admin/academic`, with create and update routes for faculties, departments, programmes, sessions, and semesters. Set a faculty's registration term with `PUT /v1/admin/academic/faculties/{id}/current-semester`. |
+| Course setup | `/v1/admin/courses` for the catalog, `/curriculum` for programme links, `/offerings` for departmental deliveries, and `GET /lecturers?departmentId=…` for assignment choices. |
+| Student registration | `GET /v1/student/registrations/available`, `POST /v1/student/registrations`, and `GET /v1/student/registrations` for registered semesters. Read or download a semester summary at `/{semesterId}` or `/{semesterId}/summary/download` under the same route. |
+| Department registration | `GET /v1/admin/registrations?departmentId=…&semesterId=…` and `POST /v1/admin/registrations/students/{userId}`. |
+| Lecturer roster | `GET /v1/lecturer/offerings`, `GET /v1/lecturer/offerings/{offeringId}/roster`, and `POST /v1/lecturer/offerings/{offeringId}/close-registration`. |
 | Admin user management | `/v1/admin/users`, `/v1/admin/users/students`, and individual profile, placement, status, session revocation, and deletion routes |
 | Admin and role management | `/v1/admin/admins`, `/v1/admin/roles`, and scoped grant assignment and revocation |
 | Audit | `GET /v1/admin/audit-events` and `GET /v1/admin/audit-events/{eventId}` |
 
 Sign-in accepts an email, password, and account role (`student` or `admin`). Use the returned access token as a Bearer token. Refresh rotates both tokens and revokes the previous pair. Add `populate=student` to eligible admin user reads or `populate=roles%20user` to admin directory reads. Each relation is filtered by the caller’s privileges and department scope.
+
+To open registration, activate an academic session and semester, select the semester for the faculty, and link catalog courses to each programme. Create offerings for the department and study level, assign lecturers, and activate the offerings. An HOD can provision a lecturer with `POST /v1/admin/admins` using their own `departmentId` and the lecturer's account details. Omitting `roleId` selects the seeded Lecturer role.
+
+Submit `semesterId` and `offeringIds` together. The API confirms the entire selection in one transaction and keeps the student's placement for that semester. The assigned lecturer can close a roster once it has its first enrollment. Closure is permanent.
 
 Development and staging emit structured logs with request IDs. In production, setting `OTEL_EXPORTER_OTLP_ENDPOINT` enables OpenTelemetry traces and metrics. The server returns the request ID for log and audit correlation.
 

@@ -43,7 +43,11 @@ export class AdminAuditService {
         targetId: attempt.targetId,
         reason: attempt.reason,
         outcome: attempt.outcome,
-        changes: attempt.status ? { status: attempt.status } : undefined,
+        changes: attempt.status
+          ? { status: attempt.status }
+          : attempt.lecturerId !== undefined
+            ? { lecturerId: attempt.lecturerId }
+            : undefined,
         ...requestContext.getStore(),
       });
     } catch (error: unknown) {

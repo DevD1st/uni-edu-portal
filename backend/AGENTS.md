@@ -14,6 +14,9 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 
 - Keep PostgreSQL names in snake case and NestJS properties in camel case. Use UUIDv7, timezone-aware timestamps, and named constraints. Store schema changes in timestamped migrations under `src/core/database/migrations/`. Keep synchronization disabled.
 - Controllers map validated input to commands and queries. Recheck account status, privileges, and department scope in write handlers. Resolve each privilege against the grant that supplies it. Check the row scope of every populated relation.
+- The catalog course is university-wide. Curriculum membership belongs to a programme, and an offering, its roster, and its results belong to the offering's department.
+- Registration uses the faculty's current active semester and the student's saved placement for that term. Lock the student account before taking the term lock, then lock offerings by ID and their result groups in the same order. Lecturer roster closure takes the offering lock before the result group lock. Keep selection, unit checks, snapshot creation, and enrollment in one transaction. Roster closure is permanent.
+- An HOD can provision the seeded Lecturer role in their own department as part of creating a lecturer account. General role grants still require the assigner's role management privileges and delegation scope.
 - Use DTO classes for HTTP bodies, query fields, path parameters, and response bodies. Document each field with a description and realistic example. Give every validator that can reject input a plain-language message. Use response serialization to expose only fields in the DTO.
 - Wrap database mutations with `databaseWrite` or `writeTransaction`. Map PostgreSQL constraints to messages that help callers fix their input. Keep raw driver messages, SQL, and submitted values out of HTTP errors and logs.
 - Advance the account auth version when issuing, rotating, or revoking sessions. Treat PostgreSQL as authoritative and Redis as the TTL-backed token registry. Redact PII when deleting an account and retain academic and audit history by internal ID.
@@ -23,4 +26,6 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 
 ## Checks
 
-Run `npm run typecheck`, `npm run build`, and `npm test` from this directory. Run integration tests against disposable PostgreSQL and Redis services after applying the migrations. Use fixtures with synthetic account details.
+Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. To verify startup from the repository root, configure `backend/.env` from the example, run `docker compose --env-file backend/.env up --build --wait`, then check `/health/ready`. The migration service must complete successfully before the API starts.
+
+Run `npm run test:integration` with `UEMP_RUN_INTEGRATION=1`, `APP_ENV=test`, and settings for a disposable PostgreSQL database whose name starts with `uemp_test`, plus a disposable Redis instance. Use synthetic account details in fixtures.

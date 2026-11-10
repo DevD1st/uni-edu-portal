@@ -92,7 +92,8 @@ export class CreateAdminDto {
   @ApiPropertyOptional({
     type: String,
     format: 'uuid',
-    description: 'ID of the role to assign.',
+    description:
+      'ID of the role to assign. An HOD can omit this to provision a lecturer in their department.',
     example: '0191e192-67ad-746b-9acb-c850234b408a',
   })
   roleId?: string;
