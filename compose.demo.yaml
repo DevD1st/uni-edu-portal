@@ -1,0 +1,4 @@
+services:
+  migrate:
+    # The API already waits for this one-shot job to exit successfully.
+    command: ["sh", "-c", "npm run migration:run && exec npm run demo:seed"]

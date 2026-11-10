@@ -31,15 +31,21 @@ An approved result counts only if its award matches the offering's pinned policy
 
 ## Demo walkthrough
 
-Use a separate non-production database named `uemp_demo` (or `uemp_demo_*`). Configure `DEMO_SEED_PASSWORD` with at least 12 characters and no more than 72 UTF-8 bytes. It is the password for the four fictitious accounts. Keep it in the local environment and share it separately with evaluators.
+Use a separate non-production database named `uemp_demo` (or `uemp_demo_*`). The demo seed checks the database name to avoid creating sample accounts in a regular application database. Configure `DEMO_SEED_PASSWORD` with at least 7 characters and no more than 72 UTF-8 bytes. On a fresh database, all seven fictitious accounts use that password. Keep it in the local environment and share it separately with evaluators.
 
-After applying migrations, run `npm run build` and `npm run demo:seed` from `backend/`, or run `docker compose --env-file backend/.env exec backend npm run demo:seed` once Compose is ready. The script refuses production and ordinary database names. Running it again leaves existing data and passwords untouched. To start over, create a fresh demo database and run migrations and the seed there.
+Start Compose with the demo override as shown in the [backend README](../backend/README.md#run-the-demo). The migration service seeds the sample data automatically after the migrations succeed. For a setup without Compose, apply the migrations, then run `npm run build` and `npm run demo:seed` from `backend/`.
+
+The script accepts dedicated non-production demo and test databases. If the original demo is already present, the script adds the new students and offerings to its active Computing programme and current semester. Existing accounts, passwords, rosters, and grades stay intact. The added accounts use the password supplied on that run. Subsequent runs leave the seeded data intact.
+
+A fresh seed creates six active offerings with seven enrollments across three students. The fourth student starts with an empty registration history. Two courses have published grades, two are awaiting HOD review, one has an open draft roster, and one is available for new registration.
 
 | Sign-in email | Account type | What to try |
 | --- | --- | --- |
 | `student@demo.example.test` | `student` | View the approved `DEMO101` grade and register for available `DEMO104`. Submitted and pending marks stay hidden. |
+| `student-maya@demo.example.test` and `student-theo@demo.example.test` | `student` | Both are registered for `DEMO105` and `DEMO106`. Compare their published B and C grades for `DEMO105` while `DEMO106` awaits approval. |
+| `student-nora@demo.example.test` | `student` | Start from an empty registration history and register for `DEMO104`. |
 | `lecturer@demo.example.test` | `admin` | Open the assigned `DEMO103` roster, close registration, enter both marks, and submit. |
-| `hod@demo.example.test` | `admin` | Read the Demo Computing reports, approve or return `DEMO102`, and review the newly submitted group. |
+| `hod@demo.example.test` | `admin` | Read the Demo Computing reports and approve or return `DEMO102` or `DEMO106`. |
 | `super-admin@demo.example.test` | `admin` | Read the university overview and audit trail, and manage academic setup and staff. |
 
 After approving `DEMO102`, sign in as the student and check the statement and GPA. Reopen it as the HOD and confirm the result disappears until it is approved again. Use the exact semester and group IDs returned by the API; they are generated when the seed runs.

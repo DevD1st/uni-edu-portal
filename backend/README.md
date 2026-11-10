@@ -11,6 +11,16 @@ The API supports authentication, account and role management, academic and cours
 
 For local development with PostgreSQL and Redis already running, run `npm ci`, `npm run build`, `npm run migration:run`, `npm run admin:bootstrap`, and `npm run start:dev` from `backend/`. Use PostgreSQL 17 and Redis 7.4 to match Compose.
 
+## Run the demo
+
+Set `APP_ENV=development`, `POSTGRES_DB=uemp_demo`, and a `DEMO_SEED_PASSWORD` of at least 7 characters in `backend/.env`, along with the database password and signing secrets from the local setup. From the repository root, run
+
+```sh
+docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
+```
+
+The `uemp-demo` project uses its own PostgreSQL volume. The one-shot `migrate` service applies migrations and runs the demo seed before the API starts. The demo accounts, courses, and sample registrations are ready when Compose reports the API healthy. See the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
+
 ## API entry points
 
 | Area | Routes |
@@ -41,7 +51,7 @@ The assigned lecturer can save marks in batches before or after closing enrollme
 
 The [results workflow guide](../docs/results-workflow.md) documents every results route, required privilege, state transition, grading rule, audit event, and verification step.
 
-See the [backend assessment checklist](../docs/backend-assessment.md) for report definitions, coverage, and a walkthrough using the four accounts created by `npm run demo:seed`.
+See the [backend assessment checklist](../docs/backend-assessment.md) for report definitions and a walkthrough using the three staff accounts, four students, and sample registrations created by `npm run demo:seed`.
 
 Development and staging emit structured logs with request IDs. In production, setting `OTEL_EXPORTER_OTLP_ENDPOINT` enables OpenTelemetry traces and metrics. The server returns the request ID for log and audit correlation.
 
