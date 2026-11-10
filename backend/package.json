@@ -1,0 +1,61 @@
+{
+  "name": "uemp-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "imports": {
+    "#core/*": "./dist/core/*",
+    "#shared/*": "./dist/shared/*",
+    "#modules/*": "./dist/modules/*"
+  },
+  "scripts": {
+    "build": "nest build",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "typeorm": "typeorm -d dist/core/database/ormconfig.js",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "admin:bootstrap": "node dist/modules/admin/bootstrap.js",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "test:integration": "npm run build && node --test test/integration/*.test.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.2.7",
+    "@nestjs/config": "4.0.4",
+    "@nestjs/core": "11.2.7",
+    "@nestjs/cqrs": "11.0.3",
+    "@nestjs/platform-express": "11.2.7",
+    "@nestjs/swagger": "11.4.7",
+    "@nestjs/typeorm": "11.0.3",
+    "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "0.81.2",
+    "@opentelemetry/instrumentation": "0.223.1",
+    "@opentelemetry/sdk-node": "0.223.0",
+    "bcrypt": "6.0.0",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.14.4",
+    "dotenv": "17.4.1",
+    "helmet": "8.1.0",
+    "ioredis": "5.10.1",
+    "jsonwebtoken": "9.0.3",
+    "pg": "8.22.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "typeorm": "0.3.31",
+    "uuid": "13.0.2",
+    "winston": "3.19.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.24",
+    "@nestjs/testing": "^11.2.7",
+    "@types/bcrypt": "6.0.0",
+    "@types/express": "5.0.5",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "22.19.1",
+    "typescript": "5.9.3"
+  }
+}
