@@ -1,0 +1,30 @@
+{
+  "name": "@uemp/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css",
+    "./theme-init": "./src/theme-init.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "lucide-react": "1.55.0"
+  },
+  "peerDependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@uemp/typescript-config": "workspace:*",
+    "typescript": "6.0.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  }
+}

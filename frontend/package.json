@@ -1,0 +1,30 @@
+{
+  "name": "uemp-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "contracts:generate": "pnpm --filter @uemp/api-contracts generate"
+  },
+  "devDependencies": {
+    "@uemp/eslint-config": "workspace:*",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0",
+    "eslint": "9.39.5",
+    "prettier": "3.9.10",
+    "turbo": "2.11.7",
+    "typescript": "6.0.3"
+  }
+}

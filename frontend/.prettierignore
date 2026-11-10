@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+packages/api-contracts/src/generated.ts
+.next
+dist
+node_modules
+.turbo
+test-results
+playwright-report
+next-env.d.ts

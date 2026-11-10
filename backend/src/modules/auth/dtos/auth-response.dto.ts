@@ -12,8 +12,8 @@ export class SessionTokenResponseDto {
 
   @ApiProperty({
     type: Number,
-    description: 'Expiry as a Unix timestamp in seconds.',
-    example: 1794307500,
+    description: 'Expiry as a Unix timestamp in milliseconds.',
+    example: 1794307500000,
   })
   @Expose()
   expiresAt!: number;
@@ -25,7 +25,7 @@ export class SessionResponseDto {
     description: 'Token used to authorize API requests.',
     example: {
       token: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.example-signature',
-      expiresAt: 1794307500,
+      expiresAt: 1794307500000,
     },
   })
   @Expose()
@@ -37,7 +37,7 @@ export class SessionResponseDto {
     description: 'Single-use token for obtaining a new session.',
     example: {
       token: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.example-signature',
-      expiresAt: 1794911400,
+      expiresAt: 1794911400000,
     },
   })
   @Expose()

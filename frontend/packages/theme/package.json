@@ -1,0 +1,13 @@
+{
+  "name": "@uemp/theme",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.css",
+    "./font.css": "./src/font.css"
+  }
+}

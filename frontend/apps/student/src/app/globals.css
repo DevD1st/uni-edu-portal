@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "@uemp/theme";
+@import "@uemp/ui/styles.css";
+@source "../../../../packages/ui/src";

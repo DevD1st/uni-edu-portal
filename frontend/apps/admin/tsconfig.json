@@ -1,0 +1,7 @@
+{
+  "extends": "@uemp/typescript-config/react.json",
+  "compilerOptions": {
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src", "test", "vite.config.ts"]
+}

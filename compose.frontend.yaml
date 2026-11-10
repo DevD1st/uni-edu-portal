@@ -1,0 +1,5 @@
+services:
+  redis:
+    # Next runs on the developer's host and uses a separate session key namespace.
+    ports:
+      - "127.0.0.1:${STUDENT_REDIS_PORT:-6380}:6379"

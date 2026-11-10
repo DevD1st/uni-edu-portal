@@ -1,0 +1,4 @@
+{
+  "extends": "@uemp/typescript-config/react.json",
+  "include": ["src"]
+}

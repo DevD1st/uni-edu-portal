@@ -1,0 +1,125 @@
+:root {
+  color-scheme: light dark;
+  --uemp-font: "Source Sans 3", system-ui, sans-serif;
+  --uemp-canvas: light-dark(#f4f7fa, #0f1726);
+  --uemp-surface: light-dark(#ffffff, #172235);
+  --uemp-ink: light-dark(#16243a, #eef4fa);
+  --uemp-muted: light-dark(#4c6075, #b1c2d5);
+  --uemp-line: light-dark(#d9e3ed, #35475d);
+  --uemp-control: light-dark(#667c91, #7f95ac);
+  --uemp-accent: light-dark(#075c55, #5ee0c0);
+  --uemp-on-accent: light-dark(#ffffff, #092520);
+  --uemp-accent-hover: light-dark(#064942, #8aedda);
+  --uemp-selected: light-dark(#ddf4ed, #193b38);
+  --uemp-focus: light-dark(#2563eb, #85b4ff);
+  --uemp-hero: #102e39;
+  --uemp-hero-text: #f4fbfa;
+  --uemp-hero-muted: #b8d9d5;
+  --uemp-info: light-dark(#194c85, #b8d7ff);
+  --uemp-info-bg: light-dark(#e8f1fd, #1d3451);
+  --uemp-success: light-dark(#166344, #b9f4d5);
+  --uemp-success-bg: light-dark(#e2f5e9, #193a30);
+  --uemp-warning: light-dark(#764300, #ffdb99);
+  --uemp-warning-bg: light-dark(#fef0cc, #49351b);
+  --uemp-danger: light-dark(#a3263a, #ffb8c1);
+  --uemp-danger-bg: light-dark(#fbe9ec, #452630);
+  --uemp-scrim: rgb(5 13 24 / 55%);
+  --uemp-shadow: 0 12px 30px rgb(12 32 50 / 9%);
+  --uemp-space-1: 0.25rem;
+  --uemp-space-2: 0.5rem;
+  --uemp-space-3: 0.75rem;
+  --uemp-space-4: 1rem;
+  --uemp-space-5: 1.25rem;
+  --uemp-space-6: 1.5rem;
+  --uemp-space-8: 2rem;
+  --uemp-space-10: 2.5rem;
+  --uemp-space-12: 3rem;
+  --uemp-space-16: 4rem;
+  --uemp-gutter: var(--uemp-space-4);
+  --uemp-radius-control: 0.375rem;
+  --uemp-radius-panel: 0.625rem;
+  --uemp-radius-hero: 1rem;
+  --uemp-touch: 2.75rem;
+  --uemp-fast: 140ms;
+  --uemp-transition: 200ms;
+  --uemp-form: 28rem;
+  --uemp-content: 76rem;
+  --uemp-text-sm: 0.875rem;
+  --uemp-text: 1rem;
+  --uemp-text-label: 0.8125rem;
+  --uemp-h1: clamp(1.875rem, 1.45rem + 1.6vw, 2.75rem);
+  --uemp-h2: clamp(1.375rem, 1.18rem + 0.6vw, 1.75rem);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-canvas: var(--uemp-canvas);
+  --color-surface: var(--uemp-surface);
+  --color-ink: var(--uemp-ink);
+  --color-muted: var(--uemp-muted);
+  --color-line: var(--uemp-line);
+  --color-accent: var(--uemp-accent);
+  --color-on-accent: var(--uemp-on-accent);
+  --color-focus: var(--uemp-focus);
+  --color-selected: var(--uemp-selected);
+  --font-sans: var(--uemp-font);
+  --breakpoint-medium: 37.5rem;
+  --breakpoint-expanded: 64rem;
+}
+
+@media (min-width: 37.5rem) {
+  :root {
+    --uemp-gutter: var(--uemp-space-6);
+  }
+}
+@media (min-width: 64rem) {
+  :root {
+    --uemp-gutter: var(--uemp-space-8);
+  }
+}
+
+html {
+  min-block-size: 100%;
+}
+body {
+  min-block-size: 100dvh;
+  margin: 0;
+  color: var(--uemp-ink);
+  background: var(--uemp-canvas);
+  font-family: var(--uemp-font);
+  font-size: var(--uemp-text);
+  line-height: 1.5;
+}
+::selection {
+  background: var(--uemp-selected);
+  color: var(--uemp-ink);
+}
+:focus-visible {
+  outline: 2px solid var(--uemp-focus);
+  outline-offset: 3px;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
