@@ -2,6 +2,7 @@ import { ApplicationError } from '#core/http/application-error.js';
 import { Injectable, HttpStatus } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
+import type { Response } from 'express';
 import { AuthenticateAccessQuery } from './account-context.js';
 import type { AccountRequest } from './account-context.js';
 
@@ -10,7 +11,10 @@ export class AccessTokenGuard implements CanActivate {
   constructor(private readonly queries: QueryBus) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AccountRequest>();
+    const http = context.switchToHttp();
+    const request = http.getRequest<AccountRequest>();
+    // Protected routes include profiles, rosters, statements and audit data.
+    http.getResponse<Response>().setHeader('Cache-Control', 'no-store');
     const token = /^Bearer ([^\s]+)$/i.exec(
       request.headers.authorization ?? '',
     )?.[1];

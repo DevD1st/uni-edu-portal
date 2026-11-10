@@ -31,6 +31,7 @@ import type { MatricNumSystem } from '#modules/student/entity/matric-num-systems
 import type { Admin } from '#modules/admin/entity/admins.entity.js';
 import { User } from '../entity/users.entity.js';
 import { StudentPlacementService } from './student-placement.service.js';
+import { redactResultNotes } from './redact-result-notes.js';
 import { USER_REPOSITORY } from '../util/constants.js';
 import type { IUserRepository } from '../repositories/user.repository.js';
 
@@ -96,19 +97,29 @@ export class UserAdministrationService {
     return created;
   }
 
-  async get(
+  get(
+    userId: string,
+    actorUserId?: string,
+    populate?: string,
+  ): Promise<UserResponseDto> {
+    return this.database.transaction('REPEATABLE READ', (manager) =>
+      this.readAccount(manager, userId, actorUserId, populate),
+    );
+  }
+
+  private async readAccount(
+    manager: EntityManager,
     userId: string,
     actorUserId?: string,
     populate?: string,
   ): Promise<UserResponseDto> {
     const relations = parsePopulation(populate, ['student', 'admin']);
-    const manager = this.database.manager;
     const account = await manager.getRepository(User).findOneBy({ id: userId });
     if (!account)
       throw new ApplicationError(HttpStatus.NOT_FOUND, 'Account was not found');
     if (!actorUserId)
       return this.readView(manager, account, new Set(['student', 'admin']));
-    const access = await this.auth.resolve(actorUserId);
+    const access = await this.auth.resolve(actorUserId, manager);
     const departmentId = await this.departmentOf(manager, account);
     if (!hasPrivilege(access, 'read_user', departmentId))
       throw new ApplicationError(HttpStatus.NOT_FOUND, 'Account was not found');
@@ -116,12 +127,26 @@ export class UserAdministrationService {
     return this.readView(manager, account, relations, access);
   }
 
-  async list(actorUserId: string, input: DirectoryQueryDto) {
-    const access = await this.auth.requireAnyScope(actorUserId, 'read_user');
+  list(actorUserId: string, input: DirectoryQueryDto) {
+    return this.database.transaction('REPEATABLE READ', (manager) =>
+      this.listAccounts(manager, actorUserId, input),
+    );
+  }
+
+  private async listAccounts(
+    manager: EntityManager,
+    actorUserId: string,
+    input: DirectoryQueryDto,
+  ) {
+    const access = await this.auth.requireAnyScope(
+      actorUserId,
+      'read_user',
+      manager,
+    );
     const scopes = authorizedDepartments(access, 'read_user');
     const relations = parsePopulation(input.populate, ['student', 'admin']);
     if (!hasPrivilege(access, 'read_admin')) relations.delete('admin');
-    const query = this.database
+    const query = manager
       .getRepository(User)
       .createQueryBuilder('account')
       .orderBy('account.id', 'ASC')
@@ -136,11 +161,10 @@ export class UserAdministrationService {
     }
     const accounts = await query.getMany();
     const page = accounts.slice(0, input.limit);
-    const items = await Promise.all(
-      page.map((account) =>
-        this.readView(this.database.manager, account, relations, access),
-      ),
-    );
+    // The directory filter and populated profiles must see the same placement and grants.
+    const items: UserResponseDto[] = [];
+    for (const account of page)
+      items.push(await this.readView(manager, account, relations, access));
     return {
       items,
       nextCursor: accounts.length > input.limit ? page.at(-1)!.id : null,
@@ -163,9 +187,17 @@ export class UserAdministrationService {
       );
     const account = await writeTransaction(this.database, async (manager) => {
       const user = await this.users.lockUser(manager, userId);
-      if (actorUserId)
-        await this.requireTarget(manager, actorUserId, user, 'update_user');
-      else if (user.status !== 'active')
+      if (actorUserId) {
+        if (user.role === 'admin')
+          await this.requireAdminProfileUpdate(
+            manager,
+            actorUserId,
+            user,
+            input.email !== undefined,
+          );
+        else
+          await this.requireTarget(manager, actorUserId, user, 'update_user');
+      } else if (user.status !== 'active')
         throw new ApplicationError(
           HttpStatus.UNAUTHORIZED,
           'Account is unavailable',
@@ -309,6 +341,14 @@ export class UserAdministrationService {
           'Account is unavailable',
         );
 
+      // Capture identifiers before clearing the profile. Notes are mutable, while
+      // audit entries already omit raw feedback and must remain append-only.
+      const identity = {
+        email: account.email,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        matricNumber: null as string | null,
+      };
       account.email =
         'deleted-' + account.id.replaceAll('-', '') + '@redacted.invalid';
       account.firstName = null;
@@ -320,9 +360,12 @@ export class UserAdministrationService {
       if (account.role === 'student') {
         const students = manager.getRepository<Student>('Student');
         const student = await students.findOneByOrFail({ userId });
-        await manager
-          .getRepository<MatricNumSystem>('MatricNumSystem')
-          .delete({ studentId: student.id });
+        const matriculation =
+          manager.getRepository<MatricNumSystem>('MatricNumSystem');
+        identity.matricNumber =
+          (await matriculation.findOneBy({ studentId: student.id }))
+            ?.matricNumber ?? null;
+        await matriculation.delete({ studentId: student.id });
         await students.update(student.id, {
           academicLevelId: null,
           courseOfStudyId: null,
@@ -330,10 +373,45 @@ export class UserAdministrationService {
           facultyId: null,
         });
       }
+      await redactResultNotes(manager, identity);
       return account;
     });
     this.publishAuthChange(user);
     this.log.log('Account identity redacted', { userId, actorUserId });
+  }
+
+  private async requireAdminProfileUpdate(
+    manager: EntityManager,
+    actorUserId: string,
+    target: User,
+    changesEmail: boolean,
+  ): Promise<void> {
+    const actor = await this.auth.resolve(actorUserId, manager);
+    if (hasPrivilege(actor, 'update_user')) return;
+    if (changesEmail)
+      throw new ApplicationError(
+        HttpStatus.FORBIDDEN,
+        'Only a university-wide administrator can change a staff login email.',
+      );
+
+    // A staff account has one shared profile. Every grant must fall inside the editor's
+    // scope, including grants that do not provide teaching privileges.
+    const lecturer = await this.auth.resolve(target.id, manager);
+    if (
+      !lecturer.grants.some(({ privileges }) =>
+        privileges.includes('teach_course'),
+      ) ||
+      !lecturer.grants.every(
+        ({ departmentId }) =>
+          departmentId !== null &&
+          hasPrivilege(actor, 'update_user', departmentId) &&
+          hasPrivilege(actor, 'manage_department', departmentId),
+      )
+    )
+      throw new ApplicationError(
+        HttpStatus.FORBIDDEN,
+        'You can only edit a lecturer whose staff grants are all in departments you manage.',
+      );
   }
 
   private async requireTarget(

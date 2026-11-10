@@ -7,6 +7,7 @@ import { SaveDepartmentHandler } from './commands/handlers/save-department/save-
 import { SaveProgrammeHandler } from './commands/handlers/save-programme/save-programme.handler.js';
 import { SaveSessionHandler } from './commands/handlers/save-session/save-session.handler.js';
 import { SaveSemesterHandler } from './commands/handlers/save-semester/save-semester.handler.js';
+import { SetAcademicLevelStatusHandler } from './commands/handlers/set-academic-level-status/set-academic-level-status.handler.js';
 import { SetCurrentSemesterHandler } from './commands/handlers/set-current-semester/set-current-semester.handler.js';
 import { ReadAcademicSetupHandler } from './queries/handlers/read-academic-setup/read-academic-setup.handler.js';
 import { AcademicReferencesController } from './controllers/academic-references.controller.js';
@@ -38,6 +39,7 @@ import { CourseOfStudy } from './entity/courses-of-study.entity.js';
     SaveProgrammeHandler,
     SaveSessionHandler,
     SaveSemesterHandler,
+    SetAcademicLevelStatusHandler,
     SetCurrentSemesterHandler,
     ReadAcademicSetupHandler,
   ],

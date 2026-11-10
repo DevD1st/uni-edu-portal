@@ -10,6 +10,7 @@ import { CourseModule } from '#modules/course/course.module.js';
 import { RegistrationModule } from '#modules/registration/registration.module.js';
 import { ResultsModule } from '#modules/results/results.module.js';
 import { GradingModule } from '#modules/grading/grading.module.js';
+import { ReportingModule } from '#modules/reporting/reporting.module.js';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GradingModule } from '#modules/grading/grading.module.js';
     RegistrationModule,
     ResultsModule,
     GradingModule,
+    ReportingModule,
   ],
 })
 export class AppModule {}

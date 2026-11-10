@@ -24,7 +24,9 @@ import type {
   ProgrammeWriteDto,
   SemesterWriteDto,
   SessionWriteDto,
+  SetAcademicLevelStatusDto,
 } from '../dtos/academic-setup.dto.js';
+import { AcademicLevel } from '../entity/academic-levels.entity.js';
 import { AcademicSession } from '../entity/academic-sessions.entity.js';
 import { CourseOfStudy } from '../entity/courses-of-study.entity.js';
 import { Department } from '../entity/departments.entity.js';
@@ -55,25 +57,46 @@ export class AcademicSetupService {
       where: scopes ? { id: In(scopes) } : {},
       order: { name: 'ASC', id: 'ASC' },
     });
-    const [faculties, programmes, sessions, semesters] = await Promise.all([
-      this.database.getRepository(Faculty).find({
-        where: scopes
-          ? { id: In(departments.map((department) => department.facultyId)) }
-          : {},
-        order: { name: 'ASC', id: 'ASC' },
-      }),
-      this.database.getRepository(CourseOfStudy).find({
-        where: scopes ? { departmentId: In(scopes) } : {},
-        order: { name: 'ASC', id: 'ASC' },
-      }),
-      this.database
-        .getRepository(AcademicSession)
-        .find({ order: { startYear: 'DESC', endYear: 'DESC' } }),
-      this.database
-        .getRepository(Semester)
-        .find({ order: { academicSessionId: 'DESC', termNumber: 'ASC' } }),
-    ]);
-    return { faculties, departments, programmes, sessions, semesters };
+    const [faculties, programmes, sessions, semesters, levels] =
+      await Promise.all([
+        this.database.getRepository(Faculty).find({
+          where: scopes
+            ? { id: In(departments.map((department) => department.facultyId)) }
+            : {},
+          order: { name: 'ASC', id: 'ASC' },
+        }),
+        this.database.getRepository(CourseOfStudy).find({
+          where: scopes ? { departmentId: In(scopes) } : {},
+          order: { name: 'ASC', id: 'ASC' },
+        }),
+        this.database
+          .getRepository(AcademicSession)
+          .find({ order: { startYear: 'DESC', endYear: 'DESC' } }),
+        this.database
+          .getRepository(Semester)
+          .find({ order: { academicSessionId: 'DESC', termNumber: 'ASC' } }),
+        this.database
+          .getRepository(AcademicLevel)
+          .find({ order: { programType: 'ASC', stage: 'ASC' } }),
+      ]);
+    return { faculties, departments, programmes, sessions, semesters, levels };
+  }
+
+  setLevelStatus(
+    actorId: string,
+    id: string,
+    input: SetAcademicLevelStatusDto,
+  ) {
+    return this.universityWrite(actorId, 'Academic level', async (manager) => {
+      // The label and stage are shared university references. Only their availability changes.
+      const level = await this.lock(
+        manager,
+        AcademicLevel,
+        id,
+        'academic level',
+      );
+      return this.save(manager, AcademicLevel, { status: input.status }, level);
+    });
   }
 
   saveFaculty(actorId: string, input: FacultyWriteDto, id?: string) {

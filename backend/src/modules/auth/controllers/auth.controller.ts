@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Header,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags, ApiNoContentResponse } from '@nestjs/swagger';
 import { AccessTokenGuard } from '#shared/auth/access-token.guard.js';
@@ -23,6 +30,7 @@ export class AuthController {
   constructor(private readonly commands: CommandBus) {}
 
   @Post('signup/student')
+  @Header('Cache-Control', 'no-store')
   @UseGuards(AuthRateLimitGuard)
   @ApiDtoResponse(UserResponseDto, 201)
   signUp(@Body() input: CreateStudentDto): Promise<UserResponseDto> {
@@ -30,6 +38,7 @@ export class AuthController {
   }
 
   @Post('sign-in')
+  @Header('Cache-Control', 'no-store')
   @HttpCode(200)
   @UseGuards(AuthRateLimitGuard)
   @ApiDtoResponse(SessionResponseDto)
@@ -40,6 +49,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Header('Cache-Control', 'no-store')
   @HttpCode(200)
   @UseGuards(AuthRateLimitGuard)
   @ApiDtoResponse(SessionResponseDto)

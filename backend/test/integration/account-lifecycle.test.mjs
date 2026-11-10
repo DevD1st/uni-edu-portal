@@ -5,11 +5,12 @@ import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { v7 as uuidv7 } from 'uuid';
 import { verifyCourseRegistration } from './course-registration-fixture.mjs';
+import { verifyDemoSeed } from './demo-seed-fixture.mjs';
 
 const enabled = process.env.UEMP_RUN_INTEGRATION === '1';
 
 test(
-  'account, registration and results workflows enforce session, scope and publication rules',
+  'assessment backend enforces account, registration, result, reporting and demo workflows',
   { skip: !enabled, timeout: 120_000 },
   async () => {
     assert.equal(process.env.APP_ENV, 'test');
@@ -127,9 +128,18 @@ test(
           method + ' ' + path + ' ' + JSON.stringify(payload),
         );
         assert.ok(response.headers.get('x-request-id'));
+        if (token || (status < 300 && path.startsWith('/v1/auth/')))
+          assert.equal(
+            response.headers.get('cache-control'),
+            'no-store',
+            method + ' ' + path,
+          );
         return payload;
       }
 
+      assert.deepEqual(await request('GET', '/health/ready', 200), {
+        status: 'ready',
+      });
       await checkOpenApi(url);
       const invalidSignIn = await request('POST', '/v1/auth/sign-in', 400, {
         email: 'not-an-email',
@@ -489,6 +499,9 @@ test(
         level,
         database,
       });
+      if (/^uemp_(demo|test)(?:_|$)/.test(process.env.POSTGRES_DB ?? '')) {
+        await verifyDemoSeed(request, database);
+      }
     } finally {
       if (app) await app.close();
       if (database.isInitialized) await database.destroy();

@@ -25,6 +25,7 @@ export async function verifyResultsWorkflow({
   enrolled,
   delegated,
   differentDepartment,
+  extraEnrollmentCount,
 }) {
   const academic = '/v1/admin/academic';
   const catalog = '/v1/admin/courses';
@@ -63,6 +64,17 @@ export async function verifyResultsWorkflow({
   const statement = (token = ada.token) => get(studentTerm, token);
   const pendingReviews = () =>
     get(departmentalResults + '?departmentId=' + first.id, hod);
+  const report = (path, departmentId, token, status = 200) =>
+    get(
+      '/v1/admin/reports/' +
+        path +
+        (path.includes('?') ? '&' : '?') +
+        'semesterId=' +
+        term.id +
+        (departmentId ? '&departmentId=' + departmentId : ''),
+      token,
+      status,
+    );
   const createRole = (label, privileges) =>
     send(
       'POST',
@@ -114,6 +126,32 @@ export async function verifyResultsWorkflow({
   await get(studentResults, hod, 403);
   assert.deepEqual((await statement()).courses, []);
   assert.equal((await statement()).gpa, null);
+  await report('overview', first.id, ada.token, 403);
+  await report('overview', first.id, teacher, 403);
+  await report('courses', first.id, receivingHod, 403);
+  await report('overview', null, hod, 403);
+  const empty = await report('overview', first.id, hod);
+  assert.equal(empty.studentCount, 3);
+  assert.equal(empty.enrollmentCount, 2 + extraEnrollmentCount);
+  assert.equal(empty.publishedCount, 0);
+  assert.equal(empty.averageScore, null);
+  const university = await report('overview', null, staffToken);
+  assert.equal(university.departmentId, null);
+  assert.equal(university.enrollmentCount, empty.enrollmentCount + 1);
+  const firstPage = await report('courses?limit=1', first.id, hod);
+  assert.equal(firstPage.items.length, 1);
+  assert.equal(firstPage.items[0].departmentId, first.id);
+  assert.ok(firstPage.nextCursor);
+  const secondPage = await report(
+    'courses?limit=1&cursor=' + firstPage.nextCursor,
+    first.id,
+    hod,
+  );
+  assert.equal(secondPage.items[0].departmentId, first.id);
+  assert.notEqual(
+    secondPage.items[0].offeringId,
+    firstPage.items[0].offeringId,
+  );
 
   const initial = await get(lecturerGroup + '?limit=1', teacher);
   assert.equal(initial.enrolledCount, 2);
@@ -207,7 +245,10 @@ export async function verifyResultsWorkflow({
     403,
   );
 
-  const feedback = 'Please verify the exam mark.';
+  await send('PATCH', '/v1/users/me', { lastName: 'Fixture' }, ben.token);
+  const fullName = ben.firstName + ' Fixture';
+  const feedback =
+    'Please verify the exam mark for ' + fullName.toUpperCase() + '.';
   const correction = await send(
     'POST',
     reviewGroup + '/request-corrections',
@@ -274,6 +315,18 @@ export async function verifyResultsWorkflow({
   assert.equal(failed.approvedUnits, 3);
   assert.equal(failed.courses[0].grade, 'F');
   assert.deepEqual((await statement(other.token)).courses, []);
+  const approvedReport = await report('overview', first.id, hod);
+  assert.equal(approvedReport.approvedCount, 1);
+  assert.equal(approvedReport.publishedCount, 2);
+  assert.equal(approvedReport.passedCount, 1);
+  assert.equal(approvedReport.averageScore, 55);
+  const publishedOffering = (await report('courses', first.id, hod)).items.find(
+    (item) => item.code === shared.code,
+  );
+  assert.equal(publishedOffering.resultStatus, 'approved');
+  assert.equal(publishedOffering.publishedCount, 2);
+  assert.equal(publishedOffering.passedCount, 1);
+  assert.equal(publishedOffering.averageScore, approvedReport.averageScore);
 
   const reopened = await send(
     'POST',
@@ -285,6 +338,11 @@ export async function verifyResultsWorkflow({
   assert.equal(reopened.registrationStatus, 'closed');
   assert.deepEqual((await statement()).courses, []);
   assert.equal((await statement()).cgpa, null);
+  const withdrawnReport = await report('overview', first.id, hod);
+  assert.equal(withdrawnReport.approvedCount, 0);
+  assert.equal(withdrawnReport.publishedCount, 0);
+  assert.equal(withdrawnReport.averageScore, null);
+  assert.equal(withdrawnReport.enrollmentCount, approvedReport.enrollmentCount);
   const audit = (query) =>
     get('/v1/admin/audit-events?category=results&' + query);
   const history = (await audit('targetId=' + groupId)).items;
@@ -497,7 +555,45 @@ export async function verifyResultsWorkflow({
   );
   assert.equal((await statement()).gpa, null);
   assert.equal((await get(studentResults, ada.token)).cgpa, 2.67);
-  await submit();
-  await approve(hod);
+  await send(
+    'POST',
+    lecturerGroup + '/submit',
+    {
+      note: 'Cross-checked the marks for ' + ben.email.toUpperCase() + '.',
+    },
+    teacher,
+  );
+  await send(
+    'POST',
+    reviewGroup + '/approve',
+    {
+      note:
+        'Approved after verifying matriculation number ' +
+        ben.student.matricNumber +
+        '.',
+    },
+    hod,
+  );
+  assert.equal((await get(studentResults, ada.token)).cgpa, 3.44);
+  await send('DELETE', '/v1/admin/users/' + ben.id, undefined, staffToken, 204);
+  await get(studentResults, ben.token, 401);
+  const redacted = await get(reviewGroup, hod);
+  assert.equal(
+    redacted.submissionReason,
+    'Cross-checked the marks for [redacted].',
+  );
+  assert.equal(
+    redacted.approvalReason,
+    'Approved after verifying matriculation number [redacted].',
+  );
+  assert.equal(
+    redacted.correctionRequestReason,
+    'Please verify the exam mark for [redacted].',
+  );
+  const historicMark = redacted.marks.find(({ id }) => id === benEnrollment);
+  assert.equal(historicMark.firstName, null);
+  assert.equal(historicMark.lastName, null);
+  assert.equal(historicMark.matricNumber, null);
+  assert.equal(historicMark.grade, 'F');
   assert.equal((await get(studentResults, ada.token)).cgpa, 3.44);
 }

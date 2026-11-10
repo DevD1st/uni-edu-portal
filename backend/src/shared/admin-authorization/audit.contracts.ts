@@ -21,6 +21,10 @@ export const ADMIN_AUDIT_ACTIONS = {
   'role.delete': { category: 'access', targetType: 'role' },
   'academic.faculty.create': { category: 'academic', targetType: 'faculty' },
   'academic.faculty.update': { category: 'academic', targetType: 'faculty' },
+  'academic.level.status': {
+    category: 'academic',
+    targetType: 'academic_level',
+  },
   'academic.faculty.current_semester': {
     category: 'academic',
     targetType: 'faculty',

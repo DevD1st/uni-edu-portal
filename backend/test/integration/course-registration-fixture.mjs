@@ -93,6 +93,28 @@ export async function verifyCourseRegistration({
     hodSetup.departments.map(({ id }) => id),
     [first.id],
   );
+  assert.equal(
+    hodSetup.levels.find(({ id }) => id === level.id).status,
+    'active',
+  );
+  const levelStatus = academic + '/levels/' + level.id + '/status';
+  await request('PUT', levelStatus, 403, { status: 'inactive' }, hod);
+  const disabled = await request(
+    'PUT',
+    levelStatus,
+    200,
+    { status: 'inactive' },
+    staffToken,
+  );
+  assert.equal(disabled.status, 'inactive');
+  assert.equal(disabled.displayName, '100 Level');
+  const references = await request('GET', '/v1/academic-references', 200);
+  assert.ok(!references.levels.some(({ id }) => id === level.id));
+  assert.equal(
+    (await request('PUT', levelStatus, 200, { status: 'active' }, staffToken))
+      .status,
+    'active',
+  );
 
   const lecturerEmail = 'registration-lecturer-' + suffix + '@example.test';
   const lecturerInput = {
@@ -120,6 +142,26 @@ export async function verifyCourseRegistration({
   );
   assert.equal(lecturer.grant.name, 'lecturer');
   assert.equal(lecturer.grant.departmentId, first.id);
+  const lecturerProfile = '/v1/admin/users/' + lecturer.userId;
+  assert.equal(
+    (
+      await request(
+        'PATCH',
+        lecturerProfile,
+        200,
+        { firstName: 'Demo Lecturer' },
+        hod,
+      )
+    ).firstName,
+    'Demo Lecturer',
+  );
+  await request(
+    'PATCH',
+    lecturerProfile,
+    403,
+    { email: 'outside-edit@example.test' },
+    hod,
+  );
   const teacher = await signIn(lecturerEmail, 'admin');
   const lecturerRoles = '/v1/admin/admins/' + lecturer.id + '/roles';
   await post(
@@ -385,6 +427,13 @@ export async function verifyCourseRegistration({
     departmentId: second.id,
   });
   await request(
+    'PATCH',
+    lecturerProfile,
+    403,
+    { firstName: 'Outside scope' },
+    hod,
+  );
+  await request(
     'DELETE',
     lecturerRoles + '/' + lecturer.grant.id,
     204,
@@ -471,5 +520,6 @@ export async function verifyCourseRegistration({
     enrolled,
     delegated,
     differentDepartment,
+    extraEnrollmentCount: finalRoster.items.length,
   });
 }

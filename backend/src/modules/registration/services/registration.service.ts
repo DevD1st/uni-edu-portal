@@ -81,26 +81,22 @@ export class RegistrationService {
     log.setContext(RegistrationService.name);
   }
 
-  async available(
+  available(
     actor: AccountPrincipal,
     semesterId?: string,
   ): Promise<AvailableCoursesResponseDto> {
     requireStudent(actor);
-    const context = await this.context(
-      this.database.manager,
-      actor.userId,
-      semesterId,
-    );
-    const existing = await this.enrollments(
-      this.database.manager,
-      context.termId,
-    );
-    return {
-      semesterId: context.semesterId,
-      maxUnits: context.maxUnits,
-      registeredUnits: existing.reduce((total, row) => total + row.units, 0),
-      courses: await this.eligible(this.database.manager, context),
-    };
+    // A concurrent enrollment or semester change must not split the units and available courses.
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const context = await this.context(manager, actor.userId, semesterId);
+      const existing = await this.enrollments(manager, context.termId);
+      return {
+        semesterId: context.semesterId,
+        maxUnits: context.maxUnits,
+        registeredUnits: existing.reduce((total, row) => total + row.units, 0),
+        courses: await this.eligible(manager, context),
+      };
+    });
   }
 
   async register(
@@ -232,42 +228,47 @@ export class RegistrationService {
     semesterId: string,
   ): Promise<RegistrationSummaryResponseDto> {
     requireStudent(actor);
-    return this.termSummary(this.database.manager, actor.userId, semesterId);
+    return this.database.transaction('REPEATABLE READ', (manager) =>
+      this.termSummary(manager, actor.userId, semesterId),
+    );
   }
 
-  async report(
+  report(
     actorId: string,
     input: RegistrationReportQueryDto,
   ): Promise<RegistrationRosterResponseDto> {
-    const access = await this.authorization.require(
-      actorId,
-      'read_registration',
-      input.departmentId,
-    );
-    if (
-      !hasPrivilege(access, 'manage_department', input.departmentId) &&
-      !hasPrivilege(access, 'manage_university')
-    )
-      throw new ApplicationError(
-        HttpStatus.FORBIDDEN,
-        'You do not have permission to view registrations for this whole department.',
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const access = await this.authorization.require(
+        actorId,
+        'read_registration',
+        input.departmentId,
+        manager,
       );
-    return this.rosterPage(input, {
-      departmentId: input.departmentId,
-      semesterId: input.semesterId,
+      if (
+        !hasPrivilege(access, 'manage_department', input.departmentId) &&
+        !hasPrivilege(access, 'manage_university')
+      )
+        throw new ApplicationError(
+          HttpStatus.FORBIDDEN,
+          'You do not have permission to view registrations for this whole department.',
+        );
+      return this.rosterPage(manager, input, {
+        departmentId: input.departmentId,
+        semesterId: input.semesterId,
+      });
     });
   }
 
-  async teachingOfferings(
-    actorId: string,
-  ): Promise<TeachingOfferingsResponseDto> {
-    const access = await this.authorization.requireAnyScope(
-      actorId,
-      'teach_course',
-    );
-    const scope = authorizedDepartments(access, 'teach_course');
-    const offerings = await this.database.query<TeachingOfferingDto[]>(
-      `
+  teachingOfferings(actorId: string): Promise<TeachingOfferingsResponseDto> {
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const access = await this.authorization.requireAnyScope(
+        actorId,
+        'teach_course',
+        manager,
+      );
+      const scope = authorizedDepartments(access, 'teach_course');
+      const offerings = await manager.query<TeachingOfferingDto[]>(
+        `
       SELECT o.id AS "offeringId", o.course_id AS "courseId", o.semester_id AS "semesterId",
         o.department_id AS "departmentId", c.code, c.name, o.units,
         COALESCE(g.registration_status, 'opened') AS "registrationStatus"
@@ -275,25 +276,25 @@ export class RegistrationService {
       LEFT JOIN result_groups g ON g.course_offering_id = o.id
       WHERE o.lecturer_id = $1 AND ($2::uuid[] IS NULL OR o.department_id = ANY($2::uuid[]))
       ORDER BY o.semester_id DESC, c.code, o.id
-    `,
-      [access.adminId, scope],
-    );
-    return { offerings };
+        `,
+        [access.adminId, scope],
+      );
+      return { offerings };
+    });
   }
 
-  async lecturerRoster(
+  lecturerRoster(
     actorId: string,
     id: string,
     input: RosterQueryDto,
   ): Promise<RegistrationRosterResponseDto> {
-    const assignment = await this.requireTeaching(
-      this.database.manager,
-      actorId,
-      id,
-    );
-    return this.rosterPage(input, {
-      offeringId: id,
-      lecturerId: assignment.adminId,
+    // An assignment change and a privilege change must not be read from different snapshots.
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const assignment = await this.requireTeaching(manager, actorId, id);
+      return this.rosterPage(manager, input, {
+        offeringId: id,
+        lecturerId: assignment.adminId,
+      });
     });
   }
 
@@ -557,7 +558,7 @@ export class RegistrationService {
       actorId,
       'teach_course',
       offering.departmentId,
-      lock ? manager : undefined,
+      manager,
     );
     if (offering.lecturerId !== access.adminId)
       throw new ApplicationError(
@@ -568,6 +569,7 @@ export class RegistrationService {
   }
 
   private async rosterPage(
+    manager: EntityManager,
     input: RosterQueryDto,
     scope:
       | { offeringId: string; lecturerId: string }
@@ -575,12 +577,12 @@ export class RegistrationService {
   ): Promise<RegistrationRosterResponseDto> {
     const teaching = 'offeringId' in scope;
     const filter = teaching
-      ? 'o.id = $1 AND o.lecturer_id = $2'
+      ? 'o.id = $1 AND o.lecturer_id = $2 AND g.lecturer_id = $2'
       : 't.department_id = $1 AND t.semester_id = $2';
     const values = teaching
       ? [scope.offeringId, scope.lecturerId]
       : [scope.departmentId, scope.semesterId];
-    const rows = await this.database.query<RosterStudentResponseDto[]>(
+    const rows = await manager.query<RosterStudentResponseDto[]>(
       enrollmentProjection +
         `,
         e.student_id AS "studentId", u.first_name AS "firstName", u.last_name AS "lastName",

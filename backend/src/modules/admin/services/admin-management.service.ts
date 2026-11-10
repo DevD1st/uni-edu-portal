@@ -114,7 +114,14 @@ export class AdminManagementService {
     return profile;
   }
 
-  async listAdmins(
+  listAdmins(actorUserId: string, input: DirectoryQueryDto, adminId?: string) {
+    return this.database.transaction('REPEATABLE READ', (manager) =>
+      this.readAdminDirectory(manager, actorUserId, input, adminId),
+    );
+  }
+
+  private async readAdminDirectory(
+    manager: EntityManager,
     actorUserId: string,
     input: DirectoryQueryDto,
     adminId?: string,
@@ -122,11 +129,12 @@ export class AdminManagementService {
     const actor = await this.authorization.requireAnyScope(
       actorUserId,
       'read_admin',
+      manager,
     );
     const relations = parsePopulation(input.populate, ['roles', 'user']);
     const departments = authorizedDepartments(actor, 'read_admin');
     if (departments?.length === 0) return { items: [], nextCursor: null };
-    const query = this.database
+    const query = manager
       .getRepository(Admin)
       .createQueryBuilder('admin')
       .innerJoin('admin.user', 'account', 'account.deletedAt IS NULL')
@@ -143,58 +151,58 @@ export class AdminManagementService {
     }
     const rows = await query.getMany();
     const page = rows.slice(0, input.limit);
-    const items = await Promise.all(
-      page.map(async (admin) => {
-        const grants = relations.size
-          ? await this.database
-              .getRepository(AdminRole)
-              .find({ where: { adminId: admin.id }, relations: { role: true } })
-          : [];
-        const visible = grants.filter((grant) =>
-          hasPrivilege(actor, 'read_admin', grant.departmentId),
+    const items = [];
+    // Use the same view of scoped grants for selection and for populated relations.
+    for (const admin of page) {
+      const grants = relations.size
+        ? await manager
+            .getRepository(AdminRole)
+            .find({ where: { adminId: admin.id }, relations: { role: true } })
+        : [];
+      const visible = grants.filter((grant) =>
+        hasPrivilege(actor, 'read_admin', grant.departmentId),
+      );
+      const canReadUser =
+        hasPrivilege(actor, 'read_user') ||
+        visible.some((grant) =>
+          hasPrivilege(actor, 'read_user', grant.departmentId),
         );
-        const canReadUser =
-          hasPrivilege(actor, 'read_user') ||
-          visible.some((grant) =>
-            hasPrivilege(actor, 'read_user', grant.departmentId),
-          );
-        const user =
-          relations.has('user') && canReadUser
-            ? await this.database.getRepository<User>('User').findOne({
-                where: { id: admin.userId },
-                select: {
-                  id: true,
-                  email: true,
-                  firstName: true,
-                  lastName: true,
-                  status: true,
-                },
-              })
-            : undefined;
-        return {
-          id: admin.id,
-          userId: admin.userId,
-          createdAt: admin.createdAt,
-          ...(user ? { user } : {}),
-          ...(relations.has('roles')
-            ? {
-                roles: visible.flatMap((grant) =>
-                  grant.role &&
-                  hasPrivilege(actor, 'read_role', grant.departmentId)
-                    ? [
-                        {
-                          id: grant.id,
-                          departmentId: grant.departmentId,
-                          role: grant.role,
-                        },
-                      ]
-                    : [],
-                ),
-              }
-            : {}),
-        };
-      }),
-    );
+      const user =
+        relations.has('user') && canReadUser
+          ? await manager.getRepository<User>('User').findOne({
+              where: { id: admin.userId },
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                status: true,
+              },
+            })
+          : undefined;
+      items.push({
+        id: admin.id,
+        userId: admin.userId,
+        createdAt: admin.createdAt,
+        ...(user ? { user } : {}),
+        ...(relations.has('roles')
+          ? {
+              roles: visible.flatMap((grant) =>
+                grant.role &&
+                hasPrivilege(actor, 'read_role', grant.departmentId)
+                  ? [
+                      {
+                        id: grant.id,
+                        departmentId: grant.departmentId,
+                        role: grant.role,
+                      },
+                    ]
+                  : [],
+              ),
+            }
+          : {}),
+      });
+    }
     return {
       items,
       nextCursor: rows.length > input.limit ? page.at(-1)!.id : null,

@@ -456,7 +456,73 @@ export class SetCurrentSemesterDto {
   semesterId!: string | null;
 }
 
+export class SetAcademicLevelStatusDto {
+  @Expose()
+  @IsIn(['active', 'inactive'], {
+    message: 'Choose active or inactive for the academic level.',
+  })
+  @ApiProperty({
+    enum: ['active', 'inactive'],
+    description:
+      'Whether the level can be used in new placements and registration.',
+    example: 'active',
+  })
+  status!: 'active' | 'inactive';
+}
+
+export class AcademicLevelSetupDto extends SetAcademicLevelStatusDto {
+  @Expose()
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    description: 'Academic level ID.',
+    example: '0191e192-67ad-746b-9acb-c850234b408a',
+  })
+  id!: string;
+
+  @Expose()
+  @ApiProperty({
+    enum: ['undergrad', 'postgrad', 'masters', 'doctorate'],
+    description: 'University programme family associated with the level.',
+    example: 'undergrad',
+  })
+  programType!: 'undergrad' | 'postgrad' | 'masters' | 'doctorate';
+
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    description: 'Study stage. Zero represents the Graduate level.',
+    example: 1,
+  })
+  stage!: number;
+
+  @Expose()
+  @ApiProperty({
+    type: String,
+    description: 'The university’s fixed display label for the level.',
+    example: '100 Level',
+  })
+  displayName!: string;
+}
+
 export class AcademicSetupResponseDto {
+  @Expose()
+  @Type(() => AcademicLevelSetupDto)
+  @ApiProperty({
+    type: () => [AcademicLevelSetupDto],
+    description: 'Shared academic levels, including inactive levels.',
+    example: [
+      {
+        id: '0191e192-67ad-746b-9acb-c850234b408a',
+        programType: 'undergrad',
+        stage: 1,
+        displayName: '100 Level',
+        status: 'active',
+      },
+    ],
+  })
+  levels!: AcademicLevelSetupDto[];
+
   @Expose()
   @Type(() => FacultySetupResponseDto)
   @ApiProperty({

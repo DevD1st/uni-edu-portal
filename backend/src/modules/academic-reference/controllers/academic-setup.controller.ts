@@ -32,6 +32,8 @@ import {
   SemesterSetupResponseDto,
   SemesterWriteDto,
   SetCurrentSemesterDto,
+  AcademicLevelSetupDto,
+  SetAcademicLevelStatusDto,
 } from '../dtos/academic-setup.dto.js';
 import { ReadAcademicSetupQuery } from '../queries/academic-workflow.js';
 import {
@@ -41,6 +43,7 @@ import {
   SaveSessionCommand,
   SaveSemesterCommand,
   SetCurrentSemesterCommand,
+  SetAcademicLevelStatusCommand,
 } from '../commands/academic-workflow.js';
 
 @ApiTags('Academic setup')
@@ -59,6 +62,20 @@ export class AcademicSetupController {
     @CurrentAccount() actor: AccountPrincipal,
   ): Promise<AcademicSetupResponseDto> {
     return this.queries.execute(new ReadAcademicSetupQuery(actor.userId));
+  }
+
+  @Put('levels/:id/status')
+  @ApiDtoResponse(AcademicLevelSetupDto)
+  @RequireAdminPrivilege('manage_university')
+  @AuditAdminMutation('academic.level.status')
+  setLevelStatus(
+    @CurrentAccount() actor: AccountPrincipal,
+    @Param() { id }: AcademicIdParamsDto,
+    @Body() input: SetAcademicLevelStatusDto,
+  ): Promise<AcademicLevelSetupDto> {
+    return this.commands.execute(
+      new SetAcademicLevelStatusCommand(actor.userId, id, input),
+    );
   }
 
   @Post('faculties')

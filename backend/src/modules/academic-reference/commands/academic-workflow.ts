@@ -1,5 +1,7 @@
 import { Command } from '@nestjs/cqrs';
 import type {
+  AcademicLevelSetupDto,
+  SetAcademicLevelStatusDto,
   FacultySetupResponseDto,
   FacultyWriteDto,
   DepartmentSetupResponseDto,
@@ -11,6 +13,16 @@ import type {
   SemesterSetupResponseDto,
   SemesterWriteDto,
 } from '../dtos/academic-setup.dto.js';
+
+export class SetAcademicLevelStatusCommand extends Command<AcademicLevelSetupDto> {
+  constructor(
+    readonly actorId: string,
+    readonly id: string,
+    readonly input: SetAcademicLevelStatusDto,
+  ) {
+    super();
+  }
+}
 
 export class SaveFacultyCommand extends Command<FacultySetupResponseDto> {
   constructor(

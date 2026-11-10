@@ -20,8 +20,10 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 - Use DTO classes for HTTP bodies, query fields, path parameters, and response bodies. Document each field with a description and realistic example. Give every validator that can reject input a plain-language message. Use response serialization to expose only fields in the DTO.
 - Wrap database mutations with `databaseWrite` or `writeTransaction`. Map PostgreSQL constraints to messages that help callers fix their input. Keep raw driver messages, SQL, and submitted values out of HTTP errors and logs.
 - Advance the account auth version when issuing, rotating, or revoking sessions. Treat PostgreSQL as authoritative and Redis as the TTL-backed token registry. Redact PII when deleting an account and retain academic and audit history by internal ID.
+- Read scoped directories, rosters and multi-query registration summaries in one database snapshot. Protected responses and responses containing session tokens must use `Cache-Control: no-store`.
 - Register every privileged HTTP mutation with a semantic audit action. Audit payloads must use allowlisted keys and exclude personal identifiers, credentials, and raw bodies. Audit rows are append-only.
 - Resolve staff result grants and reads using the same database transaction manager. Result writes lock the offering before the result group. Commit marks, state changes, grade awards, and their success audits in the same transaction. Use the pinned grading policy and publish student results only while the group is approved. Keep the [results workflow guide](../docs/results-workflow.md) current when permissions, state transitions, GPA rules, or audit behavior change.
+- Reporting reads use one snapshot for grants and data. A missing department requires a university-wide reporting grant. Lecturer roster and result summaries remain tied to offering assignments. Exclude draft marks and student identifiers from aggregate reports.
 - Record request outcomes, meaningful domain transitions, denied operations, and infrastructure failures. Log safe internal IDs, action names, status, and correlation IDs. Exclude tokens, secrets, names, email addresses, raw query strings, and database error payloads.
 - Development and staging emit structured logs only. Production can additionally export metrics and traces. Explain business rules and non-obvious decisions with short comments in the owning module.
 
@@ -30,3 +32,5 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. To verify startup from the repository root, configure `backend/.env` from the example, run `docker compose --env-file backend/.env up --build --wait`, then check `/health/ready`. The migration service must complete successfully before the API starts.
 
 Run `npm run test:integration` with `UEMP_RUN_INTEGRATION=1`, `APP_ENV=test`, and settings for a disposable PostgreSQL database whose name starts with `uemp_test`, plus a disposable Redis instance. Use synthetic account details in fixtures.
+
+Use `npm run demo:seed` only on dedicated non-production demo or test databases. Keep the [assessment coverage and demo guide](../docs/backend-assessment.md) current when behavior changes.
