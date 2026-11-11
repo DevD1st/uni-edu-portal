@@ -227,7 +227,10 @@ test.describe("frontend finishing workflows", () => {
     const registration = page.getByRole("region", { name: "Registration dashboard" });
     const results = page.getByRole("region", { name: "Results dashboard" });
     await expect(registration.getByRole("definition")).toHaveText(["1", "5"]);
-    await expect(results.getByRole("definition")).toHaveText(["4.00", "4.00"]);
+    await expect(results.getByRole("definition")).toHaveText([
+      "4.00 / 5.00",
+      "4.00 / 5.00",
+    ]);
     await layout(page, "student-dashboard");
     const statementLink = await registration
       .getByRole("link", { name: /First Semester/ })

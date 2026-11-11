@@ -364,7 +364,9 @@ test.describe("student workflows on a phone", () => {
     await signIn(page, "student-maya");
     await mobileNavigate(page, "Results");
     await expect(
-      page.getByRole("region", { name: "Cumulative GPA" }).getByText("4.00"),
+      page
+        .getByRole("region", { name: "Cumulative GPA" })
+        .getByText("4.00 / 5.00", { exact: true }),
     ).toBeVisible();
     await page
       .getByRole("region", { name: "Result statements" })
@@ -392,7 +394,7 @@ test.describe("student workflows on a phone", () => {
     ).toBeVisible();
     await expect(statement.getByText("DEMO106")).toHaveCount(0);
     await expect(
-      statement.getByRole("definition").filter({ hasText: /^4\.00$/ }),
+      statement.getByRole("definition").filter({ hasText: /^4\.00 \/ 5\.00$/ }),
     ).toHaveCount(2);
     await statement.close();
 
@@ -429,7 +431,7 @@ test.describe("student workflows on a phone", () => {
       await page.reload();
       await expect(grades.getByRole("heading", { name: /DEMO106/ })).toBeVisible();
       await expect(
-        page.getByRole("definition").filter({ hasText: "4.40" }),
+        page.getByRole("definition").filter({ hasText: /^4\.40 \/ 5\.00$/ }),
       ).toHaveCount(2);
       const published = await openPrintView(page, "Print result statement");
       await expect(published.getByRole("row", { name: /DEMO106/ })).toBeVisible();
@@ -450,9 +452,9 @@ test.describe("student workflows on a phone", () => {
     await page.reload();
     await expect(grades.getByRole("heading", { name: /DEMO105/ })).toBeVisible();
     await expect(grades.getByRole("heading", { name: /DEMO106/ })).toHaveCount(0);
-    await expect(page.getByRole("definition").filter({ hasText: "4.00" })).toHaveCount(
-      2,
-    );
+    await expect(
+      page.getByRole("definition").filter({ hasText: /^4\.00 \/ 5\.00$/ }),
+    ).toHaveCount(2);
     const withdrawn = await openPrintView(page, "Print result statement");
     await expect(withdrawn.getByText("DEMO106")).toHaveCount(0);
     await withdrawn.close();

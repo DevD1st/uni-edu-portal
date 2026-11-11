@@ -16,6 +16,8 @@ UEMP is a campus workspace for course decisions and academic records. Use a calm
 
 The shell uses a mobile header and modal drawer, expanding to a collapsible sidebar at 64rem. Sign-in uses one column until the expanded layout. Gutters increase at 37.5rem and 64rem. Controls wrap and forms stack as space tightens. Drawers and dialogs return focus to their opener. The system respects reduced motion and color preferences.
 
+Published GPA and CGPA values show the five-point maximum on every screen and print view, for example `4.20 / 5.00`. Use the shared average formatter and retain two decimal places. A zero average displays `0.00 / 5.00`; an average without approved units remains `Unavailable`. API averages stay numeric, with `null` for unavailable values.
+
 ## Review questions
 
 Review each component, page, and state with the same questions. A positive answer needs visible evidence in the implementation, not a claim that every screen is perfect.

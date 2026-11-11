@@ -29,6 +29,14 @@ test("print views contain complete records, fit paper, and call the browser prin
     await expect(view.getByText(/First Semester · \d{4}\/\d{4}/)).toBeVisible();
     await expect(view.getByText(/Generated/)).toBeVisible();
     if (section === "results") {
+      const averages = view.locator('dl[aria-label="Academic averages"]');
+      for (const name of ["Semester GPA", "Cumulative GPA"])
+        await expect(
+          averages
+            .locator("div")
+            .filter({ has: view.getByText(name, { exact: true }) })
+            .getByRole("definition"),
+        ).toHaveText("4.00 / 5.00");
       await expect(
         view.getByRole("columnheader", { name: "Grade points" }),
       ).toBeVisible();
