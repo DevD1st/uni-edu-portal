@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant U as Account service
+    participant P as PostgreSQL
+    participant E as In-process EventBus
+    participant S as AccountAuthSaga
+    participant C as CommandBus
+    participant R as Redis
+    U->>P: Commit account change and advance authVersion
+    P-->>U: Committed
+    U->>E: Publish AccountAuthChangedEvent
+    E->>S: Deliver event
+    S->>C: ClearRevokedSessionCommand
+    C->>R: Remove token families older than version

@@ -1,6 +1,6 @@
 # Backend Contributor Guide
 
-This NestJS backend serves the university portal. Follow the approved domain rules in [the schema](../docs/schema-review.md).
+This NestJS backend serves the university portal. Follow the domain rules in [the database design](../docs/database.md).
 
 ## Layout
 
@@ -27,7 +27,7 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 - Read scoped directories, rosters and multi-query registration summaries in one database snapshot. Protected responses and responses containing session tokens must use `Cache-Control: no-store`.
 - Include readable labels for a student's assigned faculty, department, programme and academic level in authorized profile responses, even when those references become inactive. Public signup choices must remain active-only; deactivation must not erase an existing student's placement identity.
 - Register every privileged HTTP mutation with a semantic audit action. Audit payloads must use allowlisted keys and exclude personal identifiers, credentials, and raw bodies. Audit rows are append-only.
-- Resolve staff result grants and reads using the same database transaction manager. Result writes lock the offering before the result group. Commit marks, state changes, grade awards, and their success audits in the same transaction. Use the pinned grading policy and publish student results only while the group is approved. Keep the [results workflow guide](../docs/results-workflow.md) current when permissions, state transitions, GPA rules, or audit behavior change.
+- Resolve staff result grants and reads using the same database transaction manager. Result writes lock the offering before the result group. Commit marks, state changes, grade awards, and their success audits in the same transaction. Use the pinned grading policy and publish student results only while the group is approved. Keep the [workflow guide](../docs/workflows.md) current when permissions, state transitions, GPA rules, or audit behavior change.
 - Reporting reads use one snapshot for grants and data. A missing department requires a university-wide reporting grant. Lecturer roster and result summaries remain tied to offering assignments. Exclude draft marks and student identifiers from aggregate reports.
 - Record request outcomes, meaningful domain transitions, denied operations, and infrastructure failures. Log safe internal IDs, action names, status, and correlation IDs. Exclude tokens, secrets, names, email addresses, raw query strings, and database error payloads.
 - Development and staging emit structured logs only. Production can additionally export metrics and traces. Explain business rules and non-obvious decisions with short comments in the owning module.
@@ -38,4 +38,4 @@ Run `npm run typecheck` and `npm test` from this directory. The test command bui
 
 Run `npm run test:integration` with `UEMP_RUN_INTEGRATION=1`, `APP_ENV=test`, and settings for a disposable PostgreSQL database whose name starts with `uemp_test`, plus a disposable Redis instance. Use synthetic account details in fixtures.
 
-Use `npm run demo:seed` only on dedicated non-production demo or test databases. Keep the [assessment coverage and demo guide](../docs/backend-assessment.md) current when behavior changes.
+Use `npm run demo:seed` only on dedicated non-production demo or test databases. Keep the [reviewer walkthrough](../docs/reviewer-guide.md) current when demo behavior changes.

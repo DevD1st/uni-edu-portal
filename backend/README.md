@@ -1,66 +1,68 @@
-# University Education Management Portal API
+# UEMP API
 
-The API supports authentication, account and role management, academic and course setup, student registration, lecturer rosters and marks, departmental result review, and student result statements.
+NestJS API for accounts, staff permissions, academic setup, course registration, lecturer rosters and marks, departmental review, published student results and reporting.
 
-## Run locally
+Start with the [root README](../README.md) for the complete application. Detailed references:
 
-1. From the repository root, copy `.env.example` to `.env`. Keep `APP_ENV=development` and a dedicated `POSTGRES_DB=uemp_demo`. Set the database password, two different random signing secrets of at least 32 characters, and `DEMO_SEED_PASSWORD` with at least 7 characters and no more than 72 UTF-8 bytes. Compose and all backend commands share this file.
-2. From the workspace root, run `docker compose up --build --wait`. Docker discovers the single `docker-compose.yaml` and loads `.env` automatically. The default project remains `uemp-demo`. Its initialization job applies migrations and seeds the accounts and academic data before the API and both portals start. Append `backend` to run only the API and its dependencies.
-3. Sign in using the seeded demo accounts from the [project README](../README.md#demo-accounts). The Super Admin is created automatically; administrator bootstrapping is optional for an additional account.
-4. Check `GET /health/ready` on the configured port. Set both Swagger credentials in the environment to access `/docs` in development or staging.
+- [Architecture](../docs/architecture.md): modules, request execution, CQRS, the account cleanup saga and operations.
+- [Security](../docs/security.md): permissions, session transport/rotation, errors, audit and account redaction.
+- [Database](../docs/database.md): schema, relationships, constraints and retention.
+- [Workflows](../docs/workflows.md): setup, enrollment, grading, review, publication and GPA rules.
+- [Development](../docs/development.md): environment variables, local commands and isolated verification.
+- [Reviewer guide](../docs/reviewer-guide.md): demo accounts, walkthrough and handoff evidence.
 
-For local development with PostgreSQL and Redis already running, run `npm ci`, `npm run build`, `npm run migration:run`, `npm run admin:bootstrap`, and `npm run start:dev` from `backend/`. Use PostgreSQL 17 and Redis 7.4 to match Compose.
+## Development entry points
 
-## Run the demo
-
-Set `APP_ENV=development`, `POSTGRES_DB=uemp_demo`, and a `DEMO_SEED_PASSWORD` of at least 7 characters in the root `.env`, along with the database password and signing secrets from the local setup. From the repository root, run
+From the repository root, the single Compose definition starts the API and its dependencies with:
 
 ```sh
-docker compose up --build --wait
+docker compose up --build --wait backend
 ```
 
-The `uemp-demo` project uses its own PostgreSQL volume and the same `docker-compose.yaml` as normal local startup. On the first start of a fresh database, the one-shot `migrate` service applies migrations and creates the demo data automatically. Later starts apply only pending migrations, and the seed's transactional database markers prevent it from resetting or duplicating existing records. Both portals wait for the API to become healthy. No separate migration or seed command is needed with Compose. See the [project README](../README.md) for ports, public origins, frontend images, and operations, and the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
+Use the copy-ready root configuration and setup instructions in the [project README](../README.md). The one-shot initialization job applies migrations and creates a fresh demo dataset before the API starts. Later starts retain existing records. The provided initializer is for non-production demo/test databases.
 
-The job runs `npm run db:initialize`. It probes PostgreSQL before running the migration CLI and demo seed, including after a plain Compose restart that restarts dependencies together. Temporary DNS or connection failures are retried within a 60-second window. Invalid credentials and migration or seed failures stop the job. Fix configuration errors and rerun `up --build --wait`; the PostgreSQL volume and committed seed markers are retained.
+For host development, install with `npm ci` in `backend/`, then use these package commands with PostgreSQL/Redis configured as described in [development](../docs/development.md):
 
-## API entry points
+| Command                    | Purpose                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `npm run build`            | Compile the API, entities, migrations and CLI entry points into `dist/`.                                 |
+| `npm run start:dev`        | Start the Nest development watcher.                                                                      |
+| `npm run migration:run`    | Apply pending compiled TypeORM migrations. Build first.                                                  |
+| `npm run db:initialize`    | Wait for PostgreSQL, apply migrations and run demo initialization.                                       |
+| `npm run demo:seed`        | Add the synthetic demo fixtures when their completion markers are absent. Existing records are retained. |
+| `npm run admin:bootstrap`  | Create the initial global Super Admin only if no active one exists.                                      |
+| `npm run typecheck`        | Check strict TypeScript types without emitting code.                                                     |
+| `npm test`                 | Build and run the Node unit/configuration suites.                                                        |
+| `npm run test:integration` | Build and run opt-in API/database integration coverage against disposable infrastructure.                |
 
-| Area                          | Routes                                                                                                                                                                                                                                                                                                  |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Authentication                | `POST /v1/auth/signup/student`, `POST /v1/auth/sign-in`, `POST /v1/auth/refresh`, `POST /v1/auth/sign-out`                                                                                                                                                                                              |
-| Student or admin self-service | `GET`, `PATCH`, `DELETE /v1/users/me`, and `PATCH /v1/users/me/password`                                                                                                                                                                                                                                |
-| Academic lookup               | `GET /v1/academic-references`                                                                                                                                                                                                                                                                           |
-| Academic setup                | `GET /v1/admin/academic`, with create and update routes for faculties, departments, programmes, sessions, and semesters. Set a faculty's registration term with `PUT /v1/admin/academic/faculties/{id}/current-semester` or shared level availability with `PUT /v1/admin/academic/levels/{id}/status`. |
-| Course setup                  | `/v1/admin/courses` for the catalog, `/curriculum` for programme links, `/offerings` for departmental deliveries, and `GET /lecturers?departmentId=…` for assignment choices.                                                                                                                           |
-| Student registration          | `GET /v1/student/registrations/available`, `POST /v1/student/registrations`, and `GET /v1/student/registrations` for registered semesters. Read or download a semester summary at `/{semesterId}` or `/{semesterId}/summary/download` under the same route.                                             |
-| Department registration       | `GET /v1/admin/registrations?departmentId=…&semesterId=…` and `POST /v1/admin/registrations/students/{userId}`.                                                                                                                                                                                         |
-| Lecturer roster               | `GET /v1/lecturer/offerings`, `GET /v1/lecturer/offerings/{offeringId}/roster`, and `POST /v1/lecturer/offerings/{offeringId}/close-registration`.                                                                                                                                                      |
-| Lecturer results              | `GET /v1/lecturer/results`, `GET /v1/lecturer/results/{resultGroupId}`, `PATCH /v1/lecturer/results/{resultGroupId}/marks`, and `POST /v1/lecturer/results/{resultGroupId}/submit`.                                                                                                                     |
-| Department result review      | `GET /v1/admin/results?departmentId=…`, `GET /v1/admin/results/{resultGroupId}`, and `POST` to `/approve`, `/request-corrections`, or `/reopen` under the group route.                                                                                                                                  |
-| Student results               | `GET /v1/student/results`, `GET /v1/student/results/{semesterId}`, and `GET /v1/student/results/{semesterId}/statement/download`.                                                                                                                                                                       |
-| Academic reports              | `GET /v1/admin/reports/overview` and `GET /v1/admin/reports/courses`. Provide `semesterId` and, for scoped reporting, `departmentId`.                                                                                                                                                                   |
-| Admin user management         | `/v1/admin/users`, `/v1/admin/users/students`, and individual profile, placement, status, session revocation, and deletion routes                                                                                                                                                                       |
-| Admin and role management     | `/v1/admin/admins`, `/v1/admin/roles`, and scoped grant assignment and revocation                                                                                                                                                                                                                       |
-| Audit                         | `GET /v1/admin/audit-events` and `GET /v1/admin/audit-events/{eventId}`                                                                                                                                                                                                                                 |
+HTTP startup does not apply migrations. Never point integration fixtures or demo commands at a real deployment database. Read [backend contributor rules](AGENTS.md) before changing the implementation.
 
-Sign-in accepts an email, password, and account role (`student` or `admin`). Use the returned access token as a Bearer token. Refresh rotates both tokens and revokes the previous pair. Add `populate=student` to eligible admin user reads or `populate=roles%20user` to admin directory reads. Each relation is filtered by the caller’s privileges and department scope.
+## HTTP contract
 
-To open registration, activate an academic session and semester, select the semester for the faculty, and link catalog courses to each programme. Create offerings for the department and study level, assign lecturers, and activate the offerings. An HOD can provision a lecturer with `POST /v1/admin/admins` using their own `departmentId` and the lecturer's account details. Omitting `roleId` selects the seeded Lecturer role. An HOD can edit that lecturer's names at `PATCH /v1/admin/users/{userId}` if all of the lecturer's grants are in departments the HOD manages and can edit. Staff login email changes and account lifecycle actions require their respective university-wide privileges.
+JSON routes use the `/v1` prefix. Send `Authorization: Bearer <access-token>` on protected calls. Sign-in accepts `email`, `password` and `role` (`student` or `admin`); renewal rotates both credentials. Staff privileges and department scopes are resolved by the API, not inferred from a role name.
 
-Submit `semesterId` and `offeringIds` together. The API confirms the entire selection in one transaction and keeps the student's placement for that semester. The assigned lecturer can close a roster once it has its first enrollment. Closure is permanent.
+When enabled in a non-production environment, `/docs` provides the complete DTO examples and OpenAPI contract behind the configured HTTP Basic credentials. `/docs-json` and `/docs-yaml` share that protection. `GET /health/live` checks liveness; `GET /health/ready` probes PostgreSQL and Redis.
 
-The assigned lecturer can save marks in batches before or after closing enrollment, then submit when every enrollment has both marks. Departmental approval publishes the grades using the offering's pinned scale. Reviewers can return submitted results with feedback. Authorized reopening records a reason code and removes published grades from student views until reapproval. Students can read semester GPA and CGPA based on approved credit units and download a printable text statement.
+| Area                    | Routes                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication          | `POST /v1/auth/signup/student`, `POST /v1/auth/sign-in`, `POST /v1/auth/refresh`, `POST /v1/auth/sign-out`                                                                                                                                                                      |
+| Own account             | `GET`, `PATCH`, `DELETE /v1/users/me`; `PATCH /v1/users/me/password`                                                                                                                                                                                                            |
+| Public signup choices   | `GET /v1/academic-references`                                                                                                                                                                                                                                                   |
+| Academic setup          | Base `/v1/admin/academic`: `GET /`; `POST /faculties`, `/departments`, `/programmes`, `/sessions`, `/semesters`; `PUT /faculties/{id}`, `/departments/{id}`, `/programmes/{id}`, `/sessions/{id}`, `/semesters/{id}`, `/levels/{id}/status`, `/faculties/{id}/current-semester` |
+| Courses and offerings   | `GET`, `POST /v1/admin/courses`; `PUT /{id}`, `GET /lecturers`, `POST /curriculum`, `DELETE /curriculum/{id}`, `POST /offerings`, `PATCH /offerings/{id}` under that base                                                                                                       |
+| Student registration    | `GET`, `POST /v1/student/registrations`; `GET /available` and `GET /{semesterId}` under that base                                                                                                                                                                               |
+| Department registration | `GET /v1/admin/registrations`; `GET /students/{userId}/available`, `POST /students/{userId}` under that base                                                                                                                                                                    |
+| Lecturer rosters        | `GET /v1/lecturer/offerings`; `GET /{offeringId}/roster`, `POST /{offeringId}/close-registration` under that base                                                                                                                                                               |
+| Lecturer results        | `GET /v1/lecturer/results`; `GET /{resultGroupId}`, `PATCH /{resultGroupId}/marks`, `POST /{resultGroupId}/submit` under that base                                                                                                                                              |
+| Department review       | Base `/v1/admin/results`: `GET /`, `/options`, `/{resultGroupId}`; `POST /{resultGroupId}/approve`, `/{resultGroupId}/request-corrections`, `/{resultGroupId}/reopen`                                                                                                           |
+| Student results         | `GET /v1/student/results` and `GET /v1/student/results/{semesterId}`                                                                                                                                                                                                            |
+| Reports                 | `GET /v1/admin/reports/options`, `GET /v1/admin/reports/overview`, `GET /v1/admin/reports/courses`                                                                                                                                                                              |
+| User administration     | `GET /v1/admin/users`, `/{userId}`; `POST /students`; `PATCH /{userId}`, `/{userId}/status`; `PUT /{userId}/student-placement`; `POST /{userId}/revoke-sessions`; `DELETE /{userId}` under that base                                                                            |
+| Staff and roles         | `/v1/admin/admins` for directory/account creation and role grants; `/v1/admin/roles` for role reads and custom-role management; `GET /v1/admin/admins/me/authorization` for current grants                                                                                      |
+| Audit history           | `GET /v1/admin/audit-events` and `GET /v1/admin/audit-events/{eventId}`                                                                                                                                                                                                         |
 
-The [results workflow guide](../docs/results-workflow.md) documents every results route, required privilege, state transition, grading rule, audit event, and verification step.
+Directories and rosters use cursor pagination. Supported user population includes `populate=student`; staff directory population includes `populate=roles%20user`. The API filters each populated relation by scope. Reporting requires a semester and, for department-scoped access, the department ID.
 
-See the [backend assessment checklist](../docs/backend-assessment.md) for report definitions and a walkthrough using the three staff accounts, four students, and sample registrations created by `npm run demo:seed`.
+The student UI opens authenticated print views for registration summaries and result statements. Text attachment endpoints also remain available at `/v1/student/registrations/{semesterId}/summary/download` and `/v1/student/results/{semesterId}/statement/download`. They use the same authorized summaries and published-only results.
 
-Development and staging emit structured logs with request IDs. In production, setting `OTEL_EXPORTER_OTLP_ENDPOINT` enables OpenTelemetry traces and metrics. The server returns the request ID for log and audit correlation.
-
-## Verify
-
-Run `npm run typecheck` and `npm test`. For the integration suite, set `APP_ENV=test`, `UEMP_RUN_INTEGRATION=1`, a disposable PostgreSQL database with a name beginning with `uemp_test`, Redis connection settings, and test signing secrets. Run `npm run test:integration`. The suite creates synthetic accounts and applies migrations to the disposable database.
-
-Before shipping, run `npm audit --omit=dev`. The lockfile pins a patched `glob` for TypeORM and the telemetry dependency tree. Recheck migration and entity discovery before changing those overrides.
-
-See the [schema](../docs/schema-review.md) for the approved workflow and retention rules.
+Responses use DTO field allowlists and `Cache-Control: no-store` on protected/token-bearing data. Errors return a public message and request ID; optional field messages and trace IDs support correction and troubleshooting without exposing SQL or credentials.

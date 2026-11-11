@@ -1,0 +1,35 @@
+erDiagram
+    users ||..o| students : user_id
+    users ||..o| admins : user_id
+    admins ||..o{ admin_roles : admin_id
+    roles ||..o{ admin_roles : role_id
+    departments |o..o{ admin_roles : department_id
+    admins |o..o{ admins : created_by_admin_id
+    users {
+        uuid id PK
+        text role "student or admin"
+        text email "unique with role"
+    }
+    students {
+        uuid id PK
+        uuid user_id FK,UK
+    }
+    admins {
+        uuid id PK
+        uuid user_id FK,UK
+        uuid created_by_admin_id FK "NULL"
+    }
+    roles {
+        uuid id PK
+        text name UK
+        text[] privileges
+    }
+    admin_roles {
+        uuid id PK
+        uuid admin_id FK
+        uuid role_id FK
+        uuid department_id FK "NULL means university-wide grant"
+    }
+    departments {
+        uuid id PK
+    }

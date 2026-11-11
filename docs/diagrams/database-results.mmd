@@ -1,0 +1,37 @@
+erDiagram
+    students ||..o| matric_num_systems : student_id
+    students ||..o{ student_register_semesters : student_id
+    semesters ||..o{ student_register_semesters : semester_id
+    student_register_semesters ||..o{ student_registered_courses : "term ID and composite student match"
+    students ||..o{ student_registered_courses : student_id
+    courses ||..o{ student_registered_courses : course_id
+    users ||..o{ student_registered_courses : registered_by_user_id
+    course_offerings ||..o| result_groups : course_offering_id
+    result_groups ||..o{ student_registered_courses : result_group_id
+    grading_policies ||..o{ grade_systems : grading_policy_id
+    grade_systems |o..o{ student_registered_courses : awarded_grade_system_id
+    student_register_semesters {
+        uuid id PK
+        uuid student_id FK
+        uuid semester_id FK
+    }
+    student_registered_courses {
+        uuid id PK
+        uuid student_register_semester_id FK
+        uuid student_id FK
+        uuid result_group_id FK
+        uuid awarded_grade_system_id FK "NULL until approval"
+    }
+    result_groups {
+        uuid id PK
+        uuid course_offering_id FK,UK
+        text status "only approved publishes grades"
+        text registration_status "closure is permanent"
+    }
+    admin_audit_events {
+        uuid id PK
+        uuid actor_user_id "NULL; logical UUID, no FK"
+        uuid actor_admin_id "NULL; logical UUID, no FK"
+        uuid target_id "NULL; logical UUID, no FK"
+        text target_type
+    }

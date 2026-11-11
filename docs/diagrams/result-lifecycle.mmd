@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> pending
+    pending --> submitted: Complete marks and closed roster
+    submitted --> approved: Approve and award grades
+    submitted --> correction_requested: Return with feedback
+    correction_requested --> submitted: Correct and resubmit
+    submitted --> pending: Authorized reopening
+    approved --> pending: Reopen and withdraw publication

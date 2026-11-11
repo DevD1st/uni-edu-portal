@@ -1,0 +1,22 @@
+erDiagram
+    academic_sessions ||..o{ semesters : academic_session_id
+    semesters |o..o{ faculties : current_semester_id
+    faculties ||..o{ departments : faculty_id
+    departments ||..o{ courses_of_study : department_id
+    courses_of_study ||..o{ course_of_study_courses : course_of_study_id
+    courses ||..o{ course_of_study_courses : course_id
+    courses ||..o{ course_offerings : course_id
+    departments ||..o{ course_offerings : department_id
+    semesters ||..o{ course_offerings : semester_id
+    academic_levels ||..o{ course_offerings : academic_level_id
+    grading_policies ||..o{ course_offerings : grading_policy_id
+    admins |o..o{ course_offerings : lecturer_id
+    course_offerings {
+        uuid id PK
+        uuid course_id FK
+        uuid department_id FK
+        uuid semester_id FK
+        uuid academic_level_id FK
+        uuid grading_policy_id FK
+        uuid lecturer_id FK "NULL until allocated"
+    }

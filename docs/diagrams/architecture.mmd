@@ -1,0 +1,29 @@
+flowchart TB
+  subgraph clients[Browser clients]
+    student[Student browser]
+    staff[Staff browser]
+  end
+  subgraph application[Application network]
+    next[Next.js student portal<br/>Server-rendered pages and route handlers]
+    nginx[Nginx staff portal<br/>React application assets]
+    api[NestJS API<br/>Modules, CQRS, validation and authorization]
+  end
+  subgraph infrastructure[Internal infrastructure network]
+    pg[(PostgreSQL<br/>Academic records and auth versions)]
+    redis[(Redis<br/>TTL token registry)]
+    init[One-shot initializer<br/>Migrations, then demo seed]
+  end
+  student -->|Pages and HTTP-only cookies| next
+  staff -->|Load static assets| nginx
+  staff -->|Bearer-authenticated JSON requests| api
+  next -->|Server-side authenticated requests| api
+  api -->|Transactions and scoped reads| pg
+  api -->|Atomic token rotation| redis
+  init -->|Apply pending migrations and seed if absent| pg
+  init -. Successful completion gates API startup .-> api
+  classDef client fill:#eff6ff,stroke:#42658a,color:#142b43
+  classDef app fill:#e8f7f3,stroke:#287d6a,color:#123f36
+  classDef store fill:#fff7e6,stroke:#9c782c,color:#4b3917
+  class student,staff client
+  class next,nginx,api app
+  class pg,redis,init store

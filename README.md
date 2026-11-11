@@ -1,120 +1,145 @@
 # University Education Management Portal
 
-UEMP implements student registration, lecturer marks entry, departmental approval, published results and weighted GPA/CGPA, academic administration, scoped staff privileges, reports, and audit history. The backend uses NestJS, PostgreSQL, and Redis. A Next.js student portal and a React staff portal share the frontend design system and API contracts.
+UEMP manages university course registration, lecturer marks, departmental result approval, and student academic records. It includes a student portal, a privilege-aware staff portal, a NestJS API, and a reproducible local demo with sample accounts and academic data.
 
-## Start the complete demo
+Start with the [local setup](#run-the-complete-application), then follow the [reviewer walkthrough](docs/reviewer-guide.md). The [architecture guide](docs/architecture.md), [database design and ERD](docs/database.md), and [security model](docs/security.md) explain the implementation and its tradeoffs.
 
-Install Docker with the Compose plugin. No host Node.js installation is needed to run the container stack.
+## Run the complete application
 
-On first setup, copy `.env.example` to `.env` in the repository root and configure:
-
-| Setting                                       | Value                                                                           |
-| --------------------------------------------- | ------------------------------------------------------------------------------- |
-| `APP_ENV`                                     | `development` for the demo                                                      |
-| `POSTGRES_DB`                                 | A dedicated demo database, such as `uemp_demo`                                  |
-| `POSTGRES_PASSWORD`                           | Your local database password                                                    |
-| `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET` | Two different random strings of at least 32 characters                          |
-| `DEMO_SEED_PASSWORD`                          | The shared initial demo password; at least 7 characters, at most 72 UTF-8 bytes |
-
-From the repository root, run:
+Install Docker with Docker Compose. Host Node.js and database installations are unnecessary for this route. From the repository root, copy the supplied example and start the stack:
 
 ```powershell
+Copy-Item .env.example .env
 docker compose up --build --wait
 ```
 
-Docker discovers the single `docker-compose.yaml` automatically. That command builds and starts the complete stack:
+On macOS/Linux, use `cp .env.example .env` for the copy step. Copy the file once when setting up a new checkout. The example already contains working **local demo configuration**; no values need to be edited to try the application. Its shared credentials and signing keys are public demo values; replace them before a remote deployment.
 
-1. PostgreSQL and Redis become healthy.
-2. The one-shot `migrate` service waits for a working database connection, applies migrations, and seeds the demo.
-3. The API starts after that job exits successfully.
-4. Both portals start after the API is healthy.
+| Application    | Address                                                     | Access                                                       |
+| -------------- | ----------------------------------------------------------- | ------------------------------------------------------------ |
+| Student portal | [localhost:3001](http://localhost:3001)                     | Student accounts below, or create an account                 |
+| Staff portal   | [localhost:3002](http://localhost:3002)                     | Lecturer, HOD, or Super Admin account below                  |
+| HTTP API       | [localhost:3000](http://localhost:3000)                     | Versioned routes under `/v1`; [API guide](backend/README.md) |
+| Swagger UI     | [localhost:3000/docs](http://localhost:3000/docs)           | Username `uemp`, password `uemp` from the example            |
+| OpenAPI JSON   | [localhost:3000/docs-json](http://localhost:3000/docs-json) | Same documentation credentials                               |
 
-| Application    | Address                                 | Readiness                                   |
-| -------------- | --------------------------------------- | ------------------------------------------- |
-| Student portal | [localhost:3001](http://localhost:3001) | `/health/ready` checks its API              |
-| Staff portal   | [localhost:3002](http://localhost:3002) | `/health/ready` checks the static server    |
-| API            | [localhost:3000](http://localhost:3000) | `/health/ready` checks PostgreSQL and Redis |
+The single [docker-compose.yaml](docker-compose.yaml) starts PostgreSQL and Redis, then runs the one-shot `migrate` job. That job waits for PostgreSQL, applies migrations, and seeds the demo. The API starts only after initialization succeeds; both portals wait for API readiness. Expect `migrate` to exit with code `0` and the other five services to become healthy.
 
-The student portal runs its standalone Next.js server. Nginx serves the built staff app, including direct visits to nested React Router URLs. Both containers run as non-root users. PostgreSQL and Redis use a separate internal network shared only with the API and initialization job. Frontend containers cannot reach those infrastructure services directly. The web ports bind to loopback for local development.
-
-The completed `migrate` container should show `Exited (0)`. It is an initialization job, not a long-running service. The other five services should be healthy.
-
-## Demo accounts
-
-Use `DEMO_SEED_PASSWORD` for newly seeded accounts:
-
-| Account                                                            | Experience                                                           |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| `super-admin@demo.example.test`                                    | University setup, accounts, roles, reports, and audit                |
-| `hod@demo.example.test`                                            | Department administration, delegated registration, and result review |
-| `lecturer@demo.example.test`                                       | Assigned rosters, draft marks, and result submission                 |
-| `student@demo.example.test`                                        | Registration and published results                                   |
-| `student-maya@demo.example.test`, `student-theo@demo.example.test` | Shared courses with different published grades                       |
-| `student-nora@demo.example.test`                                   | Initially empty registration and results                             |
-
-On the first startup with a fresh PostgreSQL volume, the initialization job applies the migrations and creates these accounts, academic setup, courses, registrations, and sample results automatically. No separate migration or seed command is needed.
-
-On later `up` runs, TypeORM applies only pending migrations. The seed checks its completion markers in the database and leaves existing accounts, passwords, registrations, marks, and grades unchanged. A failed seed rolls back its transaction so a subsequent startup can retry. Keep the PostgreSQL volume to preserve this state. Read the [demo walkthrough](docs/backend-assessment.md#demo-walkthrough) for the sample courses and approval exercise.
-
-Changing `DEMO_SEED_PASSWORD` after initialization does not reset existing passwords. Password changes made through the application are preserved.
-
-## Configuration and container networking
-
-Compose automatically reads the root `.env` for substitutions and passes it to the backend and initialization job. Backend commands load the same file regardless of their working directory. No `--env-file` flag or duplicate backend environment file is needed. When upgrading from the earlier backend-local layout, relocate the configured file to the root and keep its existing values. The root `.env` remains Git-ignored and is outside both frontend and backend Docker build contexts. Frontend `.env.local` files are only needed for host development and are excluded from Docker builds.
-
-The default Compose project name is `uemp-demo`, preserving the existing container and PostgreSQL volume names. Plain `docker compose up --build`, `docker compose down`, and `docker compose ps` therefore target the same project. An explicit `--project-name` still overrides it for isolated tests or separate deployments.
-
-| Setting                            | Default and purpose                                                                                                                     |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                             | Public API port, `3000`                                                                                                                 |
-| `STUDENT_PORT`, `ADMIN_PORT`       | Public portal ports, `3001` and `3002`                                                                                                  |
-| `PUBLIC_API_URL`                   | Browser-accessible API origin; defaults to `http://localhost:<PORT>`. This is a staff **build argument**, so rebuild after changing it. |
-| `STUDENT_APP_ORIGIN`               | Browser-accessible student origin; defaults to `http://localhost:<STUDENT_PORT>`. Used for mutation-origin checks and secure cookies.   |
-| `CORS_ORIGINS`                     | Allowed browser origins. Keep it aligned with both portal URLs when changing ports or hostnames.                                        |
-| `SWAGGER_USER`, `SWAGGER_PASSWORD` | Optional credentials to enable API documentation at `/docs` outside production                                                          |
-
-Inside Compose, the student server calls `http://backend:3000`. Its access and refresh tokens are HTTP-only cookies; the frontend never connects to Redis or PostgreSQL. The staff browser uses `PUBLIC_API_URL`, not container service names. Backend secrets are not passed to the frontend containers. For remote hosting, configure the public origins and put HTTPS in front of the web services.
-
-`docker-compose.yaml` is the only Compose file. Its `migrate` service runs `npm run db:initialize`, which waits for PostgreSQL, applies pending TypeORM migrations, and runs the demo seed. The API waits for the job to succeed. Database readiness retries temporary DNS and connection failures within a 60-second retry window; incorrect credentials and failed migrations or seeding stop initialization. It targets the non-production demo setup described above. Host frontend development uses the same file with only the backend service and its dependencies selected.
-
-## Development
-
-The [frontend guide](frontend/README.md#host-development) explains how to run both portals with hot reload while keeping infrastructure and the API in Docker. Host development uses Node.js 24+ and pnpm 12.11.2. The [backend guide](backend/README.md) covers local NestJS development and administrator bootstrapping without demo data.
-
-| Location                 | Responsibility                                                                         |
-| ------------------------ | -------------------------------------------------------------------------------------- |
-| `backend/`               | API modules, entities, migrations, demo seed, DTOs, instrumentation, and backend tests |
-| `frontend/apps/student/` | Student portal with HTTP-only token cookies                                            |
-| `frontend/apps/admin/`   | Staff portal with privilege-gated workflows                                            |
-| `frontend/packages/`     | Shared theme, UI, contracts, transport, lint, and TypeScript configuration             |
-| `frontend/e2e/`          | Real-backend browser regression tests                                                  |
-| `docs/`                  | Schema, assessment coverage, grading, approval, and demo documentation                 |
-
-Follow the contributor instructions in [backend/AGENTS.md](backend/AGENTS.md) and [frontend/AGENTS.md](frontend/AGENTS.md). The design gallery is a host-development tool and is excluded from the production staff bundle.
-
-## Verification and operations
-
-The [assessment verification report](docs/assessment-verification.md) maps the original requirements and approved corrections to implementation evidence, executed checks, and remaining submission handoff items.
-
-Run `pnpm --dir frontend check` and `npm --prefix backend test` for source checks and builds. The [frontend verification guide](frontend/README.md#verification) explains how to run the browser suite against these actual containers without starting host dev servers. Use a fresh disposable demo database because the suite changes registrations, results, accounts, and roles.
-
-Use `up --build --wait` after code or configuration changes so images are rebuilt and readiness is checked. A plain `docker compose restart` reuses the existing images and configuration. It can restart the initialization job alongside PostgreSQL, so the job performs its own connection readiness check before migrations or seeding. Keep the same project name and database volume to retain data.
-
-If initialization exits with an error, inspect the `migrate` logs, correct the configuration, and rerun the startup command. The API and portals wait for successful initialization during `up`.
-
-Inspect a running demo with:
+Later startups apply pending migrations and preserve existing accounts, passwords, registrations, and marks. The seed uses a transaction, advisory locking, and committed completion markers, so restarting does not duplicate or reset data. Keep the same project name and PostgreSQL volume to retain your work.
 
 ```powershell
 docker compose ps -a
 docker compose logs --tail 100 migrate backend student admin
-```
-
-Stop it while preserving PostgreSQL data:
-
-```powershell
 docker compose down
 ```
 
-Adding `--volumes` to `down` deletes that project's database. Use it only when deliberately resetting a disposable demo.
+`down` stops the stack while retaining the database. `up --build --wait` rebuilds changed application images and checks readiness. See [configuration, troubleshooting, and operations](docs/development.md) for port changes, native development, and initialization failures. The supplied Compose setup is a local demo; production initialization and deployment considerations are explained in the [architecture guide](docs/architecture.md).
 
-See the [schema](docs/schema-review.md), [results and GPA rules](docs/results-workflow.md), [staff workflows](frontend/docs/staff-workflows.md), and [design system](frontend/docs/design-system.md) for implementation details.
+## Demo access and walkthrough
+
+All seven accounts initially use **`12345678`**, the `DEMO_SEED_PASSWORD` in [.env.example](.env.example). This applies to a fresh database. Changing that setting later does not change existing account passwords.
+
+| Email                            | Portal  | What the account demonstrates                                            |
+| -------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `student@demo.example.test`      | Student | Existing registration, published result, and additional course selection |
+| `student-maya@demo.example.test` | Student | Published B grade, GPA/CGPA, and a result awaiting departmental approval |
+| `student-theo@demo.example.test` | Student | The same courses as Maya with a different published grade                |
+| `student-nora@demo.example.test` | Student | Empty academic history and first course registration                     |
+| `lecturer@demo.example.test`     | Staff   | Assigned class lists, roster closure, marks, and submission              |
+| `hod@demo.example.test`          | Staff   | Department administration, lecturer provisioning, review, and reports    |
+| `super-admin@demo.example.test`  | Staff   | University setup, accounts, roles, reporting, and audit                  |
+
+The [reviewer guide](docs/reviewer-guide.md) describes the six seeded offerings and provides a tour from registration through publication. It also maps the delivered features to their screens, API modules, documentation, and verification coverage.
+
+## Implemented deliverables
+
+| Area                      | Delivered behavior                                                                                                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Student experience        | Signup, secure sign-in, editable profile, matriculation and placement, eligible course registration, academic history, approved results, GPA/CGPA, and authenticated print views              |
+| Lecturer experience       | Assigned offerings, paginated rosters, permanent registration closure, CA/exam drafts, validation, submission, review feedback, and performance summaries                                     |
+| Department administration | Programme curricula, departmental offerings, lecturer assignment/provisioning, student placement and delegated registration, result decisions, and scoped reports                             |
+| University administration | Faculties, departments, programmes, sessions, semesters, reference levels, course catalog, accounts/status, custom roles, scoped grants, university reports, and audit                        |
+| Technical delivery        | Source code, migration-defined relational schema, [ERD and data dictionary](docs/database.md), generated Swagger contracts, Docker startup, sample data, and automated backend/browser checks |
+
+The [workflow guide](docs/workflows.md) defines eligibility, registration limits, result states, departmental ownership, reporting, and grading. The application focuses on academic administration; payments, accommodation, admissions screening, messaging gateways, and external university integrations are outside its current scope.
+
+## Technology stack and rationale
+
+| Technology                                       | Why it is used here                                                                                                                           |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript and Node.js 24                        | Shared language across API and portals, strict application types, and a consistent local development runtime                                  |
+| NestJS 11                                        | Dependency injection and feature modules keep authorization, validation, orchestration, and infrastructure responsibilities explicit          |
+| Nest CQRS and RxJS                               | Commands express state changes, queries express reads, and an in-process saga coordinates session cleanup after committed account changes     |
+| PostgreSQL 17                                    | Transactions, relational constraints, row locks, numeric arithmetic, and triggers protect academic integrity under concurrent requests        |
+| TypeORM 0.3                                      | Entity mapping and versioned migrations provide a reproducible schema; SQL is used where joins, locking, or aggregate precision are important |
+| Redis 7.4                                        | Backend-only, TTL-backed access/refresh token registry with atomic rotation operations; PostgreSQL remains the authoritative record           |
+| Next.js 16 and React 19                          | Server-rendered student records and same-origin route handlers keep bearer tokens out of student browser JavaScript                           |
+| React 19, Vite 7, and React Router               | The staff workspace is an interactive SPA with fast navigation, editable marks, route-level access gates, and unsaved-work protection         |
+| pnpm workspaces and Turborepo                    | Both portals reuse UI, theme, API transport, generated contracts, and tooling without importing each other's application internals            |
+| Tailwind CSS 4, authored CSS, and Source Sans 3  | Shared semantic tokens and accessible primitives produce consistent responsive layouts, light/dark themes, and readable academic data         |
+| Swagger, DTO classes, and runtime decoders       | Request/response contracts are documented with examples, validated at HTTP boundaries, and checked again when consumed by the portals         |
+| Winston and OpenTelemetry                        | Structured request/domain logs support diagnosis; configured production deployments can additionally export traces and metrics                |
+| Docker Compose, Playwright, and Node test runner | Repeatable startup and real database/browser verification cover workflows, access boundaries, concurrency, and responsive behavior            |
+
+The [backend manifest](backend/package.json), [frontend workspace manifest](frontend/package.json), and application manifests declare dependencies; their lockfiles pin resolved versions. The [architecture guide](docs/architecture.md) explains why this is a modular monolith, why the portals use different rendering models, and how CQRS and the saga are bounded.
+
+## Architecture
+
+![Application architecture: student requests pass through Next.js, staff browser requests go directly to NestJS, and only the backend and initializer use the infrastructure network.](docs/diagrams/architecture.svg)
+
+[Open the diagram](docs/diagrams/architecture.svg) · [Editable Mermaid source](docs/diagrams/architecture.mmd)
+
+The API owns business rules and access decisions. Next.js forwards authenticated student requests from the server; the staff browser calls the API using a validated tab session. Nginx serves staff assets. Frontend containers join the application network; PostgreSQL and Redis remain on a separate internal network. No frontend receives database credentials or a Redis connection.
+
+Read [architecture and request flows](docs/architecture.md) for module boundaries, transactions, events, logging, startup, deployment, and engineering tradeoffs.
+
+## Database design
+
+The model separates a shared catalog course from its programme curriculum links and departmental semester offerings. Registration saves academic placement and credit units for the term. Result groups own workflow state; enrolled courses hold marks and the awarded band from a pinned grading policy. Historical records therefore survive later placement changes and account redaction.
+
+The [database guide](docs/database.md) contains the **complete ERD**, focused relationship diagrams, every table/property, cardinality and deletion rules, and constraint/index explanations. [Executable migrations](backend/src/core/database/migrations/) are the schema authority; synchronization is disabled.
+
+## Roles, permissions, and security
+
+There are two account types: `student` and `admin`. Lecturer, HOD, and Super Admin are staff role definitions, not additional account types. A staff account can hold several role assignments. Each assignment grants privileges for one department or, when its department is null, university-wide.
+
+The API checks the privilege on the grant that supplies the relevant scope. Teaching additionally requires the offering assignment, and result actions require a compatible workflow state. The portals use these same grants to decide navigation and controls. A lecturer who also has the owning department's approval privilege can approve their own submission.
+
+Students can read only their own academic records and currently approved results. Passwords are hashed with bcrypt; access/refresh tokens rotate and are revocable. Student tokens use HTTP-only cookies; staff credentials are isolated by browser tab. Audit records track administrative activity, and account deletion redacts direct identifiers while retaining academic history.
+
+The [security guide](docs/security.md) explains session expiry/logout, authorization examples, validation/error handling, transactional audit guarantees, redaction, and the boundaries of the local deployment.
+
+## Project structure
+
+```text
+backend/
+  src/core/             Configuration, database, Redis, logging, telemetry
+  src/shared/           HTTP contracts, guards, authorization and audit contracts
+  src/modules/          Auth, user, student, admin, academic setup, courses,
+                        registration, grading, results and reporting
+  src/demo/             Repeatable sample data
+  test/                 Unit and real-database integration fixtures
+frontend/
+  apps/student/         Next.js student routes and feature components
+  apps/admin/           React staff routes and privilege-aware workspaces
+  packages/             Theme, UI, API contracts, transport and tooling
+  e2e/                  Real-backend Playwright workflows
+docs/                   Technical guides, walkthrough and diagram sources
+docker-compose.yaml     Complete local stack and initialization job
+```
+
+The backend and frontend have separate manifests and lockfiles because they are independently built applications. The two web apps form a frontend monorepo so reusable browser contracts and presentation have one owner. [Backend structure and API reference](backend/README.md), [frontend structure](frontend/README.md), and the [design system](frontend/docs/design-system.md) explain those boundaries in detail.
+
+## Development and verification
+
+For host development, use Node.js 24+ and the pinned pnpm version. Copy the web apps' `.env.example` files to `.env.local` only when running those apps outside Docker. [Development instructions](docs/development.md) give the exact commands, environment variables, contract generation, and troubleshooting.
+
+```powershell
+npm --prefix backend run typecheck
+npm --prefix backend test
+pnpm --dir frontend check
+```
+
+Live integration and browser suites use disposable databases because they create accounts, close rosters, and change results. The [verification guide](docs/development.md#verification) distinguishes source checks, PostgreSQL/Redis integration, normal browser mode, production-container checks, and real token-expiry checks. The [reviewer guide](docs/reviewer-guide.md#verification-evidence) explains what those checks establish and the recorded execution limits.
+
+Contributor instructions remain in [backend/AGENTS.md](backend/AGENTS.md) and [frontend/AGENTS.md](frontend/AGENTS.md).
