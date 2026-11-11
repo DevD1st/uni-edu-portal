@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-uemp}
+      POSTGRES_DB: ${POSTGRES_DB:-uemp_demo}
       POSTGRES_USER: ${POSTGRES_USER:-uemp}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}
     volumes:
@@ -29,7 +29,10 @@ services:
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
-    command: ["npm", "run", "migration:run"]
+      POSTGRES_DB: ${POSTGRES_DB:-uemp_demo}
+      DEMO_SEED_PASSWORD: ${DEMO_SEED_PASSWORD:?Set DEMO_SEED_PASSWORD in backend/.env (at least 7 characters)}
+    # The job also waits for PostgreSQL when plain restart bypasses dependency health.
+    command: ["npm", "run", "db:initialize"]
     networks: [infrastructure]
     depends_on:
       postgres:
@@ -42,6 +45,7 @@ services:
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-uemp_demo}
       REDIS_URL: redis://redis:6379
       PORT: 3000
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001,http://localhost:3002}

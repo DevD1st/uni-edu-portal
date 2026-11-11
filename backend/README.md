@@ -4,9 +4,9 @@ The API supports authentication, account and role management, academic and cours
 
 ## Run locally
 
-1. Copy `backend/.env.example` to `backend/.env`. Set the database password and two different random signing secrets of at least 32 characters. Set the bootstrap administrator email and password.
-2. From the workspace root, run `docker compose --env-file backend/.env up --build --wait`. Compose starts PostgreSQL and Redis, applies the migrations, starts the API, and then starts both production portals. To run only the backend stack, append `postgres redis migrate backend`.
-3. Run `docker compose --env-file backend/.env exec backend npm run admin:bootstrap` to create the first university-wide administrator.
+1. Copy `backend/.env.example` to `backend/.env`. Keep `APP_ENV=development` and a dedicated `POSTGRES_DB=uemp_demo`. Set the database password, two different random signing secrets of at least 32 characters, and `DEMO_SEED_PASSWORD` with at least 7 characters and no more than 72 UTF-8 bytes.
+2. From the workspace root, run `docker compose --project-name uemp-demo --env-file backend/.env up --build --wait`. Docker discovers the single `docker-compose.yaml`. Its initialization job applies migrations and seeds the accounts and academic data before the API and both portals start. Append `backend` to run only the API and its dependencies.
+3. Sign in using the seeded demo accounts from the [project README](../README.md#demo-accounts). The Super Admin is created automatically; administrator bootstrapping is optional for an additional account.
 4. Check `GET /health/ready` on the configured port. Set both Swagger credentials in the environment to access `/docs` in development or staging.
 
 For local development with PostgreSQL and Redis already running, run `npm ci`, `npm run build`, `npm run migration:run`, `npm run admin:bootstrap`, and `npm run start:dev` from `backend/`. Use PostgreSQL 17 and Redis 7.4 to match Compose.
@@ -16,10 +16,12 @@ For local development with PostgreSQL and Redis already running, run `npm ci`, `
 Set `APP_ENV=development`, `POSTGRES_DB=uemp_demo`, and a `DEMO_SEED_PASSWORD` of at least 7 characters in `backend/.env`, along with the database password and signing secrets from the local setup. From the repository root, run
 
 ```sh
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
+docker compose --project-name uemp-demo --env-file backend/.env up --build --wait
 ```
 
-The `uemp-demo` project uses its own PostgreSQL volume. The one-shot `migrate` service applies migrations and runs the demo seed before the API starts. Both portals wait for the API to become healthy. The demo accounts, courses, and sample registrations are ready when Compose completes. See the [project README](../README.md) for ports, public origins, frontend images, and operations, and the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
+The `uemp-demo` project uses its own PostgreSQL volume and the same `docker-compose.yaml` as normal local startup. On the first start of a fresh database, the one-shot `migrate` service applies migrations and creates the demo data automatically. Later starts apply only pending migrations, and the seed's transactional database markers prevent it from resetting or duplicating existing records. Both portals wait for the API to become healthy. No separate migration or seed command is needed with Compose. See the [project README](../README.md) for ports, public origins, frontend images, and operations, and the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
+
+The job runs `npm run db:initialize`. It probes PostgreSQL before running the migration CLI and demo seed, including after a plain Compose restart that restarts dependencies together. Temporary DNS or connection failures are retried within a 60-second window. Invalid credentials and migration or seed failures stop the job. Fix configuration errors and rerun `up --build --wait`; the PostgreSQL volume and committed seed markers are retained.
 
 ## API entry points
 

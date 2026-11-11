@@ -5,6 +5,7 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 ## Layout
 
 - `src/main.ts` initializes telemetry before loading the HTTP application. `src/app.module.ts` composes the features.
+- `src/initialize.ts` is the one-shot database initialization entry point. It waits for a usable PostgreSQL connection before running migrations and the existing demo seed. Retry only transient readiness failures within a bounded window; migration or seed failures must exit nonzero so Compose does not start the API against incomplete initialization.
 - `src/core/` owns configuration, PostgreSQL, Redis, logging, request context, and telemetry. It must never import a feature or shared application logic.
 - `src/shared/` holds application contracts and HTTP infrastructure used across features. Keep it independent of feature implementations.
 - `src/modules/<feature>/` owns its controllers, DTOs, commands, queries, entities, and repositories. Place handlers in purpose-named directories and keep a separate file for each handler.
@@ -30,7 +31,7 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 
 ## Checks
 
-Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. To verify startup from the repository root, configure `backend/.env` from the example, run `docker compose --env-file backend/.env up --build --wait`, then check `/health/ready`. Compose also starts both production portals after the API is healthy. Append `postgres redis migrate backend` for backend-only development. The migration service must complete successfully before the API starts; the demo overlay adds seeding to that same initialization job. See the top-level README for the complete demo command.
+Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. Keep exactly one Compose file at the repository root: `docker-compose.yaml`. Configure `backend/.env` from the example, then run `docker compose --project-name uemp-demo --env-file backend/.env up --build --wait` and check `/health/ready`. The initialization job applies pending migrations and creates demo data on the first start of a fresh database. On subsequent runs, the seed checks its transactional completion markers and leaves existing data intact. Both initialization steps must succeed before the API starts. Both portals then wait for API readiness. Append `backend` for backend-only development. Keep startup commands and first-start behavior in the top-level README current.
 
 Run `npm run test:integration` with `UEMP_RUN_INTEGRATION=1`, `APP_ENV=test`, and settings for a disposable PostgreSQL database whose name starts with `uemp_test`, plus a disposable Redis instance. Use synthetic account details in fixtures.
 

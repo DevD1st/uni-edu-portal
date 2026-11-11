@@ -27,6 +27,7 @@
     "typeorm": "typeorm -d dist/core/database/ormconfig.js",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
+    "db:initialize": "node dist/initialize.js",
     "admin:bootstrap": "node dist/modules/admin/bootstrap.js",
     "demo:seed": "node dist/demo/seed.js",
     "test": "npm run build && node --test test/*.test.mjs",
@@ -65,6 +66,7 @@
     "@types/express": "5.0.5",
     "@types/jsonwebtoken": "9.0.10",
     "@types/node": "22.19.1",
+    "@types/pg": "8.15.6",
     "typescript": "5.9.3"
   }
 }

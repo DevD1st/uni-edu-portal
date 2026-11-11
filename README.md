@@ -19,13 +19,13 @@ On first setup, copy `backend/.env.example` to `backend/.env` and configure:
 From the repository root, run:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
+docker compose --project-name uemp-demo --env-file backend/.env up --build --wait
 ```
 
-That single command builds and starts the complete stack:
+Docker discovers the single `docker-compose.yaml` automatically. That command builds and starts the complete stack:
 
 1. PostgreSQL and Redis become healthy.
-2. The one-shot `migrate` service applies migrations and seeds the demo.
+2. The one-shot `migrate` service waits for a working database connection, applies migrations, and seeds the demo.
 3. The API starts after that job exits successfully.
 4. Both portals start after the API is healthy.
 
@@ -52,7 +52,11 @@ Use `DEMO_SEED_PASSWORD` for newly seeded accounts:
 | `student-maya@demo.example.test`, `student-theo@demo.example.test` | Shared courses with different published grades                       |
 | `student-nora@demo.example.test`                                   | Initially empty registration and results                             |
 
-Seeding is repeatable. Restarting does not reset existing accounts, passwords, registrations, marks, or grades. Read the [demo walkthrough](docs/backend-assessment.md#demo-walkthrough) for the sample courses and approval exercise.
+On the first startup with a fresh PostgreSQL volume, the initialization job applies the migrations and creates these accounts, academic setup, courses, registrations, and sample results automatically. No separate migration or seed command is needed.
+
+On later `up` runs, TypeORM applies only pending migrations. The seed checks its completion markers in the database and leaves existing accounts, passwords, registrations, marks, and grades unchanged. A failed seed rolls back its transaction so a subsequent startup can retry. Keep the PostgreSQL volume to preserve this state. Read the [demo walkthrough](docs/backend-assessment.md#demo-walkthrough) for the sample courses and approval exercise.
+
+Changing `DEMO_SEED_PASSWORD` after initialization does not reset existing passwords. Password changes made through the application are preserved.
 
 ## Configuration and container networking
 
@@ -69,7 +73,7 @@ Compose reads configuration from `backend/.env`. Frontend `.env.local` files are
 
 Inside Compose, the student server calls `http://backend:3000`. Its access and refresh tokens are HTTP-only cookies; the frontend never connects to Redis or PostgreSQL. The staff browser uses `PUBLIC_API_URL`, not container service names. Backend secrets are not passed to the frontend containers. For remote hosting, configure the public origins and put HTTPS in front of the web services.
 
-`compose.yaml` starts all services and applies migrations. `compose.demo.yaml` adds demo seeding to the initialization job; omit that overlay for a normal application database. Host frontend development uses those same two files with only the backend services selected.
+`docker-compose.yaml` is the only Compose file. Its `migrate` service runs `npm run db:initialize`, which waits for PostgreSQL, applies pending TypeORM migrations, and runs the demo seed. The API waits for the job to succeed. Database readiness retries temporary DNS and connection failures within a 60-second retry window; incorrect credentials and failed migrations or seeding stop initialization. It targets the non-production demo setup described above. Host frontend development uses the same file with only the backend service and its dependencies selected.
 
 ## Development
 
@@ -90,17 +94,21 @@ Follow the contributor instructions in [backend/AGENTS.md](backend/AGENTS.md) an
 
 Run `pnpm --dir frontend check` and `npm --prefix backend test` for source checks and builds. The [frontend verification guide](frontend/README.md#verification) explains how to run the browser suite against these actual containers without starting host dev servers. Use a fresh disposable demo database because the suite changes registrations, results, accounts, and roles.
 
+Use `up --build --wait` after code or configuration changes so images are rebuilt and readiness is checked. A plain `docker compose restart` reuses the existing images and configuration. It can restart the initialization job alongside PostgreSQL, so the job performs its own connection readiness check before migrations or seeding. Keep the same project name and database volume to retain data.
+
+If initialization exits with an error, inspect the `migrate` logs, correct the configuration, and rerun the startup command. The API and portals wait for successful initialization during `up`.
+
 Inspect a running demo with:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml ps -a
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml logs --tail 100 migrate backend student admin
+docker compose --project-name uemp-demo --env-file backend/.env ps -a
+docker compose --project-name uemp-demo --env-file backend/.env logs --tail 100 migrate backend student admin
 ```
 
 Stop it while preserving PostgreSQL data:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml down
+docker compose --project-name uemp-demo --env-file backend/.env down
 ```
 
 Adding `--volumes` to `down` deletes that project's database. Use it only when deliberately resetting a disposable demo.

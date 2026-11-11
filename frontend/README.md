@@ -7,17 +7,19 @@ The student portal runs on Next.js at port 3001. The staff portal runs on React 
 Configure `backend/.env` as described in the [project README](../README.md#start-the-complete-demo). From the repository root, start the API, both portals, migrations, and demo data together:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
+docker compose --project-name uemp-demo --env-file backend/.env up --build --wait
 ```
 
 The student image runs a standalone Next.js server and calls the internal HTTP API for data and authentication. The staff image serves production assets through Nginx, with SPA routing and immutable hashed assets. Its `VITE_API_URL` comes from the public `PUBLIC_API_URL` Compose build argument. Frontend local environment files and build output are excluded from the build context. The dev-only design gallery is absent from that staff bundle.
+
+Docker uses the repository's single `docker-compose.yaml`. On first start with a fresh database, its initialization job runs migrations and creates the demo accounts, courses, registrations, and results automatically. Both portals wait for the initialized API. Later startup applies pending migrations and preserves existing seeded data.
 
 ## Host development
 
 To edit the portals with hot reload, run just the infrastructure, initialization job, and API in Docker:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait backend
+docker compose --project-name uemp-demo --env-file backend/.env up --build --wait backend
 ```
 
 If the full demo is already running, first stop its portal containers with `docker compose --project-name uemp-demo --env-file backend/.env stop student admin` so their ports are available. The backend's dependencies remain on its private infrastructure network.
