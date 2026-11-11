@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       throw new ApiError("Select between 1 and 100 distinct courses.", 400);
     const input: RegistrationInput = { semesterId, offeringIds };
     const summary = await (
-      await studentApi()
+      await studentApi({ canRefresh: true })
     ).request("/v1/student/registrations", readRegistrationSummary, {
       method: "POST",
       authenticated: true,

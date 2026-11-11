@@ -35,6 +35,7 @@ type ApiClientOptions = {
   baseUrl: string;
   timeoutMs?: number;
   accessToken?: () => string | null;
+  authorize?: () => Promise<string>;
   sessionKey?: () => string | null;
   refresh?: (rejectedToken: string) => Promise<string>;
   fetcher?: typeof fetch;
@@ -49,6 +50,7 @@ export function createApiClient({
   baseUrl,
   timeoutMs = 10_000,
   accessToken,
+  authorize,
   sessionKey,
   refresh,
   fetcher = fetch,
@@ -79,12 +81,17 @@ export function createApiClient({
       signal,
       ...init
     } = options;
-    const token = authenticated ? accessToken?.() : undefined;
     const session = authenticated ? sessionKey?.() : undefined;
     function assertCurrentSession() {
       if (authenticated && sessionKey && sessionKey() !== session)
         throw new ApiError("Sign in to continue.", 401);
     }
+    const token = authenticated
+      ? authorize
+        ? await authorize()
+        : accessToken?.()
+      : undefined;
+    assertCurrentSession();
     if (authenticated && !token) throw new ApiError("Sign in to continue.", 401);
     const headers = new Headers(init.headers);
     headers.set("accept", accept);

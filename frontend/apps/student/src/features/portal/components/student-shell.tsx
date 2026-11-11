@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Banner, Button, PortalShell } from "@uemp/ui";
+import { sessionFetch } from "../../auth/session-request";
 
 export function StudentShell({
   name,
@@ -26,7 +27,7 @@ export function StudentShell({
     setSigningOut(true);
     setError(false);
     try {
-      const response = await fetch("/api/auth/sign-out", {
+      const response = await sessionFetch("/api/auth/sign-out", {
         method: "POST",
         signal: AbortSignal.timeout(10_000),
       });

@@ -2,9 +2,9 @@
   "$schema": "https://turborepo.dev/schema.json",
   "globalEnv": [
     "STUDENT_API_URL",
-    "STUDENT_REDIS_URL",
     "STUDENT_APP_ORIGIN",
-    "VITE_API_URL"
+    "VITE_API_URL",
+    "UEMP_STANDALONE"
   ],
   "tasks": {
     "dev": {

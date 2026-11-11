@@ -2,6 +2,43 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ApiError, createApiClient, readNoContent } from "../src/index.ts";
 
+void test("authorization renews credentials before sending the first protected request", async () => {
+  const sent: string[] = [];
+  const client = createApiClient({
+    baseUrl: "https://example.test",
+    accessToken: () => "old",
+    authorize: async () => "renewed",
+    fetcher: async (_url, init) => {
+      sent.push(new Headers(init?.headers).get("authorization") ?? "");
+      return new Response(null, { status: 204 });
+    },
+  });
+  await client.request("/v1/test", readNoContent, { authenticated: true });
+  assert.deepEqual(sent, ["Bearer renewed"]);
+});
+
+void test("an account switch during proactive authorization prevents the old request", async () => {
+  let session = "first";
+  let requests = 0;
+  const client = createApiClient({
+    baseUrl: "https://example.test",
+    sessionKey: () => session,
+    authorize: async () => {
+      session = "second";
+      return "first-token";
+    },
+    fetcher: async () => {
+      requests += 1;
+      return new Response(null, { status: 204 });
+    },
+  });
+  await assert.rejects(
+    client.request("/v1/test", readNoContent, { authenticated: true }),
+    (error: unknown) => error instanceof ApiError && error.status === 401,
+  );
+  assert.equal(requests, 0);
+});
+
 void test("two unauthorized requests share one refresh and retry with the new token", async () => {
   let token = "old";
   let refreshes = 0;

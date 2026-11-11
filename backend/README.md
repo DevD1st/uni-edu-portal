@@ -5,7 +5,7 @@ The API supports authentication, account and role management, academic and cours
 ## Run locally
 
 1. Copy `backend/.env.example` to `backend/.env`. Set the database password and two different random signing secrets of at least 32 characters. Set the bootstrap administrator email and password.
-2. From the workspace root, run `docker compose --env-file backend/.env up --build -d`. Compose starts PostgreSQL and Redis, applies the migrations, then starts the API.
+2. From the workspace root, run `docker compose --env-file backend/.env up --build --wait`. Compose starts PostgreSQL and Redis, applies the migrations, starts the API, and then starts both production portals. To run only the backend stack, append `postgres redis migrate backend`.
 3. Run `docker compose --env-file backend/.env exec backend npm run admin:bootstrap` to create the first university-wide administrator.
 4. Check `GET /health/ready` on the configured port. Set both Swagger credentials in the environment to access `/docs` in development or staging.
 
@@ -19,27 +19,27 @@ Set `APP_ENV=development`, `POSTGRES_DB=uemp_demo`, and a `DEMO_SEED_PASSWORD` o
 docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
 ```
 
-The `uemp-demo` project uses its own PostgreSQL volume. The one-shot `migrate` service applies migrations and runs the demo seed before the API starts. The demo accounts, courses, and sample registrations are ready when Compose reports the API healthy. See the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
+The `uemp-demo` project uses its own PostgreSQL volume. The one-shot `migrate` service applies migrations and runs the demo seed before the API starts. Both portals wait for the API to become healthy. The demo accounts, courses, and sample registrations are ready when Compose completes. See the [project README](../README.md) for ports, public origins, frontend images, and operations, and the [demo walkthrough](../docs/backend-assessment.md#demo-walkthrough) for sign-in details.
 
 ## API entry points
 
-| Area | Routes |
-| --- | --- |
-| Authentication | `POST /v1/auth/signup/student`, `POST /v1/auth/sign-in`, `POST /v1/auth/refresh`, `POST /v1/auth/sign-out` |
-| Student or admin self-service | `GET`, `PATCH`, `DELETE /v1/users/me`, and `PATCH /v1/users/me/password` |
-| Academic lookup | `GET /v1/academic-references` |
-| Academic setup | `GET /v1/admin/academic`, with create and update routes for faculties, departments, programmes, sessions, and semesters. Set a faculty's registration term with `PUT /v1/admin/academic/faculties/{id}/current-semester` or shared level availability with `PUT /v1/admin/academic/levels/{id}/status`. |
-| Course setup | `/v1/admin/courses` for the catalog, `/curriculum` for programme links, `/offerings` for departmental deliveries, and `GET /lecturers?departmentId=…` for assignment choices. |
-| Student registration | `GET /v1/student/registrations/available`, `POST /v1/student/registrations`, and `GET /v1/student/registrations` for registered semesters. Read or download a semester summary at `/{semesterId}` or `/{semesterId}/summary/download` under the same route. |
-| Department registration | `GET /v1/admin/registrations?departmentId=…&semesterId=…` and `POST /v1/admin/registrations/students/{userId}`. |
-| Lecturer roster | `GET /v1/lecturer/offerings`, `GET /v1/lecturer/offerings/{offeringId}/roster`, and `POST /v1/lecturer/offerings/{offeringId}/close-registration`. |
-| Lecturer results | `GET /v1/lecturer/results`, `GET /v1/lecturer/results/{resultGroupId}`, `PATCH /v1/lecturer/results/{resultGroupId}/marks`, and `POST /v1/lecturer/results/{resultGroupId}/submit`. |
-| Department result review | `GET /v1/admin/results?departmentId=…`, `GET /v1/admin/results/{resultGroupId}`, and `POST` to `/approve`, `/request-corrections`, or `/reopen` under the group route. |
-| Student results | `GET /v1/student/results`, `GET /v1/student/results/{semesterId}`, and `GET /v1/student/results/{semesterId}/statement/download`. |
-| Academic reports | `GET /v1/admin/reports/overview` and `GET /v1/admin/reports/courses`. Provide `semesterId` and, for scoped reporting, `departmentId`. |
-| Admin user management | `/v1/admin/users`, `/v1/admin/users/students`, and individual profile, placement, status, session revocation, and deletion routes |
-| Admin and role management | `/v1/admin/admins`, `/v1/admin/roles`, and scoped grant assignment and revocation |
-| Audit | `GET /v1/admin/audit-events` and `GET /v1/admin/audit-events/{eventId}` |
+| Area                          | Routes                                                                                                                                                                                                                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication                | `POST /v1/auth/signup/student`, `POST /v1/auth/sign-in`, `POST /v1/auth/refresh`, `POST /v1/auth/sign-out`                                                                                                                                                                                              |
+| Student or admin self-service | `GET`, `PATCH`, `DELETE /v1/users/me`, and `PATCH /v1/users/me/password`                                                                                                                                                                                                                                |
+| Academic lookup               | `GET /v1/academic-references`                                                                                                                                                                                                                                                                           |
+| Academic setup                | `GET /v1/admin/academic`, with create and update routes for faculties, departments, programmes, sessions, and semesters. Set a faculty's registration term with `PUT /v1/admin/academic/faculties/{id}/current-semester` or shared level availability with `PUT /v1/admin/academic/levels/{id}/status`. |
+| Course setup                  | `/v1/admin/courses` for the catalog, `/curriculum` for programme links, `/offerings` for departmental deliveries, and `GET /lecturers?departmentId=…` for assignment choices.                                                                                                                           |
+| Student registration          | `GET /v1/student/registrations/available`, `POST /v1/student/registrations`, and `GET /v1/student/registrations` for registered semesters. Read or download a semester summary at `/{semesterId}` or `/{semesterId}/summary/download` under the same route.                                             |
+| Department registration       | `GET /v1/admin/registrations?departmentId=…&semesterId=…` and `POST /v1/admin/registrations/students/{userId}`.                                                                                                                                                                                         |
+| Lecturer roster               | `GET /v1/lecturer/offerings`, `GET /v1/lecturer/offerings/{offeringId}/roster`, and `POST /v1/lecturer/offerings/{offeringId}/close-registration`.                                                                                                                                                      |
+| Lecturer results              | `GET /v1/lecturer/results`, `GET /v1/lecturer/results/{resultGroupId}`, `PATCH /v1/lecturer/results/{resultGroupId}/marks`, and `POST /v1/lecturer/results/{resultGroupId}/submit`.                                                                                                                     |
+| Department result review      | `GET /v1/admin/results?departmentId=…`, `GET /v1/admin/results/{resultGroupId}`, and `POST` to `/approve`, `/request-corrections`, or `/reopen` under the group route.                                                                                                                                  |
+| Student results               | `GET /v1/student/results`, `GET /v1/student/results/{semesterId}`, and `GET /v1/student/results/{semesterId}/statement/download`.                                                                                                                                                                       |
+| Academic reports              | `GET /v1/admin/reports/overview` and `GET /v1/admin/reports/courses`. Provide `semesterId` and, for scoped reporting, `departmentId`.                                                                                                                                                                   |
+| Admin user management         | `/v1/admin/users`, `/v1/admin/users/students`, and individual profile, placement, status, session revocation, and deletion routes                                                                                                                                                                       |
+| Admin and role management     | `/v1/admin/admins`, `/v1/admin/roles`, and scoped grant assignment and revocation                                                                                                                                                                                                                       |
+| Audit                         | `GET /v1/admin/audit-events` and `GET /v1/admin/audit-events/{eventId}`                                                                                                                                                                                                                                 |
 
 Sign-in accepts an email, password, and account role (`student` or `admin`). Use the returned access token as a Bearer token. Refresh rotates both tokens and revokes the previous pair. Add `populate=student` to eligible admin user reads or `populate=roles%20user` to admin directory reads. Each relation is filtered by the caller’s privileges and department scope.
 

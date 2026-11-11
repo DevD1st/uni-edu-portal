@@ -1,7 +1,6 @@
 import { defineConfig } from "@playwright/test";
+import { studentOrigin, adminOrigin } from "./e2e/support/origins";
 
-const studentOrigin = "http://localhost:3001";
-const adminOrigin = "http://localhost:3002";
 const channel = process.env["UEMP_PLAYWRIGHT_CHANNEL"];
 
 export default defineConfig({
@@ -13,18 +12,21 @@ export default defineConfig({
     ...(channel ? { channel } : {}),
     trace: "retain-on-failure",
   },
-  webServer: [
-    {
-      command: "pnpm --filter @uemp/student dev",
-      url: studentOrigin + "/sign-in",
-      timeout: 120_000,
-      reuseExistingServer: !process.env["CI"],
-    },
-    {
-      command: "pnpm --filter @uemp/admin dev",
-      url: adminOrigin + "/sign-in",
-      timeout: 120_000,
-      reuseExistingServer: !process.env["CI"],
-    },
-  ],
+  webServer:
+    process.env["UEMP_E2E_EXTERNAL"] === "1"
+      ? []
+      : [
+          {
+            command: "pnpm --filter @uemp/student dev",
+            url: studentOrigin + "/sign-in",
+            timeout: 120_000,
+            reuseExistingServer: !process.env["CI"],
+          },
+          {
+            command: "pnpm --filter @uemp/admin dev",
+            url: adminOrigin + "/sign-in",
+            timeout: 120_000,
+            reuseExistingServer: !process.env["CI"],
+          },
+        ],
 });

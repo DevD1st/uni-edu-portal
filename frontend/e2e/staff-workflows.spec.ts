@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
+import { adminOrigin as origin } from "./support/origins";
 
-const origin = "http://localhost:3002";
 const password = process.env["UEMP_E2E_PASSWORD"];
 const accountPassword = "Staff demo password 42";
 

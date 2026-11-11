@@ -2,9 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page, type Request } from "@playwright/test";
 import { apiOrigin, demoAdminHeaders } from "./support/demo-api";
-
-const staff = "http://localhost:3002";
-const student = "http://localhost:3001";
+import { studentOrigin as student, adminOrigin as staff } from "./support/origins";
 
 async function signIn(
   page: Page,
@@ -349,6 +347,10 @@ test.describe("frontend finishing workflows", () => {
   test("a rendering failure shows safe staff recovery and supports retry", async ({
     page,
   }) => {
+    test.skip(
+      process.env["UEMP_E2E_PRODUCTION"] === "1",
+      "Component injection uses the development module server.",
+    );
     const diagnostics: string[] = [];
     page.on("console", (message) => {
       if (message.type() === "error") diagnostics.push(message.text());
@@ -528,6 +530,10 @@ test.describe("frontend finishing workflows", () => {
   test("a root rendering failure recovers through a safe full reload", async ({
     page,
   }) => {
+    test.skip(
+      process.env["UEMP_E2E_PRODUCTION"] === "1",
+      "Component injection uses the development module server.",
+    );
     await signIn(page, staff, "lecturer");
     const diagnostics: string[] = [];
     page.on("console", (message) => {

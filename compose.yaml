@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks: [infrastructure]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -15,6 +16,7 @@ services:
 
   redis:
     image: redis:7.4-alpine
+    networks: [infrastructure]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -28,18 +30,21 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
     command: ["npm", "run", "migration:run"]
+    networks: [infrastructure]
     depends_on:
       postgres:
         condition: service_healthy
 
   backend:
     build: ./backend
+    networks: [infrastructure, application]
     env_file: backend/.env
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       REDIS_URL: redis://redis:6379
       PORT: 3000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001,http://localhost:3002}
     ports:
       - "127.0.0.1:${PORT:-3000}:3000"
     depends_on:
@@ -48,10 +53,65 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health/ready').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health/ready').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  student:
+    networks: [application]
+    build:
+      context: ./frontend
+      target: student
+    environment:
+      STUDENT_API_URL: http://backend:3000
+      STUDENT_APP_ORIGIN: ${STUDENT_APP_ORIGIN:-http://localhost:${STUDENT_PORT:-3001}}
+    ports:
+      - "127.0.0.1:${STUDENT_PORT:-3001}:3001"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health/ready').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  admin:
+    networks: [application]
+    build:
+      context: ./frontend
+      target: admin
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:${PORT:-3000}}
+    ports:
+      - "127.0.0.1:${ADMIN_PORT:-3002}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 6
 
 volumes:
   postgres_data:
+
+networks:
+  application:
+  infrastructure:
+    internal: true

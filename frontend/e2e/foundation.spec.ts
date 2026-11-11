@@ -3,9 +3,8 @@ import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { apiOrigin, demoAdminHeaders, demoSemester } from "./support/demo-api";
+import { studentOrigin, adminOrigin } from "./support/origins";
 
-const studentOrigin = "http://localhost:3001";
-const adminOrigin = "http://localhost:3002";
 const password = process.env["UEMP_E2E_PASSWORD"];
 const widths = [320, 390, 768, 1024, 1440];
 
@@ -61,7 +60,7 @@ async function verifyMobileDrawer(page: Page) {
   await page.setViewportSize({ width: 1280, height: 900 });
 }
 
-test("student profile is protected, responsive, and uses a server session", async ({
+test("student profile is protected, responsive, and uses HTTP-only token cookies", async ({
   page,
   context,
 }) => {
@@ -78,11 +77,11 @@ test("student profile is protected, responsive, and uses a server session", asyn
   await page.getByRole("link", { name: "My profile", exact: true }).click();
   await expect(page.getByText("student-maya@demo.example.test")).toBeVisible();
   const cookie = (await context.cookies(studentOrigin)).find(
-    ({ name }) => name === "uemp_student_session",
+    ({ name }) => name === "uemp_student_access",
   );
   expect(cookie?.httpOnly).toBe(true);
   expect(cookie?.sameSite).toBe("Lax");
-  expect(/^[A-Za-z0-9_-]{43}$/.test(cookie?.value ?? "")).toBe(true);
+  expect(cookie?.value.split(".")).toHaveLength(3);
   const crossOrigin = await context.request.post(studentOrigin + "/api/auth/sign-out", {
     headers: { Origin: adminOrigin },
   });
@@ -148,6 +147,11 @@ test("HOD review scope and university-wide staff permissions stay separate", asy
   await page.getByRole("button", { name: "Collapse sidebar" }).click();
   await expect(page.getByRole("button", { name: "Expand sidebar" })).toBeVisible();
   await page.getByRole("button", { name: "Expand sidebar" }).click();
+  if (process.env["UEMP_E2E_PRODUCTION"] === "1") {
+    await page.goto(adminOrigin + "/design-system");
+    await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+    return;
+  }
   await page.goto(adminOrigin + "/design-system");
   await expect(page.getByRole("heading", { name: "Design system" })).toBeVisible();
   await page.getByLabel("Color theme").selectOption("dark");

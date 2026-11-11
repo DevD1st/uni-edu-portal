@@ -20,6 +20,7 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 - Use DTO classes for HTTP bodies, query fields, path parameters, and response bodies. Document each field with a description and realistic example. Give every validator that can reject input a plain-language message. Use response serialization to expose only fields in the DTO.
 - Wrap database mutations with `databaseWrite` or `writeTransaction`. Map PostgreSQL constraints to messages that help callers fix their input. Keep raw driver messages, SQL, and submitted values out of HTTP errors and logs.
 - Advance the account auth version when issuing, rotating, or revoking sessions. Treat PostgreSQL as authoritative and Redis as the TTL-backed token registry. Redact PII when deleting an account and retain academic and audit history by internal ID.
+- Keep PostgreSQL and Redis on the internal Compose infrastructure network. Only the API and initialization job join it. Frontend applications manage token transport through cookies or their tab session and must use the HTTP API rather than connecting to this infrastructure.
 - Read scoped directories, rosters and multi-query registration summaries in one database snapshot. Protected responses and responses containing session tokens must use `Cache-Control: no-store`.
 - Register every privileged HTTP mutation with a semantic audit action. Audit payloads must use allowlisted keys and exclude personal identifiers, credentials, and raw bodies. Audit rows are append-only.
 - Resolve staff result grants and reads using the same database transaction manager. Result writes lock the offering before the result group. Commit marks, state changes, grade awards, and their success audits in the same transaction. Use the pinned grading policy and publish student results only while the group is approved. Keep the [results workflow guide](../docs/results-workflow.md) current when permissions, state transitions, GPA rules, or audit behavior change.
@@ -29,7 +30,7 @@ This NestJS backend serves the university portal. Follow the approved domain rul
 
 ## Checks
 
-Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. To verify startup from the repository root, configure `backend/.env` from the example, run `docker compose --env-file backend/.env up --build --wait`, then check `/health/ready`. The migration service must complete successfully before the API starts.
+Run `npm run typecheck` and `npm test` from this directory. The test command builds the backend. To verify startup from the repository root, configure `backend/.env` from the example, run `docker compose --env-file backend/.env up --build --wait`, then check `/health/ready`. Compose also starts both production portals after the API is healthy. Append `postgres redis migrate backend` for backend-only development. The migration service must complete successfully before the API starts; the demo overlay adds seeding to that same initialization job. See the top-level README for the complete demo command.
 
 Run `npm run test:integration` with `UEMP_RUN_INTEGRATION=1`, `APP_ENV=test`, and settings for a disposable PostgreSQL database whose name starts with `uemp_test`, plus a disposable Redis instance. Use synthetic account details in fixtures.
 

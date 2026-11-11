@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { SignInForm } from "@uemp/ui";
 import { createApiClient, readableError, readNoContent } from "@uemp/web-client";
+import { sessionFetch } from "../session-request";
 
-const api = createApiClient({ baseUrl: "" });
+const api = createApiClient({ baseUrl: "", fetcher: sessionFetch });
 
 export function StudentSignIn() {
   const [pending, setPending] = useState(false);

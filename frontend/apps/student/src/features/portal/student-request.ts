@@ -1,6 +1,7 @@
 import { ApiError, createApiClient, readableError } from "@uemp/web-client";
+import { sessionFetch } from "../auth/session-request";
 
-export const portalApi = createApiClient({ baseUrl: "" });
+export const portalApi = createApiClient({ baseUrl: "", fetcher: sessionFetch });
 
 export function studentError(error: unknown) {
   if (error instanceof ApiError && error.status === 401) {

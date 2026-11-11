@@ -3,9 +3,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type APIResponse, type Page } from "@playwright/test";
 import type { components } from "../packages/api-contracts/src/generated";
 import { apiOrigin, demoAdminHeaders } from "./support/demo-api";
+import { adminOrigin as origin } from "./support/origins";
 
 type Dto<Name extends keyof components["schemas"]> = components["schemas"][Name];
-const origin = "http://localhost:3002";
 
 async function read<T>(response: Promise<APIResponse>): Promise<T> {
   const result = await response;

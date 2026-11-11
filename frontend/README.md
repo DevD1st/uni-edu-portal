@@ -2,15 +2,25 @@
 
 The student portal runs on Next.js at port 3001. The staff portal runs on React and Vite at port 3002. Both share the theme, component library, API transport, and generated contracts. Read [AGENTS.md](AGENTS.md) and the [design system](docs/design-system.md) before contributing.
 
-## Local development
+## Complete Docker demo
 
-From the repository root, prepare the backend environment using the backend README. Set a demo seed password and allow both frontend origins in the backend CORS configuration. Start the stack with the demo and frontend overlays.
+Configure `backend/.env` as described in the [project README](../README.md#start-the-complete-demo). From the repository root, start the API, both portals, migrations, and demo data together:
 
 ```powershell
-docker compose --env-file backend/.env -f compose.yaml -f compose.demo.yaml -f compose.frontend.yaml up --build --wait
+docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait
 ```
 
-The frontend overlay publishes the existing Redis service on loopback port 6380 for the student server. Adjust `STUDENT_REDIS_PORT` and `STUDENT_REDIS_URL` together if the port is occupied.
+The student image runs a standalone Next.js server and calls the internal HTTP API for data and authentication. The staff image serves production assets through Nginx, with SPA routing and immutable hashed assets. Its `VITE_API_URL` comes from the public `PUBLIC_API_URL` Compose build argument. Frontend local environment files and build output are excluded from the build context. The dev-only design gallery is absent from that staff bundle.
+
+## Host development
+
+To edit the portals with hot reload, run just the infrastructure, initialization job, and API in Docker:
+
+```powershell
+docker compose --project-name uemp-demo --env-file backend/.env -f compose.yaml -f compose.demo.yaml up --build --wait backend
+```
+
+If the full demo is already running, first stop its portal containers with `docker compose --project-name uemp-demo --env-file backend/.env stop student admin` so their ports are available. The backend's dependencies remain on its private infrastructure network.
 
 From `frontend/`, use Node 24 or newer and the pnpm version in `package.json`.
 
@@ -21,18 +31,18 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [the student portal](http://localhost:3001) or [the staff portal](http://localhost:3002). The demo seed creates `student-maya@demo.example.test`, `lecturer@demo.example.test`, `hod@demo.example.test`, and `super-admin@demo.example.test`. Use the password configured for the seed. The signed-in staff development gallery is at `/design-system`.
+Create the local environment files only on first setup. Open [the student portal](http://localhost:3001) or [the staff portal](http://localhost:3002). The demo seed creates `student-maya@demo.example.test`, `lecturer@demo.example.test`, `hod@demo.example.test`, and `super-admin@demo.example.test`. Use the password configured for the seed. The signed-in staff development gallery is at `/design-system` in host development.
 
 ## Architecture
 
-| Location                                           | Responsibility                                                                                    |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `apps/student`                                     | Next.js routes, server-owned Redis sessions, student profile, registration, and published results |
-| `apps/admin`                                       | Vite SPA, browser tab session, scoped staff workflows, administration, reporting, and audit       |
-| `packages/theme` and `packages/ui`                 | Source Sans 3, semantic tokens, responsive shells, forms, overlays, and data components           |
-| `packages/api-contracts` and `packages/web-client` | Swagger-derived types, runtime response checks, transport, and API error handling                 |
+| Location                                           | Responsibility                                                                                |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `apps/student`                                     | Next.js routes, HTTP-only token cookies, student profile, registration, and published results |
+| `apps/admin`                                       | Vite SPA, browser tab session, scoped staff workflows, administration, reporting, and audit   |
+| `packages/theme` and `packages/ui`                 | Source Sans 3, semantic tokens, responsive shells, forms, overlays, and data components       |
+| `packages/api-contracts` and `packages/web-client` | Swagger-derived types, runtime response checks, transport, and API error handling             |
 
-The API remains authoritative for permissions. The staff shell uses current privilege grants with their department scope and applies the same rule to navigation and direct URLs. The student server keeps bearer credentials in Redis and sets an opaque HTTP-only cookie. Use HTTPS in production, private Redis, and a staff SPA fallback to its `index.html`. Set the server origin to the canonical public student URL. Vite's API URL is public and supplied at build time.
+The API remains authoritative for permissions. The staff shell uses current privilege grants with their department scope and applies the same rule to navigation and direct URLs. Student bearer credentials live in HTTP-only cookies and are forwarded to Nest only by the Next.js server. Use HTTPS in production and a staff SPA fallback to its `index.html`. Set the server origin to the canonical public student URL. Vite's API URL is public and supplied at build time. See [session handling](docs/sessions.md) for expiry, renewal, logout, and configuration.
 
 ## Student workflows
 
@@ -56,3 +66,16 @@ The staff overview shows teaching, review, and reporting summaries according to 
 Run `pnpm check` for formatting, lint, type checks, focused tests, and both production builds. Start with a fresh disposable demo database for `pnpm test:e2e`. The suite creates synthetic accounts, closes a roster permanently, submits and reviews results, and exercises delegated registration and role assignments. Install Playwright Chromium once with `pnpm exec playwright install chromium` and set `UEMP_E2E_PASSWORD` to the demo password in your terminal. Set `STUDENT_API_URL` in the terminal if the demo API uses a different origin from `http://localhost:3000`. An installed Chrome can be used by setting `UEMP_PLAYWRIGHT_CHANNEL=chrome` in the terminal environment.
 
 Run `pnpm contracts:generate` after changing the consumed backend endpoints. Set `UEMP_OPENAPI_FILE` to a Swagger JSON export, or set `UEMP_API_ORIGIN` to the running API origin for its `/docs-json` endpoint. If Swagger requires sign-in, set `UEMP_SWAGGER_USER` and `UEMP_SWAGGER_PASSWORD` in the terminal. The generator keeps the consumed operations and their referenced schemas.
+
+To test the production containers instead of launching dev servers, start a fresh disposable demo and run from `frontend/`:
+
+```powershell
+$env:UEMP_E2E_EXTERNAL = "1"
+$env:UEMP_E2E_PRODUCTION = "1"
+$env:UEMP_E2E_PASSWORD = "your configured demo seed password"
+pnpm test:e2e
+```
+
+`UEMP_STUDENT_ORIGIN` and `UEMP_ADMIN_ORIGIN` override the default portal origins. `STUDENT_API_URL` selects the browser test's API origin, independently of the student container's private API URL. Production mode checks readiness, SPA deep links, asset caching, and the unavailable design gallery. It skips the two rendering-failure injections that require Vite source modules; those remain covered by the normal dev-server suite. The container-delivery test is skipped in dev-server mode. Clear the two mode variables before running the dev-server suite again.
+
+`GET /health/ready` on the student portal checks the API and otherwise returns a generic 503. It never connects directly to infrastructure. The staff server exposes its own static readiness endpoint at the same path. Both health responses avoid disclosing connection details.

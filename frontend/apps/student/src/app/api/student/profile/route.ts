@@ -25,7 +25,7 @@ export async function PATCH(request: Request) {
     if (Object.keys(input).length === 0)
       throw new ApiError("Enter a name to update.", 400);
     const account = await (
-      await studentApi()
+      await studentApi({ canRefresh: true })
     ).request("/v1/users/me", readAccount, {
       method: "PATCH",
       authenticated: true,

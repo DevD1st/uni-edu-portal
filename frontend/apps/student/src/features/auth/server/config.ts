@@ -25,8 +25,5 @@ export function studentConfig() {
     "http://localhost:3000",
     "STUDENT_API_URL",
   );
-  const redis = new URL(process.env["STUDENT_REDIS_URL"] ?? "redis://127.0.0.1:6380");
-  if (!["redis:", "rediss:"].includes(redis.protocol))
-    throw new Error("STUDENT_REDIS_URL must use redis or rediss.");
-  return { app, api, redis };
+  return { app, api };
 }

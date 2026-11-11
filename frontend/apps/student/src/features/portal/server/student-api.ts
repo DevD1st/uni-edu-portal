@@ -1,9 +1,13 @@
 import "server-only";
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ApiError, createApiClient } from "@uemp/web-client";
 import { studentConfig } from "../../auth/server/config";
-import { studentApi, safeAuthError } from "../../auth/server/session";
+import {
+  studentApi,
+  safeAuthError,
+  redirectToStudentSession,
+} from "../../auth/server/session";
 import { isUuid } from "../validation";
 
 export function publicApi() {
@@ -14,7 +18,8 @@ export async function readStudent<T>(path: string, decode: (body: unknown) => T)
   try {
     return await (await studentApi()).request(path, decode, { authenticated: true });
   } catch (error) {
-    if (error instanceof ApiError && error.status === 401) redirect("/sign-in");
+    if (error instanceof ApiError && error.status === 401)
+      return redirectToStudentSession();
     throw error;
   }
 }
@@ -36,7 +41,9 @@ export async function readStudentTerm<T>(
 export async function downloadStudentTerm(id: string, path: string, filename: string) {
   try {
     if (!isUuid(id)) throw new ApiError("Choose a valid semester.", 400);
-    const file = await (await studentApi()).download(path, { authenticated: true });
+    const file = await (
+      await studentApi({ canRefresh: true })
+    ).download(path, { authenticated: true });
     return new Response(file, {
       headers: {
         "cache-control": "private, no-store",

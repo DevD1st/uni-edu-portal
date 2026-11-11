@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     return safeAuthError(error);
   }
-  // The portal clears its cookie and server-side session even if upstream revocation fails.
+  // Always clear the browser's token cookies, including during an API outage.
   await endStudentSession().catch(() => undefined);
   return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
 }
