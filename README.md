@@ -15,13 +15,13 @@ docker compose up --build --wait
 
 On macOS/Linux, use `cp .env.example .env` for the copy step. Copy the file once when setting up a new checkout. The example already contains working **local demo configuration**; no values need to be edited to try the application. Its shared credentials and signing keys are public demo values; replace them before a remote deployment.
 
-| Application    | Local address                                               | Hosted address                                                                 | Access                                                       |
-| -------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| Student portal | [localhost:3001](http://localhost:3001)                     | [uemp-student.onrender.com/sign-in](https://uemp-student.onrender.com/sign-in) | Student accounts below, or create an account                 |
-| Staff portal   | [localhost:3002](http://localhost:3002)                     | [uemp-admin.onrender.com/sign-in](https://uemp-admin.onrender.com/sign-in)     | Lecturer, HOD, or Super Admin account below                  |
-| HTTP API       | [localhost:3000](http://localhost:3000)                     | [uemp-backend.onrender.com](https://uemp-backend.onrender.com)                 | Versioned routes under `/v1`; [API guide](backend/README.md) |
-| Swagger UI     | [localhost:3000/docs](http://localhost:3000/docs)           | Deployment-specific                                                            | Local username `uemp`, password `uemp` from the example      |
-| OpenAPI JSON   | [localhost:3000/docs-json](http://localhost:3000/docs-json) | Deployment-specific                                                            | Same local documentation credentials                         |
+| Application    | Local address                                               | Hosted address                                                                     | Access                                                       |
+| -------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Student portal | [localhost:3001](http://localhost:3001)                     | [uemp-student.onrender.com/sign-in](https://uemp-student.onrender.com/sign-in)     | Student accounts below, or create an account                 |
+| Staff portal   | [localhost:3002](http://localhost:3002)                     | [uemp-admin.onrender.com/sign-in](https://uemp-admin.onrender.com/sign-in)         | Lecturer, HOD, or Super Admin account below                  |
+| HTTP API       | [localhost:3000](http://localhost:3000)                     | [uemp-backend.onrender.com](https://uemp-backend.onrender.com)                     | Versioned routes under `/v1`; [API guide](backend/README.md) |
+| Swagger UI     | [localhost:3000/docs](http://localhost:3000/docs)           | [uemp-backend.onrender.com/docs](https://uemp-backend.onrender.com/docs)           | Username `uemp`, password `uemp` for local and hosted access |
+| OpenAPI JSON   | [localhost:3000/docs-json](http://localhost:3000/docs-json) | [uemp-backend.onrender.com/docs-json](https://uemp-backend.onrender.com/docs-json) | Same documentation credentials                               |
 
 The single [docker-compose.yaml](docker-compose.yaml) starts PostgreSQL and Redis, then runs the one-shot `migrate` job. That job waits for PostgreSQL, applies migrations, and seeds the demo. The API starts only after initialization succeeds; both portals wait for API readiness. Expect `migrate` to exit with code `0` and the other five services to become healthy.
 
