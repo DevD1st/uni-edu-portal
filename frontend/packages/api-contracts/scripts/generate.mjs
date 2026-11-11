@@ -10,7 +10,57 @@ const operations = {
   "/v1/admin/admins/me/authorization": ["get"],
   "/v1/academic-references": ["get"],
   "/v1/lecturer/offerings": ["get"],
+  "/v1/lecturer/offerings/{id}/roster": ["get"],
+  "/v1/lecturer/offerings/{id}/close-registration": ["post"],
+  "/v1/lecturer/results/{id}": ["get"],
+  "/v1/lecturer/results/{id}/marks": ["patch"],
+  "/v1/lecturer/results/{id}/submit": ["post"],
   "/v1/admin/results": ["get"],
+  "/v1/admin/results/options": ["get"],
+  "/v1/admin/results/{id}": ["get"],
+  "/v1/admin/results/{id}/approve": ["post"],
+  "/v1/admin/results/{id}/request-corrections": ["post"],
+  "/v1/admin/results/{id}/reopen": ["post"],
+  "/v1/admin/registrations": ["get"],
+  "/v1/admin/registrations/students/{userId}": ["post"],
+  "/v1/admin/registrations/students/{userId}/available": ["get"],
+  "/v1/admin/academic": ["get"],
+  "/v1/admin/academic/faculties": ["post"],
+  "/v1/admin/academic/faculties/{id}": ["put"],
+  "/v1/admin/academic/faculties/{id}/current-semester": ["put"],
+  "/v1/admin/academic/departments": ["post"],
+  "/v1/admin/academic/departments/{id}": ["put"],
+  "/v1/admin/academic/programmes": ["post"],
+  "/v1/admin/academic/programmes/{id}": ["put"],
+  "/v1/admin/academic/sessions": ["post"],
+  "/v1/admin/academic/sessions/{id}": ["put"],
+  "/v1/admin/academic/semesters": ["post"],
+  "/v1/admin/academic/semesters/{id}": ["put"],
+  "/v1/admin/academic/levels/{id}/status": ["put"],
+  "/v1/admin/courses": ["get", "post"],
+  "/v1/admin/courses/{id}": ["put"],
+  "/v1/admin/courses/lecturers": ["get"],
+  "/v1/admin/courses/curriculum": ["post"],
+  "/v1/admin/courses/curriculum/{id}": ["delete"],
+  "/v1/admin/courses/offerings": ["post"],
+  "/v1/admin/courses/offerings/{id}": ["patch"],
+  "/v1/admin/users": ["get"],
+  "/v1/admin/users/students": ["post"],
+  "/v1/admin/users/{userId}": ["get", "patch", "delete"],
+  "/v1/admin/users/{userId}/student-placement": ["put"],
+  "/v1/admin/users/{userId}/status": ["patch"],
+  "/v1/admin/users/{userId}/revoke-sessions": ["post"],
+  "/v1/admin/admins": ["get", "post"],
+  "/v1/admin/admins/{adminId}": ["get"],
+  "/v1/admin/admins/{adminId}/roles": ["post"],
+  "/v1/admin/admins/{adminId}/roles/{grantId}": ["delete"],
+  "/v1/admin/roles": ["get", "post"],
+  "/v1/admin/roles/{roleId}": ["put", "delete"],
+  "/v1/admin/reports/options": ["get"],
+  "/v1/admin/reports/overview": ["get"],
+  "/v1/admin/reports/courses": ["get"],
+  "/v1/admin/audit-events": ["get"],
+  "/v1/admin/audit-events/{eventId}": ["get"],
   "/v1/student/registrations": ["get", "post"],
   "/v1/student/registrations/available": ["get"],
   "/v1/student/registrations/{id}": ["get"],
@@ -96,3 +146,29 @@ const document = {
 };
 const types = astToString(await openapiTS(document, { alphabetize: true }));
 await writeFile(new URL("../src/generated.ts", import.meta.url), types, "utf8");
+
+// Keep structural validation rules alongside the generated types without bundling documentation examples.
+function structuralSchema(schema) {
+  const fields = ["$ref", "type", "format", "nullable", "enum", "required"];
+  const result = Object.fromEntries(
+    fields.filter((key) => key in schema).map((key) => [key, schema[key]]),
+  );
+  if (schema.items) result.items = structuralSchema(schema.items);
+  if (schema.properties)
+    result.properties = Object.fromEntries(
+      Object.entries(schema.properties).map(([key, child]) => [
+        key,
+        structuralSchema(child),
+      ]),
+    );
+  if (schema.allOf) result.allOf = schema.allOf.map(structuralSchema);
+  return result;
+}
+const responseRules = Object.fromEntries(
+  Object.entries(schemas).map(([name, schema]) => [name, structuralSchema(schema)]),
+);
+await writeFile(
+  new URL("../src/generated-response-schemas.json", import.meta.url),
+  JSON.stringify(responseRules, null, 2) + "\n",
+  "utf8",
+);

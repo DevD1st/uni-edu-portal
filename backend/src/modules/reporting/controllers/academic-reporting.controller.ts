@@ -11,6 +11,7 @@ import { AccessTokenGuard } from '#shared/auth/access-token.guard.js';
 import { ApiDtoResponse } from '#shared/http/api-dto-response.decorator.js';
 import {
   AcademicOverviewDto,
+  AcademicReportOptionsDto,
   AcademicReportQueryDto,
   CoursePerformancePageDto,
   CourseReportQueryDto,
@@ -18,6 +19,7 @@ import {
 import {
   ListCoursePerformanceQuery,
   ReadAcademicOverviewQuery,
+  ReadReportOptionsQuery,
 } from '../queries/academic-report.js';
 
 @ApiTags('Academic reports')
@@ -27,6 +29,15 @@ import {
 @Controller({ path: 'admin/reports', version: '1' })
 export class AcademicReportingController {
   constructor(private readonly queries: QueryBus) {}
+
+  @Get('options')
+  @Header('Cache-Control', 'no-store')
+  @ApiDtoResponse(AcademicReportOptionsDto)
+  options(
+    @CurrentAccount() actor: AccountPrincipal,
+  ): Promise<AcademicReportOptionsDto> {
+    return this.queries.execute(new ReadReportOptionsQuery(actor.userId));
+  }
 
   @Get('overview')
   @Header('Cache-Control', 'no-store')

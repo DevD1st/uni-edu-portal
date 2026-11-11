@@ -15,6 +15,278 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/academic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AcademicSetupController_read_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/departments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcademicSetupController_createDepartment_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/departments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_updateDepartment_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/faculties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcademicSetupController_createFaculty_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/faculties/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_updateFaculty_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/faculties/{id}/current-semester": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_setCurrentSemester_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/levels/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_setLevelStatus_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/programmes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcademicSetupController_createProgramme_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/programmes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_updateProgramme_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/semesters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcademicSetupController_createSemester_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/semesters/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_updateSemester_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcademicSetupController_createSession_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/academic/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AcademicSetupController_updateSession_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/admins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminsController_list_v1"];
+        put?: never;
+        post: operations["AdminsController_create_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/admins/{adminId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminsController_get_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/admins/{adminId}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminsController_assign_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/admins/{adminId}/roles/{grantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AdminsController_revoke_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/admins/me/authorization": {
         parameters: {
             query?: never;
@@ -23,6 +295,246 @@ export interface paths {
             cookie?: never;
         };
         get: operations["AdminsController_authorization_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/audit-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAuditController_list_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/audit-events/{eventId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAuditController_get_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CourseSetupController_read_v1"];
+        put?: never;
+        post: operations["CourseSetupController_createCourse_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CourseSetupController_updateCourse_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/curriculum": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CourseSetupController_addCurriculum_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/curriculum/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CourseSetupController_removeCurriculum_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/lecturers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CourseSetupController_lecturers_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/offerings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CourseSetupController_createOffering_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/courses/offerings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CourseSetupController_updateOffering_v1"];
+        trace?: never;
+    };
+    "/v1/admin/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DepartmentRegistrationController_report_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/registrations/students/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DepartmentRegistrationController_register_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/registrations/students/{userId}/available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DepartmentRegistrationController_available_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AcademicReportingController_courses_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AcademicReportingController_options_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AcademicReportingController_overview_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -41,6 +553,214 @@ export interface paths {
         get: operations["DepartmentResultsController_list_v1"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/results/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DepartmentResultsController_detail_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/results/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DepartmentResultsController_approve_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/results/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DepartmentResultsController_reopen_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/results/{id}/request-corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DepartmentResultsController_requestCorrections_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/results/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DepartmentResultsController_options_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RolesController_list_v1"];
+        put?: never;
+        post: operations["RolesController_create_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/roles/{roleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["RolesController_update_v1"];
+        post?: never;
+        delete: operations["RolesController_delete_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_list_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_get_v1"];
+        put?: never;
+        post?: never;
+        delete: operations["AdminUsersController_delete_v1"];
+        options?: never;
+        head?: never;
+        patch: operations["AdminUsersController_update_v1"];
+        trace?: never;
+    };
+    "/v1/admin/users/{userId}/revoke-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminUsersController_revokeSessions_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/users/{userId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AdminUsersController_status_v1"];
+        trace?: never;
+    };
+    "/v1/admin/users/{userId}/student-placement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AdminUsersController_placement_v1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/users/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminUsersController_createStudent_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -121,6 +841,86 @@ export interface paths {
         get: operations["LecturerRegistrationController_offerings_v1"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lecturer/offerings/{id}/close-registration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["LecturerRegistrationController_close_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lecturer/offerings/{id}/roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["LecturerRegistrationController_roster_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lecturer/results/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["LecturerResultsController_detail_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lecturer/results/{id}/marks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["LecturerResultsController_saveMarks_v1"];
+        trace?: never;
+    };
+    "/v1/lecturer/results/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["LecturerResultsController_submit_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -293,6 +1093,110 @@ export interface components {
              */
             stage: number;
         };
+        AcademicLevelSetupDto: {
+            /**
+             * @description The university’s fixed display label for the level.
+             * @example 100 Level
+             */
+            displayName: string;
+            /**
+             * Format: uuid
+             * @description Academic level ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description University programme family associated with the level.
+             * @example undergrad
+             * @enum {string}
+             */
+            programType: "undergrad" | "postgrad" | "masters" | "doctorate";
+            /**
+             * @description Study stage. Zero represents the Graduate level.
+             * @example 1
+             */
+            stage: number;
+            /**
+             * @description Whether the level can be used in new placements and registration.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
+        AcademicOverviewDto: {
+            /**
+             * @description Offerings currently marked active.
+             * @example 16
+             */
+            activeOfferingCount: number;
+            /**
+             * @description Result groups that are currently approved.
+             * @example 8
+             */
+            approvedCount: number;
+            /**
+             * @description Mean total mark out of 100 across approved enrollments only, or null when none are approved.
+             * @example 67.42
+             */
+            averageScore: number | null;
+            /**
+             * @description Offering rosters whose registration is permanently closed.
+             * @example 14
+             */
+            closedRosterCount: number;
+            /**
+             * @description Result groups returned to the lecturer for correction.
+             * @example 1
+             */
+            correctionRequestedCount: number;
+            /**
+             * Format: uuid
+             * @description Department covered by the report, or null for the whole university.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string | null;
+            /**
+             * @description Course enrollments, including those with unpublished results.
+             * @example 120
+             */
+            enrollmentCount: number;
+            /**
+             * @description Configured offerings, including inactive and empty offerings.
+             * @example 18
+             */
+            offeringCount: number;
+            /**
+             * @description Approved enrollments with a grade other than F.
+             * @example 85
+             */
+            passedCount: number;
+            /**
+             * @description Result groups currently being drafted.
+             * @example 3
+             */
+            pendingCount: number;
+            /**
+             * @description Enrollments whose grade is currently approved.
+             * @example 100
+             */
+            publishedCount: number;
+            /**
+             * Format: uuid
+             * @description Semester covered by this report.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Distinct students with an enrollment in this semester and scope.
+             * @example 65
+             */
+            studentCount: number;
+            /**
+             * @description Result groups awaiting a decision.
+             * @example 2
+             */
+            submittedCount: number;
+        };
         AcademicReferencesResponseDto: {
             /**
              * @description Active departments within active faculties.
@@ -341,6 +1245,119 @@ export interface components {
              *     ]
              */
             programmes: components["schemas"]["ProgrammeResponseDto"][];
+        };
+        AcademicReportOptionDto: {
+            /**
+             * Format: uuid
+             * @description Identifier to select in a report.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Display label for the report filter.
+             * @example First Semester · 2026/2027
+             */
+            label: string;
+        };
+        AcademicReportOptionsDto: {
+            /**
+             * @description Departments the current staff account can report on.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "label": "Computing"
+             *       }
+             *     ]
+             */
+            departments: components["schemas"]["AcademicReportOptionDto"][];
+            /**
+             * @description Semesters available as report filters.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "label": "First Semester · 2026/2027"
+             *       }
+             *     ]
+             */
+            semesters: components["schemas"]["AcademicReportOptionDto"][];
+        };
+        AcademicSetupResponseDto: {
+            /**
+             * @description Academic department records available to the administrator.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "facultyId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "name": "Computing",
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            departments: components["schemas"]["DepartmentSetupResponseDto"][];
+            /**
+             * @description Academic faculty records available to the administrator.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "name": "Faculty of Science",
+             *         "status": "active",
+             *         "currentSemesterId": "0191e192-67ad-746b-9acb-c850234b408a"
+             *       }
+             *     ]
+             */
+            faculties: components["schemas"]["FacultySetupResponseDto"][];
+            /**
+             * @description Shared academic levels, including inactive levels.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "programType": "undergrad",
+             *         "stage": 1,
+             *         "displayName": "100 Level",
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            levels: components["schemas"]["AcademicLevelSetupDto"][];
+            /**
+             * @description Academic programme records available to the administrator.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "departmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "name": "BSc Computer Science",
+             *         "programType": "undergrad",
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            programmes: components["schemas"]["ProgrammeSetupResponseDto"][];
+            /**
+             * @description Academic semester records available to the administrator.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "academicSessionId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "termNumber": 1,
+             *         "name": "First Semester",
+             *         "maxUnits": 24,
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            semesters: components["schemas"]["SemesterSetupResponseDto"][];
+            /**
+             * @description Academic session records available to the administrator.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "startYear": 2026,
+             *         "endYear": 2027,
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            sessions: components["schemas"]["SessionSetupResponseDto"][];
         };
         AdminAuthorizationGrantResponseDto: {
             /**
@@ -404,6 +1421,272 @@ export interface components {
              */
             grants: components["schemas"]["AdminAuthorizationGrantResponseDto"][];
         };
+        AdminDirectoryGrantResponseDto: {
+            /**
+             * Format: uuid
+             * @description Department where the role applies. Null means university-wide.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string | null;
+            /**
+             * Format: uuid
+             * @description Role assignment ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Role linked to the assignment.
+             * @example {
+             *       "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "name": "lecturer",
+             *       "description": "Teaches assigned courses.",
+             *       "kind": "system",
+             *       "systemKey": "lecturer",
+             *       "createdByAdminId": null,
+             *       "privileges": [
+             *         "teach_course"
+             *       ],
+             *       "createdAt": "2026-11-10T10:30:00.000Z",
+             *       "updatedAt": "2026-11-10T10:30:00.000Z"
+             *     }
+             */
+            role: components["schemas"]["RoleResponseDto"];
+        };
+        AdminDirectoryUserResponseDto: {
+            /**
+             * Format: email
+             * @description Email used to sign in.
+             * @example ada.okafor@example.test
+             */
+            email: string;
+            /**
+             * @description Given name, if provided.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * Format: uuid
+             * @description Sign-in account ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Family name, if provided.
+             * @example Okafor
+             */
+            lastName: string | null;
+            /**
+             * @description Whether the account can sign in.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "suspended";
+        };
+        AdminPageResponseDto: {
+            /**
+             * @description Administrator profiles on the current page.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "userId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "createdAt": "2026-11-10T10:30:00.000Z"
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["AdminResponseDto"][];
+            /**
+             * @description Cursor for the next page. Null means there are no more results.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
+        };
+        AdminResponseDto: {
+            /**
+             * @description Whether the signed-in administrator may edit this staff member’s names. Returned with the user profile.
+             * @example true
+             */
+            canUpdateProfile?: boolean;
+            /**
+             * Format: date-time
+             * @description When the administrator profile was created.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            createdAt: string;
+            /**
+             * Format: uuid
+             * @description Administrator profile ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Visible role assignments, when requested.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "departmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "role": {
+             *           "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *           "name": "lecturer",
+             *           "description": "Teaches assigned courses.",
+             *           "kind": "system",
+             *           "systemKey": "lecturer",
+             *           "createdByAdminId": null,
+             *           "privileges": [
+             *             "teach_course"
+             *           ],
+             *           "createdAt": "2026-11-10T10:30:00.000Z",
+             *           "updatedAt": "2026-11-10T10:30:00.000Z"
+             *         }
+             *       }
+             *     ]
+             */
+            roles?: components["schemas"]["AdminDirectoryGrantResponseDto"][];
+            /**
+             * @description Sign-in account, when requested and authorized.
+             * @example {
+             *       "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "email": "ada.okafor@example.test",
+             *       "firstName": "Ada",
+             *       "lastName": "Okafor",
+             *       "status": "active"
+             *     }
+             */
+            user?: components["schemas"]["AdminDirectoryUserResponseDto"];
+            /**
+             * Format: uuid
+             * @description ID of the administrator’s sign-in account.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            userId: string;
+        };
+        AssignAdminRoleDto: {
+            /**
+             * Format: uuid
+             * @description Department where the assignment applies. Null means university-wide.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId?: string | null;
+            /**
+             * Format: uuid
+             * @description ID of the role to assign.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            roleId: string;
+        };
+        AuditEventPageResponseDto: {
+            /**
+             * @description Audit events on the current page.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "action": "user.set_status",
+             *         "category": "users",
+             *         "actorUserId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "actorAdminId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "targetType": "user",
+             *         "targetId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "outcome": "succeeded",
+             *         "reason": null,
+             *         "changes": {
+             *           "status": "suspended"
+             *         },
+             *         "metadata": null,
+             *         "requestId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "traceId": null,
+             *         "occurredAt": "2026-11-10T10:30:00.000Z"
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["AuditEventResponseDto"][];
+            /**
+             * @description Cursor for the next page. Null means there are no more results.
+             * @example MjAyNi0xMS0xMFQxMDozMDowMC4wMDAwMDBaLzAxOTFlMTkyLTY3YWQtNzQ2Yi05YWNiLWM4NTAyMzRiNDA4YQ
+             */
+            nextCursor: string | null;
+        };
+        AuditEventResponseDto: {
+            /**
+             * @description Action the administrator attempted.
+             * @example user.set_status
+             */
+            action: string;
+            /**
+             * Format: uuid
+             * @description ID of the administrator profile that made the request, when known.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            actorAdminId: string | null;
+            /**
+             * Format: uuid
+             * @description ID of the account that made the request, when known.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            actorUserId: string | null;
+            /**
+             * @description Group used to filter events.
+             * @example users
+             * @enum {string}
+             */
+            category: "access" | "users" | "academic" | "results" | "operations";
+            /**
+             * @description Safe changes recorded for the action.
+             * @example {
+             *       "status": "suspended"
+             *     }
+             */
+            changes: Record<string, never> | null;
+            /**
+             * Format: uuid
+             * @description Audit event ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Additional safe context, when recorded.
+             * @example {
+             *       "departmentId": "0191e192-67ad-746b-9acb-c850234b408a"
+             *     }
+             */
+            metadata: Record<string, never> | null;
+            /**
+             * Format: date-time
+             * @description When the attempt occurred.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            occurredAt: string;
+            /**
+             * @description Result of the attempt.
+             * @example succeeded
+             * @enum {string}
+             */
+            outcome: "succeeded" | "failed" | "denied";
+            /**
+             * @description Short reason code, if recorded.
+             * @example forbidden
+             */
+            reason: string | null;
+            /**
+             * @description ID used to find the associated request in logs.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            requestId: string | null;
+            /**
+             * Format: uuid
+             * @description ID of the affected resource, when known.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            targetId: string | null;
+            /**
+             * @description Kind of resource affected.
+             * @example user
+             */
+            targetType: string;
+            /**
+             * @description ID used to find the associated trace.
+             * @example 5e45e09177a37c66e0860a404f3a191f
+             */
+            traceId: string | null;
+        };
         AvailableCourseDto: {
             /**
              * @description Canonical course code.
@@ -464,6 +1747,263 @@ export interface components {
              */
             semesterId: string;
         };
+        CoursePerformanceDto: {
+            /**
+             * @description Display name of the study level for this offering.
+             * @example 100 Level
+             */
+            academicLevel: string;
+            /**
+             * @description Mean total mark out of 100 across approved enrollments only, or null when none are approved.
+             * @example 67.42
+             */
+            averageScore: number | null;
+            /**
+             * @description University catalog course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * @description Name of the department that owns the offering.
+             * @example Computing
+             */
+            department: string;
+            /**
+             * Format: uuid
+             * @description Department that owns this offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * @description Course enrollments, including those with unpublished results.
+             * @example 120
+             */
+            enrollmentCount: number;
+            /**
+             * @description University catalog course title.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Course offering ID. Distinct departments have distinct offerings.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * @description Whether this delivery is active.
+             * @example active
+             * @enum {string}
+             */
+            offeringStatus: "active" | "inactive";
+            /**
+             * @description Approved enrollments with a grade other than F.
+             * @example 85
+             */
+            passedCount: number;
+            /**
+             * @description Enrollments whose grade is currently approved.
+             * @example 100
+             */
+            publishedCount: number;
+            /**
+             * @description Roster registration state, or null if no roster has been created.
+             * @example closed
+             * @enum {string|null}
+             */
+            registrationStatus: "opened" | "closed" | null;
+            /**
+             * @description Current result group state, or null if no group has been created.
+             * @example approved
+             * @enum {string|null}
+             */
+            resultStatus: "pending" | "submitted" | "correction_requested" | "approved" | null;
+        };
+        CoursePerformancePageDto: {
+            /**
+             * @description Course offering performance for the selected scope, ordered by offering ID.
+             * @example [
+             *       {
+             *         "offeringId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "departmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "department": "Computing",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "academicLevel": "100 Level",
+             *         "offeringStatus": "active",
+             *         "registrationStatus": "closed",
+             *         "resultStatus": "approved",
+             *         "enrollmentCount": 30,
+             *         "publishedCount": 30,
+             *         "passedCount": 25,
+             *         "averageScore": 67.42
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["CoursePerformanceDto"][];
+            /**
+             * Format: uuid
+             * @description Cursor to send on the next request, or null on the last page.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
+        };
+        CourseResponseDto: {
+            /**
+             * @description Canonical course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Title of the course.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        CourseSetupResponseDto: {
+            /**
+             * @description University catalog courses.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "units": 3,
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            courses: components["schemas"]["CourseResponseDto"][];
+            /**
+             * @description Programme links in the administrator’s scope.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseOfStudyId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseId": "0191e192-67ad-746b-9acb-c850234b408a"
+             *       }
+             *     ]
+             */
+            curriculum: components["schemas"]["CurriculumResponseDto"][];
+            /**
+             * @description Course offerings in the administrator’s scope.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "departmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "semesterId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "academicLevelId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "lecturerId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "units": 3,
+             *         "gradingPolicyId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "status": "active"
+             *       }
+             *     ]
+             */
+            offerings: components["schemas"]["OfferingResponseDto"][];
+        };
+        CourseWriteDto: {
+            /**
+             * @description Canonical course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * @description Title of the course.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        CreateAdminDto: {
+            /**
+             * Format: uuid
+             * @description Department where the assignment applies. Null means university-wide.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId?: string | null;
+            /**
+             * Format: email
+             * @description Email used to sign in.
+             * @example ada.okafor@example.test
+             */
+            email: string;
+            /**
+             * @description Given name, if provided.
+             * @example Ada
+             */
+            firstName?: string | null;
+            /**
+             * @description Family name, if provided.
+             * @example Okafor
+             */
+            lastName?: string | null;
+            /**
+             * Format: password
+             * @description Password used to sign in.
+             * @example Example-only-password!
+             */
+            password: string;
+            /**
+             * Format: uuid
+             * @description ID of the role to assign. An HOD can omit this to provision a lecturer in their department.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            roleId?: string;
+        };
+        CreatedAdminResponseDto: {
+            /**
+             * @description Initial role assignment, if requested.
+             * @example {
+             *       "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "adminId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "roleId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "departmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *       "name": "lecturer"
+             *     }
+             */
+            grant?: components["schemas"]["RoleAssignmentResponseDto"];
+            /**
+             * Format: uuid
+             * @description New administrator profile ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description ID of the administrator’s sign-in account.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            userId: string;
+        };
         CreateStudentDto: {
             /**
              * Format: uuid
@@ -512,6 +2052,40 @@ export interface components {
              */
             password: string;
         };
+        CurriculumResponseDto: {
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * Format: uuid
+             * @description Programme that includes the course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseOfStudyId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+        };
+        CurriculumWriteDto: {
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * Format: uuid
+             * @description Programme that includes the course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseOfStudyId: string;
+        };
         DepartmentResponseDto: {
             /**
              * Format: uuid
@@ -530,6 +2104,50 @@ export interface components {
              * @example Computing
              */
             name: string;
+        };
+        DepartmentSetupResponseDto: {
+            /**
+             * Format: uuid
+             * @description Faculty that owns the department.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            facultyId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Department name.
+             * @example Computing
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
+        DepartmentWriteDto: {
+            /**
+             * Format: uuid
+             * @description Faculty that owns the department.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            facultyId: string;
+            /**
+             * @description Department name.
+             * @example Computing
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
         };
         ErrorResponseDto: {
             /**
@@ -575,6 +2193,208 @@ export interface components {
              */
             name: string;
         };
+        FacultySetupResponseDto: {
+            /**
+             * Format: uuid
+             * @description Semester currently open for the faculty, or null.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            currentSemesterId: string | null;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Faculty name.
+             * @example Faculty of Science
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
+        FacultyWriteDto: {
+            /**
+             * @description Faculty name.
+             * @example Faculty of Science
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+        };
+        LecturerChoiceResponseDto: {
+            /**
+             * @description Lecturer’s given name.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Lecturer’s family name.
+             * @example Okafor
+             */
+            lastName: string | null;
+        };
+        LecturerChoicesResponseDto: {
+            /**
+             * @description Administrators with teaching authority in the selected department.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "firstName": "Ada",
+             *         "lastName": "Okafor"
+             *       }
+             *     ]
+             */
+            lecturers: components["schemas"]["LecturerChoiceResponseDto"][];
+        };
+        OfferingResponseDto: {
+            /**
+             * Format: uuid
+             * @description Academic level eligible for this offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicLevelId: string;
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * Format: uuid
+             * @description Department that owns the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * Format: uuid
+             * @description Grading policy pinned to this offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            gradingPolicyId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Administrator assigned to teach the offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            lecturerId: string | null;
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        OfferingUpdateDto: {
+            /**
+             * Format: uuid
+             * @description Administrator assigned to teach the offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            lecturerId?: string | null;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+        };
+        OfferingWriteDto: {
+            /**
+             * Format: uuid
+             * @description Academic level eligible for this offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicLevelId: string;
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * Format: uuid
+             * @description Department that owns the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * Format: uuid
+             * @description Administrator assigned to teach the offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            lecturerId?: string | null;
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+        };
+        PlacementDto: {
+            /**
+             * Format: uuid
+             * @description Student’s current academic level.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicLevelId?: string | null;
+            /**
+             * Format: uuid
+             * @description Student’s programme of study.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseOfStudyId?: string | null;
+            /**
+             * Format: uuid
+             * @description Student’s department. It can be inferred from the programme.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId?: string | null;
+            /**
+             * Format: uuid
+             * @description Student’s faculty. It can be inferred from the department.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            facultyId?: string | null;
+        };
         ProfileDto: {
             /**
              * @description Given name, if provided.
@@ -611,6 +2431,62 @@ export interface components {
              * @enum {string}
              */
             programType: "undergrad" | "postgrad" | "masters" | "doctorate";
+        };
+        ProgrammeSetupResponseDto: {
+            /**
+             * Format: uuid
+             * @description Department that owns the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Programme name.
+             * @example BSc Computer Science
+             */
+            name: string;
+            /**
+             * @description University programme family.
+             * @example undergrad
+             * @enum {string}
+             */
+            programType: "undergrad" | "postgrad" | "masters" | "doctorate";
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
+        ProgrammeWriteDto: {
+            /**
+             * Format: uuid
+             * @description Department that owns the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * @description Programme name.
+             * @example BSc Computer Science
+             */
+            name: string;
+            /**
+             * @description University programme family.
+             * @example undergrad
+             * @enum {string}
+             */
+            programType: "undergrad" | "postgrad" | "masters" | "doctorate";
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
         };
         PublishedCourseResultDto: {
             /**
@@ -783,6 +2659,33 @@ export interface components {
              */
             terms: components["schemas"]["RegisteredTermDto"][];
         };
+        RegistrationRosterResponseDto: {
+            /**
+             * @description Enrollments visible in this roster or report.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "offeringId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "courseId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "code": "CSC101",
+             *         "name": "Introduction to Computing",
+             *         "units": 3,
+             *         "resultGroupId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "studentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "firstName": "Ada",
+             *         "lastName": "Okafor",
+             *         "matricNumber": "26/1/2/3/42"
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["RosterStudentResponseDto"][];
+            /**
+             * Format: uuid
+             * @description Cursor for the next page, or null at the end.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
+        };
         RegistrationSummaryResponseDto: {
             /**
              * @description Academic level saved in the semester record.
@@ -876,6 +2779,164 @@ export interface components {
              * @example 0191e192-67ad-746b-9acb-c850234b408a
              */
             semesterId: string;
+        };
+        ReopenResultDto: {
+            /**
+             * @description Reason code retained in the audit trail when a result is reopened.
+             * @example mark_correction
+             * @enum {string}
+             */
+            reason: "mark_correction" | "review_error" | "administrative_request";
+        };
+        RequestResultCorrectionsDto: {
+            /**
+             * @description Feedback the lecturer sees before resubmitting.
+             * @example Check the exam marks against the attendance sheet.
+             */
+            reason: string;
+        };
+        ResultDecisionNoteDto: {
+            /**
+             * @description Optional staff note on the submission or approval.
+             * @example Marks verified against the course records.
+             */
+            note?: string | null;
+        };
+        ResultGroupDetailDto: {
+            /**
+             * @description Optional note on the latest approval.
+             * @example Department review completed.
+             */
+            approvalReason: string | null;
+            /**
+             * Format: date-time
+             * @description Time of the latest approval, when available.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            approvedAt: string | null;
+            /**
+             * @description Mean total for enrollments with both marks, when available.
+             * @example 73.5
+             */
+            averageScore: number | null;
+            /**
+             * @description University catalog course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * Format: date-time
+             * @description Time of the latest request for corrections.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            correctionRequestedAt: string | null;
+            /**
+             * @description Feedback from the latest request for corrections.
+             * @example Check the exam marks against the attendance sheet.
+             */
+            correctionRequestReason: string | null;
+            /**
+             * Format: uuid
+             * @description Department responsible for these results.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * @description Number of students registered in the roster.
+             * @example 26
+             */
+            enrolledCount: number;
+            /**
+             * Format: uuid
+             * @description Result group ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Administrator assigned to teach this offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            lecturerId: string;
+            /**
+             * @description Number of enrollments with both marks entered.
+             * @example 26
+             */
+            markedCount: number;
+            /**
+             * @description Paged enrollment marks and grade previews.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "studentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "firstName": "Ada",
+             *         "lastName": "Okafor",
+             *         "matricNumber": "26/1/2/3/42",
+             *         "caScore": 24.5,
+             *         "examScore": 49.25,
+             *         "totalScore": 73.75,
+             *         "grade": "A",
+             *         "gradePoint": 5
+             *       }
+             *     ]
+             */
+            marks: components["schemas"]["ResultMarkResponseDto"][];
+            /**
+             * @description Maximum CA mark under the offering’s grading policy.
+             * @example 30
+             */
+            maxCaScore: number;
+            /**
+             * @description Maximum exam mark under the offering’s grading policy.
+             * @example 70
+             */
+            maxExamScore: number;
+            /**
+             * @description Course title.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Cursor for the next page, or null at the end.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
+            /**
+             * Format: uuid
+             * @description Department-owned course offering ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * @description Whether the roster accepts enrollment.
+             * @example closed
+             * @enum {string}
+             */
+            registrationStatus: "opened" | "closed";
+            /**
+             * Format: uuid
+             * @description Semester of this course offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string;
+            /**
+             * @description Current result review state.
+             * @example submitted
+             * @enum {string}
+             */
+            status: "pending" | "submitted" | "correction_requested" | "approved";
+            /**
+             * @description Optional note on the latest submission.
+             * @example All marks checked.
+             */
+            submissionReason: string | null;
+            /**
+             * Format: date-time
+             * @description Time of the latest submission, when available.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            submittedAt: string | null;
         };
         ResultGroupPageDto: {
             /**
@@ -1007,6 +3068,453 @@ export interface components {
              */
             submittedAt: string | null;
         };
+        ResultMarkInputDto: {
+            /**
+             * @description CA mark within the offering’s policy limit. Omit to keep the existing value or send null to clear it.
+             * @example 24.5
+             */
+            caScore?: number | null;
+            /**
+             * Format: uuid
+             * @description Enrollment on this result group’s roster.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            enrollmentId: string;
+            /**
+             * @description Exam mark within the offering’s policy limit. Omit to keep the existing value or send null to clear it.
+             * @example 49.25
+             */
+            examScore?: number | null;
+        };
+        ResultMarkResponseDto: {
+            /**
+             * @description Continuous assessment mark.
+             * @example 24.5
+             */
+            caScore: number | null;
+            /**
+             * @description Examination mark.
+             * @example 49.25
+             */
+            examScore: number | null;
+            /**
+             * @description Student’s given name, when available.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * @description Letter grade on the offering’s grading scale.
+             * @example A
+             * @enum {string|null}
+             */
+            grade: "A" | "B" | "C" | "D" | "E" | "F" | null;
+            /**
+             * @description Grade points per credit unit.
+             * @example 5
+             */
+            gradePoint: number | null;
+            /**
+             * Format: uuid
+             * @description Enrollment ID used to save marks.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Student’s family name, when available.
+             * @example Okafor
+             */
+            lastName: string | null;
+            /**
+             * @description Student’s matriculation number, when available.
+             * @example 26/1/2/3/42
+             */
+            matricNumber: string | null;
+            /**
+             * Format: uuid
+             * @description Internal student profile ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            studentId: string;
+            /**
+             * @description Combined CA and examination mark.
+             * @example 73.75
+             */
+            totalScore: number | null;
+        };
+        ResultReviewDepartmentDto: {
+            /**
+             * Format: uuid
+             * @description Department whose results this administrator may review.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Department name, including inactive departments with retained history.
+             * @example Computer Science
+             */
+            name: string;
+        };
+        ResultReviewOptionsDto: {
+            /**
+             * @description Departments covered by a review, approval, or reopening privilege. Includes inactive departments.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "name": "Computer Science"
+             *       }
+             *     ]
+             */
+            departments: components["schemas"]["ResultReviewDepartmentDto"][];
+        };
+        ResultStateResponseDto: {
+            /**
+             * @description Optional note on the latest approval.
+             * @example Department review completed.
+             */
+            approvalReason: string | null;
+            /**
+             * Format: date-time
+             * @description Time of the latest approval, when available.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            approvedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Time of the latest request for corrections.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            correctionRequestedAt: string | null;
+            /**
+             * @description Feedback from the latest request for corrections.
+             * @example Check the exam marks against the attendance sheet.
+             */
+            correctionRequestReason: string | null;
+            /**
+             * Format: uuid
+             * @description Department responsible for these results.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string;
+            /**
+             * Format: uuid
+             * @description Result group ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Department-owned course offering ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * @description Whether the roster accepts enrollment.
+             * @example closed
+             * @enum {string}
+             */
+            registrationStatus: "opened" | "closed";
+            /**
+             * @description Current result review state.
+             * @example submitted
+             * @enum {string}
+             */
+            status: "pending" | "submitted" | "correction_requested" | "approved";
+            /**
+             * @description Optional note on the latest submission.
+             * @example All marks checked.
+             */
+            submissionReason: string | null;
+            /**
+             * Format: date-time
+             * @description Time of the latest submission, when available.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            submittedAt: string | null;
+        };
+        RoleAssignmentResponseDto: {
+            /**
+             * Format: uuid
+             * @description Administrator who received the role.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            adminId: string;
+            /**
+             * Format: uuid
+             * @description Department where the role applies. Null means university-wide.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            departmentId: string | null;
+            /**
+             * Format: uuid
+             * @description Role assignment ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Name of the assigned role.
+             * @example lecturer
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Assigned role ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            roleId: string;
+        };
+        RolePageResponseDto: {
+            /**
+             * @description Roles on the current page.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "name": "lecturer",
+             *         "description": "Teaches assigned courses.",
+             *         "kind": "system",
+             *         "systemKey": "lecturer",
+             *         "createdByAdminId": null,
+             *         "privileges": [
+             *           "teach_course"
+             *         ],
+             *         "createdAt": "2026-11-10T10:30:00.000Z",
+             *         "updatedAt": "2026-11-10T10:30:00.000Z"
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["RoleResponseDto"][];
+            /**
+             * @description Cursor for the next page. Null means there are no more results.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
+        };
+        RoleResponseDto: {
+            /**
+             * Format: date-time
+             * @description When the role was created.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            createdAt: string;
+            /**
+             * Format: uuid
+             * @description ID of the admin who created the role, if known.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            createdByAdminId: string | null;
+            /**
+             * @description Purpose of the role, when provided.
+             * @example Teaches assigned courses.
+             */
+            description: string | null;
+            /**
+             * Format: uuid
+             * @description Role ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Whether the role is a protected system role or a custom role.
+             * @example system
+             * @enum {string}
+             */
+            kind: "custom" | "system";
+            /**
+             * @description Unique role name.
+             * @example lecturer
+             */
+            name: string;
+            /**
+             * @description Permissions supplied by this role.
+             * @example [
+             *       "teach_course"
+             *     ]
+             */
+            privileges: ("read_user" | "create_student" | "update_student_placement" | "update_user" | "suspend_user" | "delete_user" | "revoke_user_sessions" | "read_admin" | "create_admin" | "manage_admin_roles" | "read_role" | "manage_roles" | "read_audit" | "manage_university" | "manage_department" | "read_registration" | "register_student_courses" | "teach_course" | "grade_result" | "approve_result" | "review_result" | "reopen_result" | "read_reports")[];
+            /**
+             * @description Stable key for a system role. Null for custom roles.
+             * @example lecturer
+             * @enum {string|null}
+             */
+            systemKey: "super_admin" | "hod" | "lecturer" | null;
+            /**
+             * Format: date-time
+             * @description When the role was last changed.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            updatedAt: string;
+        };
+        RosterClosureResponseDto: {
+            /**
+             * Format: date-time
+             * @description Time the lecturer closed the roster.
+             * @example 2026-11-10T10:30:00.000Z
+             */
+            closedAt: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Offering whose roster is closed.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+        };
+        RosterStudentResponseDto: {
+            /**
+             * @description Canonical course code.
+             * @example CSC101
+             */
+            code: string;
+            /**
+             * Format: uuid
+             * @description University catalog course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            courseId: string;
+            /**
+             * @description Given name if still available.
+             * @example Ada
+             */
+            firstName: string | null;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Family name if still available.
+             * @example Okafor
+             */
+            lastName: string | null;
+            /**
+             * @description Issued matriculation number if still available.
+             * @example 26/1/2/3/42
+             */
+            matricNumber: string | null;
+            /**
+             * @description Title of the course.
+             * @example Introduction to Computing
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Department-owned delivery of the course.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            offeringId: string;
+            /**
+             * Format: uuid
+             * @description Roster created for the offering.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            resultGroupId: string;
+            /**
+             * Format: uuid
+             * @description Internal student profile ID.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            studentId: string;
+            /**
+             * @description Credit units assigned to this course.
+             * @example 3
+             */
+            units: number;
+        };
+        SaveMarksResponseDto: {
+            /**
+             * @description Number of enrollments whose marks changed.
+             * @example 2
+             */
+            changedCount: number;
+            /**
+             * Format: uuid
+             * @description Result group whose marks were saved.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+        };
+        SaveResultMarksDto: {
+            /**
+             * @description Enrollment marks to save together. Each enrollment can appear once.
+             * @example [
+             *       {
+             *         "enrollmentId": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "caScore": 24.5,
+             *         "examScore": 49.25
+             *       }
+             *     ]
+             */
+            marks: components["schemas"]["ResultMarkInputDto"][];
+        };
+        SemesterSetupResponseDto: {
+            /**
+             * Format: uuid
+             * @description Academic session that contains this semester.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicSessionId: string;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description Maximum total credit units a student can register in the semester.
+             * @example 24
+             */
+            maxUnits: number;
+            /**
+             * @description Semester name.
+             * @example First Semester
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+            /**
+             * @description Sequence of the term in the academic session.
+             * @example 1
+             */
+            termNumber: number;
+        };
+        SemesterWriteDto: {
+            /**
+             * Format: uuid
+             * @description Academic session that contains this semester.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            academicSessionId: string;
+            /**
+             * @description Maximum total credit units a student can register in the semester.
+             * @example 24
+             */
+            maxUnits: number;
+            /**
+             * @description Semester name.
+             * @example First Semester
+             */
+            name: string;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+            /**
+             * @description Sequence of the term in the academic session.
+             * @example 1
+             */
+            termNumber: number;
+        };
         SessionResponseDto: {
             /**
              * @description Token used to authorize API requests.
@@ -1025,6 +3533,30 @@ export interface components {
              */
             refresh: components["schemas"]["SessionTokenResponseDto"];
         };
+        SessionSetupResponseDto: {
+            /**
+             * @description Last year of the session.
+             * @example 2027
+             */
+            endYear: number;
+            /**
+             * Format: uuid
+             * @description Identifier of the record.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            id: string;
+            /**
+             * @description First year of the session.
+             * @example 2026
+             */
+            startYear: number;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
         SessionTokenResponseDto: {
             /**
              * @description Expiry as a Unix timestamp in milliseconds.
@@ -1036,6 +3568,40 @@ export interface components {
              * @example eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.example-signature
              */
             token: string;
+        };
+        SessionWriteDto: {
+            /**
+             * @description Last year of the session.
+             * @example 2027
+             */
+            endYear: number;
+            /**
+             * @description First year of the session.
+             * @example 2026
+             */
+            startYear: number;
+            /**
+             * @description Whether this record can be used in current academic operations.
+             * @example active
+             * @enum {string}
+             */
+            status?: "active" | "inactive";
+        };
+        SetAcademicLevelStatusDto: {
+            /**
+             * @description Whether the level can be used in new placements and registration.
+             * @example active
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+        };
+        SetCurrentSemesterDto: {
+            /**
+             * Format: uuid
+             * @description Semester used for course registration.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            semesterId: string | null;
         };
         SignInDto: {
             /**
@@ -1319,6 +3885,32 @@ export interface components {
              */
             offerings: components["schemas"]["TeachingOfferingDto"][];
         };
+        UpdateUserDto: {
+            /**
+             * Format: email
+             * @description Email used to sign in.
+             * @example ada.okafor@example.test
+             */
+            email?: string;
+            /**
+             * @description Given name, if provided.
+             * @example Ada
+             */
+            firstName?: string | null;
+            /**
+             * @description Family name, if provided.
+             * @example Okafor
+             */
+            lastName?: string | null;
+        };
+        UpdateUserStatusDto: {
+            /**
+             * @description Whether the account can sign in.
+             * @example suspended
+             * @enum {string}
+             */
+            status: "active" | "suspended";
+        };
         UserAdminProfileResponseDto: {
             /**
              * Format: uuid
@@ -1326,6 +3918,28 @@ export interface components {
              * @example 0191e192-67ad-746b-9acb-c850234b408a
              */
             id: string;
+        };
+        UserPageResponseDto: {
+            /**
+             * @description Accounts on the current page.
+             * @example [
+             *       {
+             *         "id": "0191e192-67ad-746b-9acb-c850234b408a",
+             *         "role": "student",
+             *         "email": "ada.okafor@example.test",
+             *         "firstName": "Ada",
+             *         "lastName": "Okafor",
+             *         "status": "active",
+             *         "createdAt": "2026-11-10T10:30:00.000Z"
+             *       }
+             *     ]
+             */
+            items: components["schemas"]["UserResponseDto"][];
+            /**
+             * @description Cursor for the next page. Null means there are no more results.
+             * @example 0191e192-67ad-746b-9acb-c850234b408a
+             */
+            nextCursor: string | null;
         };
         UserResponseDto: {
             /**
@@ -1388,6 +4002,26 @@ export interface components {
              */
             student?: components["schemas"]["StudentProfileResponseDto"];
         };
+        WriteRoleDto: {
+            /**
+             * @description What the role allows the administrator to do.
+             * @example Coordinates undergraduate courses.
+             */
+            description?: string | null;
+            /**
+             * @description Unique role name using lowercase letters, digits, and hyphens.
+             * @example course-coordinator
+             */
+            name: string;
+            /**
+             * @description Permissions granted to administrators assigned this role.
+             * @example [
+             *       "teach_course",
+             *       "read_registration"
+             *     ]
+             */
+            privileges?: ("read_user" | "create_student" | "update_student_placement" | "update_user" | "suspend_user" | "delete_user" | "revoke_user_sessions" | "read_admin" | "create_admin" | "manage_admin_roles" | "read_role" | "manage_roles" | "read_audit" | "manage_university" | "manage_department" | "read_registration" | "register_student_courses" | "teach_course" | "grade_result" | "approve_result" | "review_result" | "reopen_result" | "read_reports")[];
+        };
     };
     responses: never;
     parameters: never;
@@ -1413,6 +4047,611 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AcademicReferencesResponseDto"];
                 };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_read_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_createDepartment_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DepartmentSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_updateDepartment_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DepartmentSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_createFaculty_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FacultyWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacultySetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_updateFaculty_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FacultyWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacultySetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_setCurrentSemester_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCurrentSemesterDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacultySetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_setLevelStatus_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAcademicLevelStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicLevelSetupDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_createProgramme_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProgrammeWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgrammeSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_updateProgramme_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProgrammeWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgrammeSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_createSemester_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SemesterWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SemesterSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_updateSemester_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SemesterWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SemesterSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_createSession_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicSetupController_updateSession_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminsController_list_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Administrator details to include: user, roles, or both separated by a space. */
+                populate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPageResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminsController_create_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdminDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedAdminResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminsController_get_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Administrator details to include: user, roles, or both separated by a space. */
+                populate?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Administrator profile ID from the request path. */
+                adminId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminsController_assign_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Administrator profile ID from the request path. */
+                adminId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignAdminRoleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleAssignmentResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminsController_revoke_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Administrator profile ID from the request path. */
+                adminId: string;
+                /** @description Role assignment ID from the request path. */
+                grantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The action completed successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description The request could not be completed. */
             default: {
@@ -1453,6 +4692,542 @@ export interface operations {
             };
         };
     };
+    AdminAuditController_list_v1: {
+        parameters: {
+            query?: {
+                /** @description Only include this audit action. */
+                action?: "user.create_student" | "user.update" | "user.update_placement" | "user.set_status" | "user.revoke_sessions" | "user.delete" | "user.change_password" | "admin.create" | "admin.role.assign" | "admin.role.revoke" | "role.create" | "role.update" | "role.delete" | "academic.faculty.create" | "academic.faculty.update" | "academic.level.status" | "academic.faculty.current_semester" | "academic.department.create" | "academic.department.update" | "academic.programme.create" | "academic.programme.update" | "academic.session.create" | "academic.session.update" | "academic.semester.create" | "academic.semester.update" | "academic.course.create" | "academic.course.update" | "academic.curriculum.add" | "academic.curriculum.remove" | "academic.offering.create" | "academic.offering.update" | "registration.register_for_student" | "registration.close_roster" | "result.marks.save" | "result.grade.award" | "result.grade.clear" | "result.submit" | "result.approve" | "result.request_corrections" | "result.reopen";
+                /** @description Only include events from this administrator profile. */
+                actorAdminId?: string;
+                /** @description Only include events from this sign-in account. */
+                actorUserId?: string;
+                /** @description Only include events in this audit category. */
+                category?: "access" | "users" | "academic" | "results" | "operations";
+                /** @description Opaque cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Earliest timestamp to include, in ISO 8601 format. */
+                from?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Only include events with this outcome. */
+                outcome?: "succeeded" | "denied" | "failed";
+                /** @description Only include events for this resource ID. */
+                targetId?: string;
+                /** @description Latest timestamp to include, in ISO 8601 format. */
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPageResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAuditController_get_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Audit event ID from the request path. */
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_read_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseSetupResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_createCourse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CourseWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_updateCourse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CourseWriteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_addCurriculum_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurriculumWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurriculumResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_removeCurriculum_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The academic record was updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_lecturers_v1: {
+        parameters: {
+            query: {
+                /** @description Department that owns the record. */
+                departmentId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LecturerChoicesResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_createOffering_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferingWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferingResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CourseSetupController_updateOffering_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferingUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferingResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentRegistrationController_report_v1: {
+        parameters: {
+            query: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Department that owns the record. */
+                departmentId: string;
+                /** @description Maximum number of items returned. */
+                limit?: number;
+                /** @description Semester used for course registration. */
+                semesterId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationRosterResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentRegistrationController_register_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Student account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationWriteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationSummaryResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentRegistrationController_available_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Student account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailableCoursesResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicReportingController_courses_v1: {
+        parameters: {
+            query: {
+                /** @description The previous page’s nextCursor. Keep the same semester and department filters. */
+                cursor?: string;
+                /** @description Department to report on. Omit only with university-wide reporting access. */
+                departmentId?: string;
+                /** @description Maximum course offerings to return on this page. */
+                limit?: number;
+                /** @description Semester whose registrations and results are counted. */
+                semesterId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoursePerformancePageDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicReportingController_options_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicReportOptionsDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AcademicReportingController_overview_v1: {
+        parameters: {
+            query: {
+                /** @description Department to report on. Omit only with university-wide reporting access. */
+                departmentId?: string;
+                /** @description Semester whose registrations and results are counted. */
+                semesterId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicOverviewDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
     DepartmentResultsController_list_v1: {
         parameters: {
             query: {
@@ -1479,6 +5254,577 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResultGroupPageDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentResultsController_detail_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Number of records to return. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultGroupDetailDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentResultsController_approve_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResultDecisionNoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultStateResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentResultsController_reopen_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReopenResultDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultStateResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentResultsController_requestCorrections_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestResultCorrectionsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultStateResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    DepartmentResultsController_options_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultReviewOptionsDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    RolesController_list_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Related records to include, separated by spaces. Omit this field if the endpoint has no supported relations. */
+                populate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolePageResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    RolesController_create_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WriteRoleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    RolesController_update_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Role ID from the request path. */
+                roleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WriteRoleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    RolesController_delete_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Role ID from the request path. */
+                roleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The action completed successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_list_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Related profiles to include: student, admin, or both separated by a space. */
+                populate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPageResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_get_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of results to return. */
+                limit?: number;
+                /** @description Related profiles to include: student, admin, or both separated by a space. */
+                populate?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_delete_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The action completed successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_update_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_revokeSessions_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The action completed successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_status_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_placement_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID from the request path. */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlacementDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_createStudent_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStudentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
                 };
             };
             /** @description The request could not be completed. */
@@ -1630,6 +5976,179 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TeachingOfferingsResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LecturerRegistrationController_close_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RosterClosureResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LecturerRegistrationController_roster_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Maximum number of items returned. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationRosterResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LecturerResultsController_detail_v1: {
+        parameters: {
+            query?: {
+                /** @description Cursor returned by the previous page. */
+                cursor?: string;
+                /** @description Number of records to return. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultGroupDetailDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LecturerResultsController_saveMarks_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveResultMarksDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaveMarksResponseDto"];
+                };
+            };
+            /** @description The request could not be completed. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LecturerResultsController_submit_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identifier of the academic record in the request path. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResultDecisionNoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultStateResponseDto"];
                 };
             };
             /** @description The request could not be completed. */

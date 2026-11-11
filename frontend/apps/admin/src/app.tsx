@@ -59,7 +59,9 @@ function StaffPortal() {
               href: workspacePath(workspace),
               label: workspace.label,
               icon: workspace.icon,
-              active: pathname === workspacePath(workspace),
+              active:
+                pathname === workspacePath(workspace) ||
+                pathname.startsWith(workspacePath(workspace) + "/"),
             })),
         }))
         .filter(({ items }) => items.length)
@@ -215,7 +217,7 @@ export function App() {
             items.map((workspace) => (
               <Route
                 key={workspace.slug}
-                path={workspacePath(workspace)}
+                path={workspacePath(workspace) + (workspace.details ? "/*" : "")}
                 element={<GuardedWorkspace workspace={workspace} />}
               />
             )),

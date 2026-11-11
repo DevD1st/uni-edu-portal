@@ -3,6 +3,50 @@ import { Expose, Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
 import { normalizeUuidInput } from '#shared/http/uuid-input.js';
 
+export class AcademicReportOptionDto {
+  @Expose()
+  @ApiProperty({
+    format: 'uuid',
+    description: 'Identifier to select in a report.',
+    example: '0191e192-67ad-746b-9acb-c850234b408a',
+  })
+  id!: string;
+
+  @Expose()
+  @ApiProperty({
+    description: 'Display label for the report filter.',
+    example: 'First Semester · 2026/2027',
+  })
+  label!: string;
+}
+
+export class AcademicReportOptionsDto {
+  @Expose()
+  @Type(() => AcademicReportOptionDto)
+  @ApiProperty({
+    type: [AcademicReportOptionDto],
+    description: 'Semesters available as report filters.',
+    example: [
+      {
+        id: '0191e192-67ad-746b-9acb-c850234b408a',
+        label: 'First Semester · 2026/2027',
+      },
+    ],
+  })
+  semesters!: AcademicReportOptionDto[];
+
+  @Expose()
+  @Type(() => AcademicReportOptionDto)
+  @ApiProperty({
+    type: [AcademicReportOptionDto],
+    description: 'Departments the current staff account can report on.',
+    example: [
+      { id: '0191e192-67ad-746b-9acb-c850234b408a', label: 'Computing' },
+    ],
+  })
+  departments!: AcademicReportOptionDto[];
+}
+
 export class AcademicReportQueryDto {
   @Transform(normalizeUuidInput)
   @IsUUID('all', { message: 'Select a valid semester for this report.' })

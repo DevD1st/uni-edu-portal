@@ -14,6 +14,7 @@ export class AvailableCoursesQuery extends Query<AvailableCoursesResponseDto> {
   constructor(
     readonly actor: AccountPrincipal,
     readonly semesterId?: string,
+    readonly studentUserId?: string,
   ) {
     super();
   }

@@ -18,7 +18,7 @@ The assessment's browser dashboards, responsive UI, hosted evaluation URL, and r
 
 ## Academic reporting
 
-Both endpoints take a required `semesterId` and an optional `departmentId`. Select IDs from academic setup or your configured semester. An explicit department requires `read_reports` from a grant for that department or a university-wide grant. Omitting it requires university-wide `read_reports`. An ordinary Lecturer grant gives access to assigned-course summaries and rosters through the lecturer routes. Add an explicit reporting grant only when the person needs department or university oversight.
+The overview and course reports take a required `semesterId` and an optional `departmentId`. Use `GET /v1/admin/reports/options` to list semester labels and departments covered by the current `read_reports` grants. An explicit department requires `read_reports` from a grant for that department or a university-wide grant. Omitting it requires university-wide `read_reports`. Lecturer rosters and marks remain tied to the offering assignment.
 
 | Route | Response |
 | --- | --- |
@@ -26,6 +26,10 @@ Both endpoints take a required `semesterId` and an optional `departmentId`. Sele
 | `GET /v1/admin/reports/courses?semesterId={id}&departmentId={id}` | Offering-level enrollment and published performance counts, department and course labels, academic level, and current offering, roster, and result status. |
 
 The course report orders by offering ID and returns `items` with `nextCursor`. Pass that cursor with the same semester and department to continue. `limit` is 1–100 and defaults to 25. An offering that has no result group has null roster and result statuses. An empty valid scope has zero counts and a null average. Inactive and empty offerings remain visible so staff can reconcile historic registrations.
+
+The staff registration UI uses `GET /v1/admin/registrations/students/{userId}/available` before its existing delegated registration POST. It requires `register_student_courses` for both the student's current department and the saved term's department. A student account cannot use this staff route.
+
+An admin directory response populated with `user` includes `canUpdateProfile` for the signed-in editor. The capability reflects the same rule used when saving staff names. A scoped editor needs both `update_user` and `manage_department` for every grant held by the lecturer. Staff email changes require university-wide `update_user`.
 
 An approved result counts only if its award matches the offering's pinned policy. Passes exclude grade F. The average is the arithmetic mean of approved total marks out of 100, rounded to two decimals; it is separate from the credit-weighted student GPA. Draft, submitted, and correction-requested marks do not contribute. Reopening drops withdrawn grades from the aggregates without removing enrollment counts. Reports return aggregate data without student names or individual marks and use `Cache-Control: no-store`. See `GET /v1/admin/registrations` for authorized departmental enrollment lists and `GET /v1/admin/audit-events` for university-wide activity.
 

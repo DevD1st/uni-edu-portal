@@ -1,5 +1,6 @@
 pnpm-lock.yaml
 packages/api-contracts/src/generated.ts
+packages/api-contracts/src/generated-response-schemas.json
 .next
 dist
 node_modules

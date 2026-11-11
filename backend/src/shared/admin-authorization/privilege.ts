@@ -60,6 +60,25 @@ export function hasAnyScope(
   return access.grants.some((grant) => grant.privileges.includes(privilege));
 }
 
+export function canManageLecturerProfile(
+  actor: AdminAccess,
+  grants: readonly {
+    departmentId: string | null;
+    privileges: readonly string[];
+  }[],
+): boolean {
+  // A lecturer has one profile shared by every assignment, so every grant must be in scope.
+  return (
+    grants.some(({ privileges }) => privileges.includes('teach_course')) &&
+    grants.every(
+      ({ departmentId }) =>
+        departmentId !== null &&
+        hasPrivilege(actor, 'update_user', departmentId) &&
+        hasPrivilege(actor, 'manage_department', departmentId),
+    )
+  );
+}
+
 export function authorizedDepartments(
   access: AdminAccess,
   privilege: Privilege,

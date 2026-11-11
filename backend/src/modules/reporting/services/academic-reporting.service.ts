@@ -3,8 +3,11 @@ import { DataSource } from 'typeorm';
 import type { EntityManager } from 'typeorm';
 import { ApplicationError } from '#core/http/application-error.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
+import { authorizedDepartments } from '#shared/admin-authorization/privilege.js';
 import type {
   AcademicOverviewDto,
+  AcademicReportOptionDto,
+  AcademicReportOptionsDto,
   AcademicReportQueryDto,
   CoursePerformanceDto,
   CoursePerformancePageDto,
@@ -30,6 +33,26 @@ export class AcademicReportingService {
     private readonly database: DataSource,
     private readonly authorization: AdminAuthorizationService,
   ) {}
+
+  options(actorId: string): Promise<AcademicReportOptionsDto> {
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const access = await this.authorization.requireAnyScope(
+        actorId,
+        'read_reports',
+        manager,
+      );
+      const scope = authorizedDepartments(access, 'read_reports');
+      // Labels include historical terms and departments so existing reports remain selectable.
+      const departments = await manager.query<AcademicReportOptionDto[]>(
+        'SELECT id, name AS label FROM departments WHERE $1::uuid[] IS NULL OR id = ANY($1::uuid[]) ORDER BY name, id',
+        [scope],
+      );
+      const semesters = await manager.query<AcademicReportOptionDto[]>(
+        "SELECT s.id, s.name || ' · ' || a.start_year || '/' || a.end_year AS label FROM semesters s JOIN academic_sessions a ON a.id = s.academic_session_id ORDER BY a.start_year DESC, a.end_year DESC, s.term_number DESC, s.id",
+      );
+      return { departments, semesters };
+    });
+  }
 
   overview(
     actorId: string,

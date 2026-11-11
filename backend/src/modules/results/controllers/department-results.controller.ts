@@ -36,7 +36,9 @@ import {
 import {
   ListDepartmentResultsQuery,
   ReadResultGroupQuery,
+  ReadReviewOptionsQuery,
 } from '../queries/result-workflow.js';
+import { ResultReviewOptionsDto } from '../dtos/result-options.dto.js';
 import {
   ApproveResultsCommand,
   RequestResultCorrectionsCommand,
@@ -63,6 +65,15 @@ export class DepartmentResultsController {
     return this.queries.execute(
       new ListDepartmentResultsQuery(actor.userId, query),
     );
+  }
+
+  @Get('options')
+  @Header('Cache-Control', 'no-store')
+  @ApiDtoResponse(ResultReviewOptionsDto)
+  options(
+    @CurrentAccount() actor: AccountPrincipal,
+  ): Promise<ResultReviewOptionsDto> {
+    return this.queries.execute(new ReadReviewOptionsQuery(actor.userId));
   }
 
   @Get(':id')

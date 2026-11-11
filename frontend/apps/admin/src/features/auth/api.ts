@@ -1,7 +1,6 @@
 import {
   readAccount,
   readAuthorization,
-  readCampusLabels,
   readSession,
   type Session,
   type SignInPayload,
@@ -95,11 +94,4 @@ export async function loadStaffAccess(signal: AbortSignal) {
   )
     throw new ApiError("This account cannot access the staff portal.", 403);
   return { account, authorization };
-}
-
-export function loadDepartmentLabels(signal: AbortSignal) {
-  return staffApi.request("/v1/academic-references", readCampusLabels, {
-    authenticated: true,
-    signal,
-  });
 }

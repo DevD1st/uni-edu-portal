@@ -14,6 +14,7 @@ Send a Bearer access token. Staff sign in with account role `admin`; the Lecture
 | `PATCH /v1/lecturer/results/{resultGroupId}/marks` | `teach_course`, `grade_result`, and assigned lecturer | Saves marks in one batch. |
 | `POST /v1/lecturer/results/{resultGroupId}/submit` | `teach_course`, `grade_result`, and assigned lecturer | Submits the complete, closed roster for review. |
 | `GET /v1/admin/results?departmentId={departmentId}` | Any of `review_result`, `approve_result`, or `reopen_result` for that department | Lists groups previously submitted in the department. Defaults to `status=submitted`. |
+| `GET /v1/admin/results/options` | Any scoped `review_result`, `approve_result`, or `reopen_result` grant | Lists the departments available to the reviewer, including inactive departments with retained history. |
 | `GET /v1/admin/results/{resultGroupId}` | Any of `review_result`, `approve_result`, or `reopen_result` for the owning department | Reads a previously submitted group and a page of its roster marks. |
 | `POST /v1/admin/results/{resultGroupId}/approve` | `approve_result` for the owning department | Awards and publishes all grades for the submitted group. |
 | `POST /v1/admin/results/{resultGroupId}/request-corrections` | `review_result` for the owning department | Returns a submitted group to the lecturer with feedback. |

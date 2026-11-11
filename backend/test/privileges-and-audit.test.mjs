@@ -6,6 +6,7 @@ import { RequestMethod } from '@nestjs/common';
 import {
   hasPrivilege,
   authorizedDepartments,
+  canManageLecturerProfile,
 } from '../dist/shared/admin-authorization/privilege.js';
 import {
   ADMIN_AUDIT_ACTIONS,
@@ -60,6 +61,19 @@ test('every account and admin mutation has a semantic audit action', () => {
       assert.ok(action in ADMIN_AUDIT_ACTIONS, controller.name + '.' + method);
     }
   }
+});
+
+test('a scoped editor must manage every grant on the lecturer profile', () => {
+  const actor = { adminId: 'editor', grants: [
+    { departmentId: 'math', privileges: ['update_user', 'manage_department'] },
+  ] };
+  const lecturer = [{ departmentId: 'math', privileges: ['teach_course'] }];
+  assert.equal(canManageLecturerProfile(actor, lecturer), true);
+  assert.equal(canManageLecturerProfile(actor, [
+    ...lecturer, { departmentId: 'physics', privileges: ['read_reports'] },
+  ]), false);
+  assert.equal(canManageLecturerProfile(actor, [{ departmentId: 'math', privileges: ['read_reports'] }]), false);
+  assert.equal(canManageLecturerProfile(actor, [{ departmentId: null, privileges: ['teach_course'] }]), false);
 });
 
 test('the audit projection accepts only known IDs and safe state values', () => {

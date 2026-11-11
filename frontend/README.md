@@ -27,8 +27,8 @@ Open [the student portal](http://localhost:3001) or [the staff portal](http://lo
 
 | Location                                           | Responsibility                                                                                    |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `apps/student`                                     | Next.js routes, server-owned Redis sessions, student overview and profile                         |
-| `apps/admin`                                       | Vite SPA, browser tab session, scope-aware navigation and routes, teaching and review entry views |
+| `apps/student`                                     | Next.js routes, server-owned Redis sessions, student profile, registration, and published results |
+| `apps/admin`                                       | Vite SPA, browser tab session, scoped staff workflows, administration, reporting, and audit       |
 | `packages/theme` and `packages/ui`                 | Source Sans 3, semantic tokens, responsive shells, forms, overlays, and data components           |
 | `packages/api-contracts` and `packages/web-client` | Swagger-derived types, runtime response checks, transport, and API error handling                 |
 
@@ -40,8 +40,16 @@ The API remains authoritative for permissions. The staff shell uses current priv
 - Open `/registration` to select eligible courses for the current semester and confirm the total credit units. Use registration history to open or download a saved semester summary. Try the workflow with `student-nora@demo.example.test` and the available `DEMO104` offering.
 - Open `/results` to view the cumulative GPA and each semester statement. Phones show each course and its marks in a stacked layout. Statements and downloads show the published grades and averages returned by the API. The demo Maya and Theo accounts have published grades for `DEMO105`, while `DEMO106` is awaiting review.
 
+## Staff workflows
+
+The staff portal supports assigned rosters and marks, departmental review, delegated student registration, academic setup, account and role management, reports, and the read-only audit trail. Open each workspace from the staff menu. The API checks the role and department again for every request. Report choices come from the reporting API and work with a scoped report-only grant.
+
+See the [staff workflow guide](docs/staff-workflows.md) for the permission matrix, record states, component ownership, and verification coverage. Department review choices include inactive departments where the staff member retains review access.
+
+In the disposable demo, the Lecturer can close the `DEMO103` roster, save CA and exam marks, and submit the group. The HOD can request corrections or publish it and can register `DEMO104` for an eligible student. The Super Admin can configure academic records, delegate a custom role, and inspect the audit event for the assignment.
+
 ## Verification
 
-Run `pnpm check` for formatting, lint, type checks, focused tests, and both production builds. Use a disposable demo API and Redis for `pnpm test:e2e`. The suite creates a synthetic student, changes the demo semester's credit limit during registration, and approves and reopens a demo result. Install Playwright Chromium once with `pnpm exec playwright install chromium` and set `UEMP_E2E_PASSWORD` to the demo password in your terminal. Set `STUDENT_API_URL` in the terminal if the demo API uses a different origin from `http://localhost:3000`. An installed Chrome can be used by setting `UEMP_PLAYWRIGHT_CHANNEL=chrome` in the terminal environment.
+Run `pnpm check` for formatting, lint, type checks, focused tests, and both production builds. Start with a fresh disposable demo database for `pnpm test:e2e`. The suite creates synthetic accounts, closes a roster permanently, submits and reviews results, and exercises delegated registration and role assignments. Install Playwright Chromium once with `pnpm exec playwright install chromium` and set `UEMP_E2E_PASSWORD` to the demo password in your terminal. Set `STUDENT_API_URL` in the terminal if the demo API uses a different origin from `http://localhost:3000`. An installed Chrome can be used by setting `UEMP_PLAYWRIGHT_CHANNEL=chrome` in the terminal environment.
 
 Run `pnpm contracts:generate` after changing the consumed backend endpoints. Set `UEMP_OPENAPI_FILE` to a Swagger JSON export, or set `UEMP_API_ORIGIN` to the running API origin for its `/docs-json` endpoint. If Swagger requires sign-in, set `UEMP_SWAGGER_USER` and `UEMP_SWAGGER_PASSWORD` in the terminal. The generator keeps the consumed operations and their referenced schemas.

@@ -11,6 +11,7 @@ import {
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
 import {
   authorizedDepartments,
+  canManageLecturerProfile,
   hasPrivilege,
 } from '#shared/admin-authorization/privilege.js';
 import type {
@@ -397,17 +398,7 @@ export class UserAdministrationService {
     // A staff account has one shared profile. Every grant must fall inside the editor's
     // scope, including grants that do not provide teaching privileges.
     const lecturer = await this.auth.resolve(target.id, manager);
-    if (
-      !lecturer.grants.some(({ privileges }) =>
-        privileges.includes('teach_course'),
-      ) ||
-      !lecturer.grants.every(
-        ({ departmentId }) =>
-          departmentId !== null &&
-          hasPrivilege(actor, 'update_user', departmentId) &&
-          hasPrivilege(actor, 'manage_department', departmentId),
-      )
-    )
+    if (!canManageLecturerProfile(actor, lecturer.grants))
       throw new ApplicationError(
         HttpStatus.FORBIDDEN,
         'You can only edit a lecturer whose staff grants are all in departments you manage.',

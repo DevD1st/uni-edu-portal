@@ -84,11 +84,17 @@ export class RegistrationService {
   available(
     actor: AccountPrincipal,
     semesterId?: string,
+    studentUserId?: string,
   ): Promise<AvailableCoursesResponseDto> {
-    requireStudent(actor);
+    if (!studentUserId) requireStudent(actor);
     // A concurrent enrollment or semester change must not split the units and available courses.
     return this.database.transaction('REPEATABLE READ', async (manager) => {
-      const context = await this.context(manager, actor.userId, semesterId);
+      const context = await this.context(
+        manager,
+        studentUserId ?? actor.userId,
+        semesterId,
+        studentUserId ? { actorId: actor.userId } : undefined,
+      );
       const existing = await this.enrollments(manager, context.termId);
       return {
         semesterId: context.semesterId,
@@ -108,6 +114,7 @@ export class RegistrationService {
     const target = studentUserId ?? actor.userId;
     const summary = await writeTransaction(this.database, async (manager) => {
       const context = await this.context(manager, target, input.semesterId, {
+        lock: true,
         actorId: studentUserId ? actor.userId : undefined,
       });
       // The account lock serializes first registration, placement changes and later unit checks.
@@ -349,9 +356,9 @@ export class RegistrationService {
     manager: EntityManager,
     userId: string,
     requestedSemesterId?: string,
-    write?: { actorId?: string },
+    options?: { actorId?: string; lock?: boolean },
   ): Promise<RegistrationContext> {
-    if (write) {
+    if (options?.lock) {
       // Lock before reading placement so a concurrent placement update cannot leave us with a stale snapshot.
       await manager.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [
         userId,
@@ -386,9 +393,9 @@ export class RegistrationService {
           .findOneBy({ studentId: student.id, semesterId })
       : null;
     const placement = term ?? student;
-    if (write?.actorId) {
+    if (options?.actorId) {
       const access = await this.authorization.require(
-        write.actorId,
+        options.actorId,
         'register_student_courses',
         student.departmentId,
         manager,
@@ -426,7 +433,7 @@ export class RegistrationService {
       WHERE f.id = $1 AND d.id = $2 AND p.id = $3 AND l.id = $4 AND s.id = $5
         AND f.status = 'active' AND d.status = 'active' AND p.status = 'active'
         AND l.status = 'active' AND l.stage > 0 AND s.status = 'active' AND a.status = 'active'
-      ${write ? 'FOR SHARE OF f, d, p, l, s, a' : ''}
+      ${options?.lock ? 'FOR SHARE OF f, d, p, l, s, a' : ''}
     `,
       [
         placement.facultyId,
@@ -608,9 +615,9 @@ export class RegistrationService {
 function complete(placement: Placement): placement is RequiredPlacement {
   return Boolean(
     placement.facultyId &&
-      placement.departmentId &&
-      placement.courseOfStudyId &&
-      placement.academicLevelId,
+    placement.departmentId &&
+    placement.courseOfStudyId &&
+    placement.academicLevelId,
   );
 }
 

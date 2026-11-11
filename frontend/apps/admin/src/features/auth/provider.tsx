@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useCallback,
   useEffect,
   useState,
   useSyncExternalStore,
@@ -50,9 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => controller.abort();
   }, [id, version]);
 
-  function revalidate() {
+  const revalidate = useCallback(() => {
     setVersion((value) => value + 1);
-  }
+  }, []);
 
   return (
     <Auth.Provider

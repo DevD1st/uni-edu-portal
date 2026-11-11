@@ -1,0 +1,3038 @@
+{
+  "CreateStudentDto": {
+    "type": "object",
+    "required": [
+      "email",
+      "password"
+    ],
+    "properties": {
+      "academicLevelId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "courseOfStudyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "facultyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "format": "password"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "UserResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "role",
+      "email",
+      "firstName",
+      "lastName",
+      "status",
+      "createdAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "student",
+          "admin"
+        ]
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "suspended"
+        ]
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "student": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StudentProfileResponseDto"
+          }
+        ]
+      },
+      "admin": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserAdminProfileResponseDto"
+          }
+        ]
+      }
+    }
+  },
+  "StudentProfileResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "matricNumber",
+      "academicLevelId",
+      "courseOfStudyId",
+      "departmentId",
+      "facultyId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "matricNumber": {
+        "type": "string",
+        "nullable": true
+      },
+      "academicLevelId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "courseOfStudyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "facultyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "UserAdminProfileResponseDto": {
+    "type": "object",
+    "required": [
+      "id"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "ErrorResponseDto": {
+    "type": "object",
+    "required": [
+      "statusCode",
+      "message"
+    ],
+    "properties": {
+      "statusCode": {
+        "type": "number"
+      },
+      "message": {
+        "type": "string"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "requestId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "traceId": {
+        "type": "string"
+      }
+    }
+  },
+  "SignInDto": {
+    "type": "object",
+    "required": [
+      "email",
+      "password",
+      "role"
+    ],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "format": "password"
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "student",
+          "admin"
+        ]
+      }
+    }
+  },
+  "SessionResponseDto": {
+    "type": "object",
+    "required": [
+      "access",
+      "refresh"
+    ],
+    "properties": {
+      "access": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SessionTokenResponseDto"
+          }
+        ]
+      },
+      "refresh": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SessionTokenResponseDto"
+          }
+        ]
+      }
+    }
+  },
+  "SessionTokenResponseDto": {
+    "type": "object",
+    "required": [
+      "token",
+      "expiresAt"
+    ],
+    "properties": {
+      "token": {
+        "type": "string"
+      },
+      "expiresAt": {
+        "type": "number"
+      }
+    }
+  },
+  "RefreshDto": {
+    "type": "object",
+    "required": [
+      "refreshToken"
+    ],
+    "properties": {
+      "refreshToken": {
+        "type": "string"
+      }
+    }
+  },
+  "ProfileDto": {
+    "type": "object",
+    "properties": {
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "AdminAuthorizationResponseDto": {
+    "type": "object",
+    "required": [
+      "adminId",
+      "grants"
+    ],
+    "properties": {
+      "adminId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "grants": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AdminAuthorizationGrantResponseDto"
+        }
+      }
+    }
+  },
+  "AdminAuthorizationGrantResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "roleId",
+      "name",
+      "systemKey",
+      "departmentId",
+      "privileges"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "roleId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "systemKey": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "super_admin",
+          "hod",
+          "lecturer"
+        ]
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "privileges": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "read_user",
+            "create_student",
+            "update_student_placement",
+            "update_user",
+            "suspend_user",
+            "delete_user",
+            "revoke_user_sessions",
+            "read_admin",
+            "create_admin",
+            "manage_admin_roles",
+            "read_role",
+            "manage_roles",
+            "read_audit",
+            "manage_university",
+            "manage_department",
+            "read_registration",
+            "register_student_courses",
+            "teach_course",
+            "grade_result",
+            "approve_result",
+            "review_result",
+            "reopen_result",
+            "read_reports"
+          ]
+        }
+      }
+    }
+  },
+  "AcademicReferencesResponseDto": {
+    "type": "object",
+    "required": [
+      "levels",
+      "faculties",
+      "departments",
+      "programmes"
+    ],
+    "properties": {
+      "levels": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AcademicLevelResponseDto"
+        }
+      },
+      "faculties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/FacultyResponseDto"
+        }
+      },
+      "departments": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/DepartmentResponseDto"
+        }
+      },
+      "programmes": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ProgrammeResponseDto"
+        }
+      }
+    }
+  },
+  "AcademicLevelResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "programType",
+      "stage",
+      "displayName",
+      "selectionLabel",
+      "isGraduate"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "programType": {
+        "type": "string",
+        "enum": [
+          "undergrad",
+          "postgrad",
+          "masters",
+          "doctorate"
+        ]
+      },
+      "stage": {
+        "type": "number"
+      },
+      "displayName": {
+        "type": "string"
+      },
+      "selectionLabel": {
+        "type": "string"
+      },
+      "isGraduate": {
+        "type": "boolean"
+      }
+    }
+  },
+  "FacultyResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "name"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      }
+    }
+  },
+  "DepartmentResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "facultyId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "facultyId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "ProgrammeResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "departmentId",
+      "programType",
+      "name"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "programType": {
+        "type": "string",
+        "enum": [
+          "undergrad",
+          "postgrad",
+          "masters",
+          "doctorate"
+        ]
+      },
+      "name": {
+        "type": "string"
+      }
+    }
+  },
+  "TeachingOfferingsResponseDto": {
+    "type": "object",
+    "required": [
+      "offerings"
+    ],
+    "properties": {
+      "offerings": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TeachingOfferingDto"
+        }
+      }
+    }
+  },
+  "TeachingOfferingDto": {
+    "type": "object",
+    "required": [
+      "offeringId",
+      "courseId",
+      "code",
+      "name",
+      "units",
+      "semesterId",
+      "departmentId",
+      "registrationStatus"
+    ],
+    "properties": {
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "registrationStatus": {
+        "type": "string",
+        "enum": [
+          "opened",
+          "closed"
+        ]
+      }
+    }
+  },
+  "RegistrationRosterResponseDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RosterStudentResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "RosterStudentResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "courseId",
+      "code",
+      "name",
+      "units",
+      "resultGroupId",
+      "studentId",
+      "firstName",
+      "lastName",
+      "matricNumber"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "resultGroupId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "studentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "matricNumber": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "RosterClosureResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "closedAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "closedAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "ResultGroupDetailDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "departmentId",
+      "semesterId",
+      "lecturerId",
+      "code",
+      "name",
+      "status",
+      "registrationStatus",
+      "submittedAt",
+      "approvedAt",
+      "correctionRequestedAt",
+      "maxCaScore",
+      "maxExamScore",
+      "enrolledCount",
+      "markedCount",
+      "averageScore",
+      "submissionReason",
+      "approvalReason",
+      "correctionRequestReason",
+      "marks",
+      "nextCursor"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "lecturerId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "submitted",
+          "correction_requested",
+          "approved"
+        ]
+      },
+      "registrationStatus": {
+        "type": "string",
+        "enum": [
+          "opened",
+          "closed"
+        ]
+      },
+      "submittedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "approvedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "correctionRequestedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "maxCaScore": {
+        "type": "number"
+      },
+      "maxExamScore": {
+        "type": "number"
+      },
+      "enrolledCount": {
+        "type": "number"
+      },
+      "markedCount": {
+        "type": "number"
+      },
+      "averageScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "submissionReason": {
+        "type": "string",
+        "nullable": true
+      },
+      "approvalReason": {
+        "type": "string",
+        "nullable": true
+      },
+      "correctionRequestReason": {
+        "type": "string",
+        "nullable": true
+      },
+      "marks": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResultMarkResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "ResultMarkResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "studentId",
+      "firstName",
+      "lastName",
+      "matricNumber",
+      "caScore",
+      "examScore",
+      "totalScore",
+      "grade",
+      "gradePoint"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "studentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "matricNumber": {
+        "type": "string",
+        "nullable": true
+      },
+      "caScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "examScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "totalScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "grade": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "gradePoint": {
+        "type": "number",
+        "nullable": true
+      }
+    }
+  },
+  "SaveResultMarksDto": {
+    "type": "object",
+    "required": [
+      "marks"
+    ],
+    "properties": {
+      "marks": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResultMarkInputDto"
+        }
+      }
+    }
+  },
+  "ResultMarkInputDto": {
+    "type": "object",
+    "required": [
+      "enrollmentId"
+    ],
+    "properties": {
+      "enrollmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "caScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "examScore": {
+        "type": "number",
+        "nullable": true
+      }
+    }
+  },
+  "SaveMarksResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "changedCount"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "changedCount": {
+        "type": "number"
+      }
+    }
+  },
+  "ResultDecisionNoteDto": {
+    "type": "object",
+    "properties": {
+      "note": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "ResultStateResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "departmentId",
+      "status",
+      "registrationStatus",
+      "submittedAt",
+      "approvedAt",
+      "correctionRequestedAt",
+      "submissionReason",
+      "approvalReason",
+      "correctionRequestReason"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "submitted",
+          "correction_requested",
+          "approved"
+        ]
+      },
+      "registrationStatus": {
+        "type": "string",
+        "enum": [
+          "opened",
+          "closed"
+        ]
+      },
+      "submittedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "approvedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "correctionRequestedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "submissionReason": {
+        "type": "string",
+        "nullable": true
+      },
+      "approvalReason": {
+        "type": "string",
+        "nullable": true
+      },
+      "correctionRequestReason": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "ResultGroupPageDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResultGroupSummaryDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "ResultGroupSummaryDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "departmentId",
+      "semesterId",
+      "lecturerId",
+      "code",
+      "name",
+      "status",
+      "registrationStatus",
+      "submittedAt",
+      "approvedAt",
+      "correctionRequestedAt",
+      "maxCaScore",
+      "maxExamScore",
+      "enrolledCount",
+      "markedCount",
+      "averageScore"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "lecturerId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "submitted",
+          "correction_requested",
+          "approved"
+        ]
+      },
+      "registrationStatus": {
+        "type": "string",
+        "enum": [
+          "opened",
+          "closed"
+        ]
+      },
+      "submittedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "approvedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "correctionRequestedAt": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "maxCaScore": {
+        "type": "number"
+      },
+      "maxExamScore": {
+        "type": "number"
+      },
+      "enrolledCount": {
+        "type": "number"
+      },
+      "markedCount": {
+        "type": "number"
+      },
+      "averageScore": {
+        "type": "number",
+        "nullable": true
+      }
+    }
+  },
+  "ResultReviewOptionsDto": {
+    "type": "object",
+    "required": [
+      "departments"
+    ],
+    "properties": {
+      "departments": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResultReviewDepartmentDto"
+        }
+      }
+    }
+  },
+  "ResultReviewDepartmentDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "name"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      }
+    }
+  },
+  "RequestResultCorrectionsDto": {
+    "type": "object",
+    "required": [
+      "reason"
+    ],
+    "properties": {
+      "reason": {
+        "type": "string"
+      }
+    }
+  },
+  "ReopenResultDto": {
+    "type": "object",
+    "required": [
+      "reason"
+    ],
+    "properties": {
+      "reason": {
+        "type": "string",
+        "enum": [
+          "mark_correction",
+          "review_error",
+          "administrative_request"
+        ]
+      }
+    }
+  },
+  "RegistrationWriteDto": {
+    "type": "object",
+    "required": [
+      "semesterId",
+      "offeringIds"
+    ],
+    "properties": {
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "RegistrationSummaryResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "semesterId",
+      "semesterName",
+      "academicSession",
+      "faculty",
+      "department",
+      "programme",
+      "academicLevel",
+      "totalUnits",
+      "firstName",
+      "lastName",
+      "matricNumber",
+      "courses"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterName": {
+        "type": "string"
+      },
+      "academicSession": {
+        "type": "string"
+      },
+      "faculty": {
+        "type": "string"
+      },
+      "department": {
+        "type": "string"
+      },
+      "programme": {
+        "type": "string"
+      },
+      "academicLevel": {
+        "type": "string"
+      },
+      "totalUnits": {
+        "type": "number"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "matricNumber": {
+        "type": "string",
+        "nullable": true
+      },
+      "courses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RegisteredCourseDto"
+        }
+      }
+    }
+  },
+  "RegisteredCourseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "offeringId",
+      "courseId",
+      "code",
+      "name",
+      "units",
+      "resultGroupId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "resultGroupId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "AvailableCoursesResponseDto": {
+    "type": "object",
+    "required": [
+      "semesterId",
+      "maxUnits",
+      "registeredUnits",
+      "courses"
+    ],
+    "properties": {
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "maxUnits": {
+        "type": "number"
+      },
+      "registeredUnits": {
+        "type": "number"
+      },
+      "courses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AvailableCourseDto"
+        }
+      }
+    }
+  },
+  "AvailableCourseDto": {
+    "type": "object",
+    "required": [
+      "offeringId",
+      "courseId",
+      "code",
+      "name",
+      "units"
+    ],
+    "properties": {
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      }
+    }
+  },
+  "AcademicSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "levels",
+      "faculties",
+      "departments",
+      "programmes",
+      "sessions",
+      "semesters"
+    ],
+    "properties": {
+      "levels": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AcademicLevelSetupDto"
+        }
+      },
+      "faculties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/FacultySetupResponseDto"
+        }
+      },
+      "departments": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/DepartmentSetupResponseDto"
+        }
+      },
+      "programmes": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ProgrammeSetupResponseDto"
+        }
+      },
+      "sessions": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SessionSetupResponseDto"
+        }
+      },
+      "semesters": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SemesterSetupResponseDto"
+        }
+      }
+    }
+  },
+  "AcademicLevelSetupDto": {
+    "type": "object",
+    "required": [
+      "status",
+      "id",
+      "programType",
+      "stage",
+      "displayName"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      },
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "programType": {
+        "type": "string",
+        "enum": [
+          "undergrad",
+          "postgrad",
+          "masters",
+          "doctorate"
+        ]
+      },
+      "stage": {
+        "type": "number"
+      },
+      "displayName": {
+        "type": "string"
+      }
+    }
+  },
+  "FacultySetupResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "status",
+      "currentSemesterId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      },
+      "currentSemesterId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "DepartmentSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "facultyId",
+      "name",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "facultyId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "ProgrammeSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "departmentId",
+      "name",
+      "programType",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "programType": {
+        "type": "string",
+        "enum": [
+          "undergrad",
+          "postgrad",
+          "masters",
+          "doctorate"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SessionSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "startYear",
+      "endYear",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "startYear": {
+        "type": "number"
+      },
+      "endYear": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SemesterSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "academicSessionId",
+      "termNumber",
+      "name",
+      "maxUnits",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "academicSessionId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "termNumber": {
+        "type": "number"
+      },
+      "name": {
+        "type": "string"
+      },
+      "maxUnits": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "FacultyWriteDto": {
+    "type": "object",
+    "required": [
+      "name"
+    ],
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SetCurrentSemesterDto": {
+    "type": "object",
+    "required": [
+      "semesterId"
+    ],
+    "properties": {
+      "semesterId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "DepartmentWriteDto": {
+    "type": "object",
+    "required": [
+      "facultyId",
+      "name"
+    ],
+    "properties": {
+      "facultyId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "ProgrammeWriteDto": {
+    "type": "object",
+    "required": [
+      "departmentId",
+      "name",
+      "programType"
+    ],
+    "properties": {
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "programType": {
+        "type": "string",
+        "enum": [
+          "undergrad",
+          "postgrad",
+          "masters",
+          "doctorate"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SessionWriteDto": {
+    "type": "object",
+    "required": [
+      "startYear",
+      "endYear"
+    ],
+    "properties": {
+      "startYear": {
+        "type": "number"
+      },
+      "endYear": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SemesterWriteDto": {
+    "type": "object",
+    "required": [
+      "academicSessionId",
+      "termNumber",
+      "name",
+      "maxUnits"
+    ],
+    "properties": {
+      "academicSessionId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "termNumber": {
+        "type": "number"
+      },
+      "name": {
+        "type": "string"
+      },
+      "maxUnits": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "SetAcademicLevelStatusDto": {
+    "type": "object",
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "CourseSetupResponseDto": {
+    "type": "object",
+    "required": [
+      "courses",
+      "curriculum",
+      "offerings"
+    ],
+    "properties": {
+      "courses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CourseResponseDto"
+        }
+      },
+      "curriculum": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CurriculumResponseDto"
+        }
+      },
+      "offerings": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/OfferingResponseDto"
+        }
+      }
+    }
+  },
+  "CourseResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "code",
+      "name",
+      "units",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "CurriculumResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "courseOfStudyId",
+      "courseId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseOfStudyId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "OfferingResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "courseId",
+      "departmentId",
+      "semesterId",
+      "academicLevelId",
+      "lecturerId",
+      "units",
+      "gradingPolicyId",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "academicLevelId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "lecturerId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "units": {
+        "type": "number"
+      },
+      "gradingPolicyId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "CourseWriteDto": {
+    "type": "object",
+    "required": [
+      "code",
+      "name",
+      "units"
+    ],
+    "properties": {
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "LecturerChoicesResponseDto": {
+    "type": "object",
+    "required": [
+      "lecturers"
+    ],
+    "properties": {
+      "lecturers": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/LecturerChoiceResponseDto"
+        }
+      }
+    }
+  },
+  "LecturerChoiceResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "firstName",
+      "lastName"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "CurriculumWriteDto": {
+    "type": "object",
+    "required": [
+      "courseOfStudyId",
+      "courseId"
+    ],
+    "properties": {
+      "courseOfStudyId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "OfferingWriteDto": {
+    "type": "object",
+    "required": [
+      "courseId",
+      "departmentId",
+      "semesterId",
+      "academicLevelId"
+    ],
+    "properties": {
+      "courseId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "academicLevelId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "lecturerId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "OfferingUpdateDto": {
+    "type": "object",
+    "properties": {
+      "lecturerId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      }
+    }
+  },
+  "UserPageResponseDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/UserResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "UpdateUserDto": {
+    "type": "object",
+    "properties": {
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      }
+    }
+  },
+  "PlacementDto": {
+    "type": "object",
+    "properties": {
+      "academicLevelId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "courseOfStudyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "facultyId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "UpdateUserStatusDto": {
+    "type": "object",
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "suspended"
+        ]
+      }
+    }
+  },
+  "AdminPageResponseDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AdminResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "AdminResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "userId",
+      "createdAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "userId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "user": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdminDirectoryUserResponseDto"
+          }
+        ]
+      },
+      "canUpdateProfile": {
+        "type": "boolean"
+      },
+      "roles": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AdminDirectoryGrantResponseDto"
+        }
+      }
+    }
+  },
+  "AdminDirectoryUserResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "email",
+      "firstName",
+      "lastName",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "active",
+          "suspended"
+        ]
+      }
+    }
+  },
+  "AdminDirectoryGrantResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "departmentId",
+      "role"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "role": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RoleResponseDto"
+          }
+        ]
+      }
+    }
+  },
+  "RoleResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "description",
+      "kind",
+      "systemKey",
+      "privileges",
+      "createdByAdminId",
+      "createdAt",
+      "updatedAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string",
+        "nullable": true
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "custom",
+          "system"
+        ]
+      },
+      "systemKey": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "super_admin",
+          "hod",
+          "lecturer"
+        ]
+      },
+      "privileges": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "read_user",
+            "create_student",
+            "update_student_placement",
+            "update_user",
+            "suspend_user",
+            "delete_user",
+            "revoke_user_sessions",
+            "read_admin",
+            "create_admin",
+            "manage_admin_roles",
+            "read_role",
+            "manage_roles",
+            "read_audit",
+            "manage_university",
+            "manage_department",
+            "read_registration",
+            "register_student_courses",
+            "teach_course",
+            "grade_result",
+            "approve_result",
+            "review_result",
+            "reopen_result",
+            "read_reports"
+          ]
+        }
+      },
+      "createdByAdminId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "updatedAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "CreateAdminDto": {
+    "type": "object",
+    "required": [
+      "email",
+      "password"
+    ],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "format": "password"
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "roleId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "CreatedAdminResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "userId"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "userId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "grant": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RoleAssignmentResponseDto"
+          }
+        ]
+      }
+    }
+  },
+  "RoleAssignmentResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "adminId",
+      "roleId",
+      "departmentId",
+      "name"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "adminId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "roleId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "name": {
+        "type": "string"
+      }
+    }
+  },
+  "AssignAdminRoleDto": {
+    "type": "object",
+    "required": [
+      "roleId"
+    ],
+    "properties": {
+      "roleId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "RolePageResponseDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RoleResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "WriteRoleDto": {
+    "type": "object",
+    "required": [
+      "name"
+    ],
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string",
+        "nullable": true
+      },
+      "privileges": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "read_user",
+            "create_student",
+            "update_student_placement",
+            "update_user",
+            "suspend_user",
+            "delete_user",
+            "revoke_user_sessions",
+            "read_admin",
+            "create_admin",
+            "manage_admin_roles",
+            "read_role",
+            "manage_roles",
+            "read_audit",
+            "manage_university",
+            "manage_department",
+            "read_registration",
+            "register_student_courses",
+            "teach_course",
+            "grade_result",
+            "approve_result",
+            "review_result",
+            "reopen_result",
+            "read_reports"
+          ]
+        }
+      }
+    }
+  },
+  "AcademicReportOptionsDto": {
+    "type": "object",
+    "required": [
+      "semesters",
+      "departments"
+    ],
+    "properties": {
+      "semesters": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AcademicReportOptionDto"
+        }
+      },
+      "departments": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AcademicReportOptionDto"
+        }
+      }
+    }
+  },
+  "AcademicReportOptionDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "label"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "label": {
+        "type": "string"
+      }
+    }
+  },
+  "AcademicOverviewDto": {
+    "type": "object",
+    "required": [
+      "enrollmentCount",
+      "publishedCount",
+      "passedCount",
+      "averageScore",
+      "semesterId",
+      "departmentId",
+      "studentCount",
+      "offeringCount",
+      "activeOfferingCount",
+      "closedRosterCount",
+      "pendingCount",
+      "submittedCount",
+      "correctionRequestedCount",
+      "approvedCount"
+    ],
+    "properties": {
+      "enrollmentCount": {
+        "type": "number"
+      },
+      "publishedCount": {
+        "type": "number"
+      },
+      "passedCount": {
+        "type": "number"
+      },
+      "averageScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "studentCount": {
+        "type": "number"
+      },
+      "offeringCount": {
+        "type": "number"
+      },
+      "activeOfferingCount": {
+        "type": "number"
+      },
+      "closedRosterCount": {
+        "type": "number"
+      },
+      "pendingCount": {
+        "type": "number"
+      },
+      "submittedCount": {
+        "type": "number"
+      },
+      "correctionRequestedCount": {
+        "type": "number"
+      },
+      "approvedCount": {
+        "type": "number"
+      }
+    }
+  },
+  "CoursePerformancePageDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CoursePerformanceDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      }
+    }
+  },
+  "CoursePerformanceDto": {
+    "type": "object",
+    "required": [
+      "enrollmentCount",
+      "publishedCount",
+      "passedCount",
+      "averageScore",
+      "offeringId",
+      "departmentId",
+      "department",
+      "code",
+      "name",
+      "academicLevel",
+      "offeringStatus",
+      "registrationStatus",
+      "resultStatus"
+    ],
+    "properties": {
+      "enrollmentCount": {
+        "type": "number"
+      },
+      "publishedCount": {
+        "type": "number"
+      },
+      "passedCount": {
+        "type": "number"
+      },
+      "averageScore": {
+        "type": "number",
+        "nullable": true
+      },
+      "offeringId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "departmentId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "department": {
+        "type": "string"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "academicLevel": {
+        "type": "string"
+      },
+      "offeringStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ]
+      },
+      "registrationStatus": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "opened",
+          "closed"
+        ]
+      },
+      "resultStatus": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "pending",
+          "submitted",
+          "correction_requested",
+          "approved"
+        ]
+      }
+    }
+  },
+  "AuditEventPageResponseDto": {
+    "type": "object",
+    "required": [
+      "items",
+      "nextCursor"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AuditEventResponseDto"
+        }
+      },
+      "nextCursor": {
+        "type": "string",
+        "nullable": true
+      }
+    }
+  },
+  "AuditEventResponseDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "action",
+      "category",
+      "actorUserId",
+      "actorAdminId",
+      "targetType",
+      "targetId",
+      "outcome",
+      "reason",
+      "changes",
+      "metadata",
+      "requestId",
+      "traceId",
+      "occurredAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "action": {
+        "type": "string"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "access",
+          "users",
+          "academic",
+          "results",
+          "operations"
+        ]
+      },
+      "actorUserId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "actorAdminId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "targetType": {
+        "type": "string"
+      },
+      "targetId": {
+        "type": "string",
+        "format": "uuid",
+        "nullable": true
+      },
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "succeeded",
+          "failed",
+          "denied"
+        ]
+      },
+      "reason": {
+        "type": "string",
+        "nullable": true
+      },
+      "changes": {
+        "type": "object",
+        "nullable": true
+      },
+      "metadata": {
+        "type": "object",
+        "nullable": true
+      },
+      "requestId": {
+        "type": "string",
+        "nullable": true
+      },
+      "traceId": {
+        "type": "string",
+        "nullable": true
+      },
+      "occurredAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "RegisteredTermsResponseDto": {
+    "type": "object",
+    "required": [
+      "terms"
+    ],
+    "properties": {
+      "terms": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RegisteredTermDto"
+        }
+      }
+    }
+  },
+  "RegisteredTermDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "semesterId",
+      "semesterName",
+      "academicSession",
+      "faculty",
+      "department",
+      "programme",
+      "academicLevel",
+      "totalUnits"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterName": {
+        "type": "string"
+      },
+      "academicSession": {
+        "type": "string"
+      },
+      "faculty": {
+        "type": "string"
+      },
+      "department": {
+        "type": "string"
+      },
+      "programme": {
+        "type": "string"
+      },
+      "academicLevel": {
+        "type": "string"
+      },
+      "totalUnits": {
+        "type": "number"
+      }
+    }
+  },
+  "StudentResultHistoryDto": {
+    "type": "object",
+    "required": [
+      "cgpa",
+      "terms"
+    ],
+    "properties": {
+      "cgpa": {
+        "type": "number",
+        "nullable": true
+      },
+      "terms": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/StudentResultTermDto"
+        }
+      }
+    }
+  },
+  "StudentResultTermDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "semesterId",
+      "semesterName",
+      "academicSession",
+      "department",
+      "programme",
+      "academicLevel",
+      "approvedUnits",
+      "gpa"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterName": {
+        "type": "string"
+      },
+      "academicSession": {
+        "type": "string"
+      },
+      "department": {
+        "type": "string"
+      },
+      "programme": {
+        "type": "string"
+      },
+      "academicLevel": {
+        "type": "string"
+      },
+      "approvedUnits": {
+        "type": "number"
+      },
+      "gpa": {
+        "type": "number",
+        "nullable": true
+      }
+    }
+  },
+  "StudentResultStatementDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "semesterId",
+      "semesterName",
+      "academicSession",
+      "department",
+      "programme",
+      "academicLevel",
+      "approvedUnits",
+      "gpa",
+      "firstName",
+      "lastName",
+      "matricNumber",
+      "cgpa",
+      "courses"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "semesterName": {
+        "type": "string"
+      },
+      "academicSession": {
+        "type": "string"
+      },
+      "department": {
+        "type": "string"
+      },
+      "programme": {
+        "type": "string"
+      },
+      "academicLevel": {
+        "type": "string"
+      },
+      "approvedUnits": {
+        "type": "number"
+      },
+      "gpa": {
+        "type": "number",
+        "nullable": true
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true
+      },
+      "matricNumber": {
+        "type": "string",
+        "nullable": true
+      },
+      "cgpa": {
+        "type": "number",
+        "nullable": true
+      },
+      "courses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PublishedCourseResultDto"
+        }
+      }
+    }
+  },
+  "PublishedCourseResultDto": {
+    "type": "object",
+    "required": [
+      "id",
+      "code",
+      "name",
+      "units",
+      "caScore",
+      "examScore",
+      "totalScore",
+      "grade",
+      "gradePoint",
+      "approvedAt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "code": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "units": {
+        "type": "number"
+      },
+      "caScore": {
+        "type": "number"
+      },
+      "examScore": {
+        "type": "number"
+      },
+      "totalScore": {
+        "type": "number"
+      },
+      "grade": {
+        "type": "string",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "gradePoint": {
+        "type": "number"
+      },
+      "approvedAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  }
+}

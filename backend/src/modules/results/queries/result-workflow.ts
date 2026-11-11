@@ -13,6 +13,13 @@ import type {
   ResultGroupDetailDto,
 } from '../dtos/result-review.dto.js';
 import type { AccountPrincipal } from '#shared/auth/account-context.js';
+import type { ResultReviewOptionsDto } from '../dtos/result-options.dto.js';
+
+export class ReadReviewOptionsQuery extends Query<ResultReviewOptionsDto> {
+  constructor(readonly actorId: string) {
+    super();
+  }
+}
 
 export class ListLecturerResultsQuery extends Query<ResultGroupPageDto> {
   constructor(

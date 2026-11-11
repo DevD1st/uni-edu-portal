@@ -4,6 +4,8 @@ import type { AdminGrant } from "@uemp/api-contracts";
 import {
   permits,
   permitsSomewhere,
+  canDelegate,
+  canProvisionLecturer,
   reviewRule,
   type Privilege,
   type Rule,
@@ -63,5 +65,36 @@ test("registration oversight requires an unscoped university management grant", 
       rule,
     ),
     true,
+  );
+});
+
+test("a role can only carry privileges the assigner holds for its chosen scope", () => {
+  const grants = [
+    grant(null, "read_user"),
+    grant("a", "read_reports"),
+    grant("b", "manage_department"),
+  ];
+  assert.equal(canDelegate(grants, ["read_user", "read_reports"], "a"), true);
+  assert.equal(canDelegate(grants, ["read_user", "read_reports"], null), false);
+  assert.equal(canDelegate(grants, ["read_reports", "manage_department"], "b"), false);
+});
+
+test("lecturer provisioning requires both privileges on the scoped HOD grant", () => {
+  const hod: AdminGrant = {
+    ...grant("a", "create_admin", "manage_department"),
+    systemKey: "hod",
+  };
+  assert.equal(canProvisionLecturer([hod], "a"), true);
+  assert.equal(canProvisionLecturer([hod], "b"), false);
+  assert.equal(
+    canProvisionLecturer([grant("a", "create_admin", "manage_department")], "a"),
+    false,
+  );
+  assert.equal(
+    canProvisionLecturer(
+      [{ ...hod, privileges: ["create_admin"] }, grant("a", "manage_department")],
+      "a",
+    ),
+    false,
   );
 });

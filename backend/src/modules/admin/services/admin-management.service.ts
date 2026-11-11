@@ -10,6 +10,7 @@ import {
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
 import {
   authorizedDepartments,
+  canManageLecturerProfile,
   hasPrivilege,
 } from '#shared/admin-authorization/privilege.js';
 import type {
@@ -184,7 +185,21 @@ export class AdminManagementService {
         id: admin.id,
         userId: admin.userId,
         createdAt: admin.createdAt,
-        ...(user ? { user } : {}),
+        ...(user
+          ? {
+              user,
+              canUpdateProfile:
+                hasPrivilege(actor, 'update_user') ||
+                (user.status === 'active' &&
+                  canManageLecturerProfile(
+                    actor,
+                    grants.map((grant) => ({
+                      departmentId: grant.departmentId,
+                      privileges: grant.role?.privileges ?? [],
+                    })),
+                  )),
+            }
+          : {}),
         ...(relations.has('roles')
           ? {
               roles: visible.flatMap((grant) =>

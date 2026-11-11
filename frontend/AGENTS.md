@@ -5,7 +5,7 @@
 - Keep the Next.js student portal in `apps/student` and the React/Vite staff portal in `apps/admin`. Run workspace commands from `frontend/` with the pinned pnpm version. Keep one frontend lockfile and pin direct dependencies.
 - Shared code lives in `packages/*` and uses the `@uemp/*` scope with `workspace:*`. Applications may import public package exports. Packages never import apps or route implementations. Avoid dependencies between app internals.
 - Keep route composition, feature copy, API endpoint adapters, authorization, and product workflows inside the owning app. Group new product modules under `src/features/<domain>`. Extract shared behavior when both apps can use the same contract.
-- Keep student route files focused on loading data and composing the page. Put domain UI in the feature’s `components/` directory and server-only data access in its `server/` directory. Share student-specific presentation inside the portal feature.
+- Keep route files focused on composing the page. Put domain UI in the feature’s `components/` directory and server-only data access in its `server/` directory. Keep app-specific shared presentation inside the portal feature.
 - Keep TypeScript strict. Treat API payloads, URL parameters, storage, and environment variables as untrusted. Use explicit types and validation at boundaries. Keep generated OpenAPI types in `packages/api-contracts` and regenerate them from the backend contract after endpoint changes.
 
 ## Design and accessibility
@@ -25,3 +25,4 @@
 
 - Run `pnpm check` for formatting, lint, strict type checks, targeted tests, and both production builds. Run `pnpm test:e2e` against the demo backend for routing, sign-in, and responsive regression checks. Add coverage for new permission rules and behavior that can regress.
 - Keep setup notes and design examples current. Commit source and the generated contract types. Exclude build output, caches, browser reports, dependencies, and local environment files.
+- Keep the [staff workflow guide](docs/staff-workflows.md) current when a workspace, permission, or result state changes. Preserve unsaved marks across roster/marks tabs, and disable any pagination or refresh that would remount an editor with unsaved changes. Test combined roles and cross-department denials against a disposable backend.

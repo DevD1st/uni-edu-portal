@@ -10,12 +10,14 @@ export function Dialog({
   title,
   children,
   drawer = false,
+  lockClose = false,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   drawer?: boolean;
+  lockClose?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -31,11 +33,14 @@ export function Dialog({
       ref={ref}
       aria-labelledby={titleId}
       className={drawer ? "u-dialog u-drawer" : "u-dialog"}
+      onCancel={(event) => {
+        if (lockClose) event.preventDefault();
+      }}
       onClose={() => {
         if (open) onClose();
       }}
       onClick={(event) => {
-        if (event.currentTarget === event.target) onClose();
+        if (!lockClose && event.currentTarget === event.target) onClose();
       }}
     >
       <div className="u-dialog-inner">
@@ -43,6 +48,7 @@ export function Dialog({
           <h2 id={titleId}>{title}</h2>
           <IconButton
             label={drawer ? "Close navigation" : "Close dialog"}
+            disabled={lockClose}
             onClick={onClose}
           >
             <X size={21} aria-hidden />

@@ -12,6 +12,7 @@ import { RequestResultCorrectionsHandler } from './commands/handlers/request-res
 import { ReopenResultsHandler } from './commands/handlers/reopen-results/reopen-results.handler.js';
 import { ListLecturerResultsHandler } from './queries/handlers/list-lecturer-results/list-lecturer-results.handler.js';
 import { ListDepartmentResultsHandler } from './queries/handlers/list-department-results/list-department-results.handler.js';
+import { ReadReviewOptionsHandler } from './queries/handlers/read-review-options/read-review-options.handler.js';
 import { ReadResultGroupHandler } from './queries/handlers/read-result-group/read-result-group.handler.js';
 import { StudentResultHistoryHandler } from './queries/handlers/student-result-history/student-result-history.handler.js';
 import { StudentResultStatementHandler } from './queries/handlers/student-result-statement/student-result-statement.handler.js';
@@ -38,6 +39,7 @@ import { StudentResultsController } from './controllers/student-results.controll
     ReopenResultsHandler,
     ListLecturerResultsHandler,
     ListDepartmentResultsHandler,
+    ReadReviewOptionsHandler,
     ReadResultGroupHandler,
     StudentResultHistoryHandler,
     StudentResultStatementHandler,

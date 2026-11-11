@@ -20,3 +20,70 @@
 .staff-card:hover h2 {
   text-decoration: underline;
 }
+
+.staff-record-grid,
+.staff-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--uemp-space-4);
+  align-items: start;
+}
+
+.staff-record,
+.staff-fields > * {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.staff-fields {
+  max-inline-size: 54rem;
+}
+
+.staff-note {
+  min-block-size: 5rem;
+  resize: vertical;
+}
+
+.staff-audit-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.staff-tab-panel[hidden] {
+  display: none;
+}
+
+.staff-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uemp-space-2);
+}
+
+.staff-mark-list {
+  display: grid;
+  gap: var(--uemp-space-3);
+}
+
+.staff-mark-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--uemp-space-3);
+  border-block-start: 1px solid var(--uemp-line);
+  padding-block-start: var(--uemp-space-3);
+}
+
+.staff-mark-person {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 48rem) {
+  .staff-mark-row {
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  }
+
+  .staff-mark-person {
+    grid-column: auto;
+  }
+}

@@ -2,6 +2,7 @@ import {
   Controller,
   UseGuards,
   Get,
+  Header,
   Post,
   Body,
   Query,
@@ -19,13 +20,17 @@ import {
 import { AuditAdminMutation } from '#shared/admin-authorization/audit.contracts.js';
 import { ApiDtoResponse } from '#shared/http/api-dto-response.decorator.js';
 import {
+  AvailableCoursesResponseDto,
   RegistrationRosterResponseDto,
   RegistrationReportQueryDto,
   RegistrationSummaryResponseDto,
   RegistrationWriteDto,
   RegistrationStudentParamsDto,
 } from '../dtos/registration.dto.js';
-import { DepartmentRegistrationReportQuery } from '../queries/academic-workflow.js';
+import {
+  AvailableCoursesQuery,
+  DepartmentRegistrationReportQuery,
+} from '../queries/academic-workflow.js';
 import { RegisterCoursesCommand } from '../commands/academic-workflow.js';
 
 @ApiTags('Department registration')
@@ -61,6 +66,19 @@ export class DepartmentRegistrationController {
   ): Promise<RegistrationSummaryResponseDto> {
     return this.commands.execute(
       new RegisterCoursesCommand(actor, input, userId),
+    );
+  }
+
+  @Get('students/:userId/available')
+  @Header('Cache-Control', 'no-store')
+  @RequireAdminPrivilege('register_student_courses')
+  @ApiDtoResponse(AvailableCoursesResponseDto)
+  available(
+    @CurrentAccount() actor: AccountPrincipal,
+    @Param() { userId }: RegistrationStudentParamsDto,
+  ): Promise<AvailableCoursesResponseDto> {
+    return this.queries.execute(
+      new AvailableCoursesQuery(actor, undefined, userId),
     );
   }
 }

@@ -9,14 +9,23 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { reviewRule, type Rule } from "../access/policy";
+import { registrationOversight, reviewRule, type Rule } from "../access/policy";
 
 export type Workspace = {
-  slug: string;
+  slug:
+    | "teaching"
+    | "result-review"
+    | "academics"
+    | "registration"
+    | "reports"
+    | "accounts"
+    | "roles"
+    | "audit";
   label: string;
   icon: LucideIcon;
   description: string;
   rule: Rule;
+  details?: boolean;
 };
 
 // Routes and navigation both read this catalog so their privilege requirements stay in sync.
@@ -29,6 +38,7 @@ export const workspaceGroups: readonly {
     items: [
       {
         slug: "teaching",
+        details: true,
         label: "My teaching",
         icon: BookOpen,
         description: "View the course offerings assigned to you.",
@@ -36,6 +46,7 @@ export const workspaceGroups: readonly {
       },
       {
         slug: "result-review",
+        details: true,
         label: "Result review",
         icon: ClipboardCheck,
         description: "View submitted results in the departments you can review.",
@@ -55,14 +66,12 @@ export const workspaceGroups: readonly {
       },
       {
         slug: "registration",
+        details: true,
         label: "Registration oversight",
         icon: GraduationCap,
         description: "Access course registration oversight in your scope.",
         rule: {
-          anyOf: [
-            ["read_registration", "manage_university"],
-            ["read_registration", "manage_department"],
-          ],
+          anyOf: [...registrationOversight.anyOf, ["register_student_courses"]],
         },
       },
       {
@@ -79,6 +88,7 @@ export const workspaceGroups: readonly {
     items: [
       {
         slug: "accounts",
+        details: true,
         label: "Accounts",
         icon: UsersRound,
         description: "Access staff and student account administration.",
@@ -95,6 +105,7 @@ export const workspaceGroups: readonly {
       },
       {
         slug: "audit",
+        details: true,
         label: "Audit trail",
         icon: ListChecks,
         description: "Access the university-wide record of administrative activity.",

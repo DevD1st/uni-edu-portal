@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import type { EntityManager } from 'typeorm';
+import { ApplicationError } from '#core/http/application-error.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
 import { authorizedDepartments } from '#shared/admin-authorization/privilege.js';
 import type {
@@ -15,6 +16,10 @@ import type {
   ResultPageQueryDto,
 } from '../dtos/result-write.dto.js';
 import { ResultAccessService } from './result-access.service.js';
+import type {
+  ResultReviewDepartmentDto,
+  ResultReviewOptionsDto,
+} from '../dtos/result-options.dto.js';
 
 const projection = `
 SELECT g.id, o.id AS "offeringId", o.department_id AS "departmentId",
@@ -41,6 +46,34 @@ export class ResultReviewService {
     private readonly authorization: AdminAuthorizationService,
     private readonly access: ResultAccessService,
   ) {}
+
+  options(actorId: string): Promise<ResultReviewOptionsDto> {
+    return this.database.transaction('REPEATABLE READ', async (manager) => {
+      const access = await this.authorization.resolve(actorId, manager);
+      const grants = access.grants.filter(({ privileges }) =>
+        privileges.some(
+          (privilege) =>
+            privilege === 'review_result' ||
+            privilege === 'approve_result' ||
+            privilege === 'reopen_result',
+        ),
+      );
+      if (!grants.length)
+        throw new ApplicationError(
+          HttpStatus.FORBIDDEN,
+          'You do not have permission to review results in any department.',
+        );
+      const scope = grants.some(({ departmentId }) => departmentId === null)
+        ? null
+        : [...new Set(grants.map(({ departmentId }) => departmentId))];
+      // Deactivation stops new academic setup; it must not hide retained results from their reviewers.
+      const departments = await manager.query<ResultReviewDepartmentDto[]>(
+        'SELECT id, name FROM departments WHERE $1::uuid[] IS NULL OR id = ANY($1::uuid[]) ORDER BY name, id',
+        [scope],
+      );
+      return { departments };
+    });
+  }
 
   listForLecturer(
     actorId: string,

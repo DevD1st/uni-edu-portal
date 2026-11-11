@@ -331,6 +331,15 @@ export class AdminResponseDto {
   @Type(() => AdminDirectoryUserResponseDto)
   user?: AdminDirectoryUserResponseDto;
 
+  @Expose()
+  @ApiPropertyOptional({
+    type: Boolean,
+    description:
+      'Whether the signed-in administrator may edit this staff member’s names. Returned with the user profile.',
+    example: true,
+  })
+  canUpdateProfile?: boolean;
+
   @ApiPropertyOptional({
     type: () => [AdminDirectoryGrantResponseDto],
     description: 'Visible role assignments, when requested.',
