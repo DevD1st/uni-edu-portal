@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import '#core/config/load-env.js';
 import { startInstrumentation } from './core/instrumentation.js';
 
 const telemetry = await startInstrumentation();

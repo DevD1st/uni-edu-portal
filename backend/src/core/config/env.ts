@@ -1,3 +1,5 @@
+import './load-env.js';
+
 export type Environment = 'development' | 'staging' | 'production' | 'test';
 
 export function environment(): Environment {

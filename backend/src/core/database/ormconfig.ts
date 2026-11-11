@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import '../config/load-env.js';
 import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
 import type { DataSourceOptions } from 'typeorm';

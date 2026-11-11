@@ -10,7 +10,8 @@ import { HealthController } from './health/health.controller.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, cache: true }),
+    // HTTP and CLI entry points already loaded the shared root settings.
+    ConfigModule.forRoot({ isGlobal: true, cache: true, ignoreEnvFile: true }),
     CqrsModule.forRoot(),
     TypeOrmModule.forRootAsync({ useFactory: databaseOptions }),
     LogsModule,

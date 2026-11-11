@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import '#core/config/load-env.js';
 import { writeTransaction } from '#core/database/database-write.js';
 import { isEmail } from 'class-validator';
 import database from '#core/database/ormconfig.js';

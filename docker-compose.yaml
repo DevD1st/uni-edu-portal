@@ -1,10 +1,12 @@
+name: uemp-demo
+
 services:
   postgres:
     image: postgres:17
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-uemp_demo}
       POSTGRES_USER: ${POSTGRES_USER:-uemp}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks: [infrastructure]
@@ -25,12 +27,12 @@ services:
 
   migrate:
     build: ./backend
-    env_file: backend/.env
+    env_file: .env
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-uemp_demo}
-      DEMO_SEED_PASSWORD: ${DEMO_SEED_PASSWORD:?Set DEMO_SEED_PASSWORD in backend/.env (at least 7 characters)}
+      DEMO_SEED_PASSWORD: ${DEMO_SEED_PASSWORD:?Set DEMO_SEED_PASSWORD in the root .env (at least 7 characters)}
     # The job also waits for PostgreSQL when plain restart bypasses dependency health.
     command: ["npm", "run", "db:initialize"]
     networks: [infrastructure]
@@ -41,7 +43,7 @@ services:
   backend:
     build: ./backend
     networks: [infrastructure, application]
-    env_file: backend/.env
+    env_file: .env
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432

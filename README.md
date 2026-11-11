@@ -6,7 +6,7 @@ UEMP implements student registration, lecturer marks entry, departmental approva
 
 Install Docker with the Compose plugin. No host Node.js installation is needed to run the container stack.
 
-On first setup, copy `backend/.env.example` to `backend/.env` and configure:
+On first setup, copy `.env.example` to `.env` in the repository root and configure:
 
 | Setting                                       | Value                                                                           |
 | --------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -19,7 +19,7 @@ On first setup, copy `backend/.env.example` to `backend/.env` and configure:
 From the repository root, run:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env up --build --wait
+docker compose up --build --wait
 ```
 
 Docker discovers the single `docker-compose.yaml` automatically. That command builds and starts the complete stack:
@@ -60,7 +60,9 @@ Changing `DEMO_SEED_PASSWORD` after initialization does not reset existing passw
 
 ## Configuration and container networking
 
-Compose reads configuration from `backend/.env`. Frontend `.env.local` files are only needed for host development and are excluded from Docker builds.
+Compose automatically reads the root `.env` for substitutions and passes it to the backend and initialization job. Backend commands load the same file regardless of their working directory. No `--env-file` flag or duplicate backend environment file is needed. When upgrading from the earlier backend-local layout, relocate the configured file to the root and keep its existing values. The root `.env` remains Git-ignored and is outside both frontend and backend Docker build contexts. Frontend `.env.local` files are only needed for host development and are excluded from Docker builds.
+
+The default Compose project name is `uemp-demo`, preserving the existing container and PostgreSQL volume names. Plain `docker compose up --build`, `docker compose down`, and `docker compose ps` therefore target the same project. An explicit `--project-name` still overrides it for isolated tests or separate deployments.
 
 | Setting                            | Default and purpose                                                                                                                     |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -101,14 +103,14 @@ If initialization exits with an error, inspect the `migrate` logs, correct the c
 Inspect a running demo with:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env ps -a
-docker compose --project-name uemp-demo --env-file backend/.env logs --tail 100 migrate backend student admin
+docker compose ps -a
+docker compose logs --tail 100 migrate backend student admin
 ```
 
 Stop it while preserving PostgreSQL data:
 
 ```powershell
-docker compose --project-name uemp-demo --env-file backend/.env down
+docker compose down
 ```
 
 Adding `--volumes` to `down` deletes that project's database. Use it only when deliberately resetting a disposable demo.
