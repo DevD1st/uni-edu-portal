@@ -1,3 +1,6 @@
+# Render builds the final stage; Compose can still target student or admin directly.
+ARG FRONTEND_APP=admin
+
 FROM node:24-bookworm-slim AS dependencies
 WORKDIR /workspace
 RUN npm install --global pnpm@12.11.2
@@ -45,3 +48,6 @@ EXPOSE 8080
 # The static configuration needs no entrypoint scripts or writes to /etc/nginx.
 ENTRYPOINT ["nginx"]
 CMD ["-g", "daemon off;"]
+
+# Select the complete runtime so its command, user, and port settings stay together.
+FROM ${FRONTEND_APP} AS app

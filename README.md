@@ -35,6 +35,12 @@ docker compose down
 
 `down` stops the stack while retaining the database. `up --build --wait` rebuilds changed application images and checks readiness. See [configuration, troubleshooting, and operations](docs/development.md) for port changes, native development, and initialization failures. The supplied Compose setup is a local demo; production initialization and deployment considerations are explained in the [architecture guide](docs/architecture.md).
 
+## Deploy the frontends on Render
+
+The API is deployed at [uemp-backend.onrender.com](https://uemp-backend.onrender.com). The [Render Blueprint](render.yaml) defines two free Docker Web Services for the student and staff portals, both using that existing API. The shared frontend Dockerfile selects the correct application through `FRONTEND_APP`.
+
+Follow the [Render deployment guide](docs/render-deployment.md) to push the configuration, create the Blueprint, and add the actual frontend origins to the existing backend's `CORS_ORIGINS`. The guide also provides exact manual-service settings, ports, build-time variables, and verification steps. The student origin is taken from Render's assigned URL so the configuration does not assume an available hostname.
+
 ## Demo access and walkthrough
 
 All seven accounts initially use **`12345678`**, the `DEMO_SEED_PASSWORD` in [.env.example](.env.example). This applies to a fresh database. Changing that setting later does not change existing account passwords.

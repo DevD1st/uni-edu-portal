@@ -1,6 +1,6 @@
 # Development and verification
 
-This guide covers host development, contract generation, and verification modes. Use the [root README](../README.md) for the complete container demo, [architecture](architecture.md) for component boundaries, [security](security.md) for sessions and grants, and [workflows](workflows.md) for academic rules.
+This guide covers host development, contract generation, and verification modes. Use the [root README](../README.md) for the complete container demo, [Render deployment](render-deployment.md) for the hosted frontend services, [architecture](architecture.md) for component boundaries, [security](security.md) for sessions and grants, and [workflows](workflows.md) for academic rules.
 
 ## Prerequisites
 

@@ -13,6 +13,10 @@ docker compose up --build --wait
 
 Open the [student portal](http://localhost:3001) or [staff portal](http://localhost:3002). The initialization job applies migrations and seeds a fresh database before either portal starts. Restarts preserve existing accounts and academic records. The [reviewer guide](../docs/reviewer-guide.md) provides demo accounts and a walkthrough; the [root README](../README.md) documents container configuration and operations.
 
+## Deploy on Render
+
+The root [render.yaml](../render.yaml) creates separate student and staff Docker Web Services against the existing hosted API. `FRONTEND_APP=student` or `admin` selects the shared Dockerfile's final runtime; local Compose keeps its named targets. Use the [Render deployment guide](../docs/render-deployment.md) for Blueprint setup, exact service paths and variables, assigned origins, and the existing backend's CORS update.
+
 ## Host development
 
 Use Node.js 24+ and the pinned pnpm version in `package.json`. The recommended editing setup keeps the API and its private infrastructure in Docker while running both portals with hot reload. Follow [host development](../docs/development.md#host-development) for commands, environment files, and native API alternatives.

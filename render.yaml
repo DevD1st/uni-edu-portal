@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+# Both portals use the existing API; this Blueprint manages only the two frontends.
+services:
+  - type: web
+    name: uemp-student
+    runtime: docker
+    region: oregon
+    plan: free
+    # Paths stay relative to the repository root; the context contains the whole web workspace.
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /health/ready
+    envVars:
+      # Render also passes these variables as Docker build arguments.
+      - key: FRONTEND_APP
+        value: student
+      - key: PORT
+        value: "10000"
+      - key: STUDENT_API_URL
+        value: https://uemp-backend.onrender.com
+      # Use the assigned public URL for secure cookies and exact mutation-origin checks.
+      - key: STUDENT_APP_ORIGIN
+        fromService:
+          type: web
+          name: uemp-student
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: uemp-admin
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /health/ready
+    envVars:
+      - key: FRONTEND_APP
+        value: admin
+      # The static server listens on this port independently of Render's default.
+      - key: PORT
+        value: "8080"
+      - key: VITE_API_URL
+        value: https://uemp-backend.onrender.com
