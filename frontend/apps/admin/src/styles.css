@@ -21,6 +21,20 @@
   text-decoration: underline;
 }
 
+.staff-card:hover h3 {
+  text-decoration: underline;
+}
+
+.staff-summary-list {
+  display: grid;
+  gap: var(--uemp-space-3);
+  overflow-wrap: anywhere;
+}
+
+.staff-grid > * {
+  min-inline-size: 0;
+}
+
 .staff-record-grid,
 .staff-fields {
   display: grid;

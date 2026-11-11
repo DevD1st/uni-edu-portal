@@ -2,6 +2,14 @@
 
 The staff portal implements the assessment's lecturer, department administrator, and university administrator workflows. Staff sign in as administrators; the assigned privileges and their department scopes determine the navigation, direct routes, and available actions. Role names are labels. The API rechecks current access and record state on every operation.
 
+## Overview summaries
+
+The staff overview composes cards from the current grants. Teaching access loads only the lecturer's assigned offerings and shows exact open/closed registration counts across those assignments. Review access shows up to three submitted groups in a selected authorized department, with a link to the full queue; a paginated preview is never presented as a total count. Reporting access shows academic totals for a selected semester and department. University totals require an unscoped `read_reports` grant. A report-only account can use that card without acquiring teaching, review, setup, or directory privileges.
+
+Dashboard links carry the selected report or review department to the destination. The destination validates those URL choices against the available authorized scopes. Unknown choices fall back to an allowed selection. All counts come from their owning API, and each card has independent loading, empty, error, and retry states.
+
+The student overview streams registration and result cards through server components. It shows the latest saved registration and its units, the currently published CGPA, and the latest semester with approved units. It does not calculate a new average from displayed GPAs or read draft marks. A student with no registrations or published awards sees explicit empty states. Ordinary API failures affect the relevant card, while expired-session redirects still reach sign-in.
+
 ## Access and behavior
 
 | Workspace              | Required access                                                                                         | Behavior                                                                                                                                                                                                                                                                                             |
@@ -26,7 +34,11 @@ Approval publishes student grades and recalculates the values returned by result
 
 Staff resources show loading, empty, restricted, error, and retry states. Mutations show friendly field or action errors. Pending dialogs lock their controls and dismissal to prevent duplicate or ambiguous writes. Denied operations refresh current grants. Teaching and review details expose a refresh action for external changes and state conflicts.
 
-Marks stay mounted when switching between class roster and marks. Both marks pagination and roster pagination are disabled while edits are unsaved, because changing a roster page otherwise remounts the editor. Save or discard edits before paging, refreshing, closing registration, or submitting. Leaving the workspace or reloading the browser discards unsaved edits. Unmatched nested staff URLs show a recovery link to the owning workspace.
+Marks stay mounted when switching between class roster and marks. Both marks pagination and roster pagination are disabled while edits are unsaved, because changing a roster page otherwise remounts the editor. Save or discard edits before paging, refreshing, closing registration, or submitting. Leaving the page through a staff link, browser back/forward, or sign-out asks whether to keep editing or leave without saving. Canceling retains the values and the session. Sign-out does not revoke the session until the user confirms. In-flight saves must finish before departure is allowed. After a successful save or explicit discard, navigation continues normally.
+
+Reloads, tab closure, and full-page links use the browser's native `beforeunload` prompt while edits or saves are pending. The listener is removed when the editor is clean. Session revocation can still return the user to sign-in; an unsaved draft never overrides access revocation. The staff app uses a data router so history navigation is blocked through the supported router API.
+
+Unexpected rendering failures are caught at the staff page boundary, preserving the surrounding shell for navigation, with a second boundary around the router. Recovery offers retry or a full reload of the overview. It does not show error objects, component stacks, or record values. An API validation or authorization failure remains an ordinary resource/action error. Unmatched nested staff URLs show a recovery link to the owning workspace.
 
 Forms and record cards stack on phones. Wide roster, result, report, and directory tables scroll inside labeled regions; the page itself must not overflow. The mobile navigation drawer supports touch, Escape, and focus restoration. Both themes use shared tokens and components.
 
@@ -34,10 +46,26 @@ Forms and record cards stack on phones. Wide roster, result, report, and directo
 
 `apps/admin/src/app.tsx` composes the shell and route guards. `features/portal/workspaces.ts` supplies both route access and navigation. `features/access/policy.ts` owns frontend scope checks. Auth owns session and authorization revalidation, while `features/portal/staff-data.ts` provides abortable reads, mutation state, and cursor navigation.
 
-Domain UI lives in each feature's `components/` folder: academics, teaching, review, registration, people, roles, reporting, and audit. Field groups, account actions, grant assignment, marks editing, and result rendering are reusable components inside their owning feature. Shared staff resource states, dialogs, record cards, and route recovery live in `features/portal/components/`. Shared presentation primitives stay in `packages/ui`; transport and generated API DTOs stay in their own packages. No package imports application internals.
+Domain UI lives in each feature's `components/` folder: dashboard, academics, teaching, review, registration, people, roles, reporting, and audit. Field groups, account actions, grant assignment, marks editing, and result rendering are reusable components inside their owning feature. Reporting owns the scope selector reused by reports and the dashboard. The portal owns the unsaved-marks provider; the marks editor registers its dirty and pending state there. Shared staff resource states, dialogs, record cards, and render recovery live in `features/portal/components/`. Shared presentation primitives stay in `packages/ui`; transport and generated API DTOs stay in their own packages. No package imports application internals.
 
 ## Verification
 
 Run `pnpm check` from `frontend/` for formatting, lint, strict application types, unit tests, and both production builds. Run the real-backend browser suite with `pnpm test:e2e` using the disposable demo settings in the [README](../README.md#verification). Never point these mutation tests at an everyday development or production database.
 
 The browser suite covers lecturer marks and submission, HOD correction/publication/reopening, student visibility and weighted GPA changes, delegated enrollment, HOD Lecturer provisioning and scoped profile editing, academic setup, custom role assignment/revocation, report-only access, audit inspection, and denied direct routes. Regression cases exercise a one-row roster page with unsaved marks, an approval-only grant in another department, inactive review scopes, and approval of a lecturer's own submission. Staff pages are checked at 320, 390, 768, 1024, and 1440 CSS pixels and scanned for WCAG accessibility violations in light and dark themes. These automated checks supplement browser testing; they do not replace assistive-technology review.
+
+Finishing tests also check privilege-specific dashboard requests, retained report scopes, empty student summaries, canceled and confirmed departures, native reload prompts, pending saves, clean navigation, and a controlled rendering failure with successful retry. The failing component is injected by the browser test; the production app contains no failure switch. Browser screenshots of the dashboards, warning dialog, and recovery screen are saved under the ignored test results directory for visual inspection.
+
+The finishing regressions also exercise these failure and recovery cases:
+
+| Case                                                                       | Expected behavior                                                                                                 |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| A scoped HOD opens a dashboard URL with forged department and semester IDs | Choices fall back to authorized values, and the academic overview request still includes the HOD's department.    |
+| A marks save fails while navigation is queued                              | Both scores remain in the editor, the warning stays available, and the lecturer can cancel departure and retry.   |
+| A retry succeeds while navigation is queued                                | The requested navigation resumes after the backend accepts the save, with no stale warning.                       |
+| The lecturer explicitly discards edits                                     | Saved values return, ordinary navigation works, and a clean reload does not raise an unload prompt.               |
+| Sign-out is requested during a save                                        | Departure remains disabled until the save completes, followed by one sign-out request.                            |
+| Sessions are revoked while marks are dirty                                 | An unauthorized save returns the lecturer to sign-in; the draft cannot block revocation or overwrite saved marks. |
+| Rendering fails above the staff shell                                      | The root recovery stays generic and can reload the overview with the valid session intact.                        |
+
+Finishing actions run on a 320px touch viewport. Layout checks also cover 390, 768, 1024, and 1440px, a landscape viewport, and a short 320px-high warning dialog where actions must remain reachable by scrolling. Dashboard and page recovery checks include both color themes and automated accessibility scans.

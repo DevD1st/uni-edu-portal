@@ -4,6 +4,7 @@ import { ApiError } from "@uemp/web-client";
 import type { Dto } from "@uemp/api-contracts/response";
 import { markText } from "./result-status";
 import { studentLabel } from "./result-marks";
+import { useUnsavedMarks } from "../../portal/unsaved-marks";
 
 type Group = Dto<"ResultGroupDetailDto">;
 type Field = "caScore" | "examScore";
@@ -36,6 +37,7 @@ export function MarksEditor({
   const [validation, setValidation] = useState<string>();
   const limits = { caScore: group.maxCaScore, examScore: group.maxExamScore };
   const dirty = Object.keys(draft).length > 0;
+  useUnsavedMarks(dirty, pending);
 
   function change(id: string, field: Field, value: string, stored: number | null) {
     const storedText = stored === null ? "" : String(stored);

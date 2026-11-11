@@ -274,6 +274,18 @@ test.describe("staff workflows on a phone", () => {
     await expect(page).toHaveURL(/\/sign-in$/);
 
     await signIn(page, account, accountPassword);
+    await expect(
+      page
+        .getByRole("region", { name: "Academic dashboard" })
+        .getByText("Students registered", { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Report department").getByRole("option")).toHaveText([
+      "Demo Computing",
+    ]);
+    await expect(page.getByRole("region", { name: "Teaching dashboard" })).toHaveCount(
+      0,
+    );
+    await expect(page.getByRole("region", { name: "Review dashboard" })).toHaveCount(0);
     await navigate(page, "Reports");
     await expect(
       page

@@ -119,6 +119,12 @@ test.describe("staff permission and state regressions", () => {
       });
       expect(deniedApproval.status()).toBe(403);
       await signIn(page, "lecturer");
+      await expect(
+        page.getByRole("region", { name: "Review dashboard" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("region", { name: "Academic dashboard" }),
+      ).toHaveCount(0);
       await page.goto(origin + "/workspaces/result-review");
       await expect(
         page.getByLabel("Department", { exact: true }).getByRole("option"),

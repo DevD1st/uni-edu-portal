@@ -1,20 +1,19 @@
 import { LayoutDashboard, LogOut } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { Link, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
-import {
-  Banner,
-  Button,
-  PageHeader,
-  PortalShell,
-  ResourceState,
-  Surface,
-} from "@uemp/ui";
+import { Banner, Button, PageHeader, PortalShell, ResourceState } from "@uemp/ui";
 import { readableError } from "@uemp/web-client";
 import { permitsSomewhere } from "./features/access/policy";
 import { signOut } from "./features/auth/api";
 import { AuthProvider, useAuth } from "./features/auth/provider";
 import { StaffSignIn } from "./features/auth/sign-in";
 import { WorkspaceEntry } from "./features/portal/entry";
+import { StaffOverview } from "./features/dashboard/components/staff-overview";
+import { StaffErrorBoundary } from "./features/portal/components/staff-error-boundary";
+import {
+  UnsavedMarksProvider,
+  useLeaveStaffPage,
+} from "./features/portal/unsaved-marks";
 import {
   workspaceGroups,
   workspacePath,
@@ -32,6 +31,7 @@ const DesignGallery = import.meta.env.DEV
 function StaffPortal() {
   const { signedIn, access, error, revalidate } = useAuth();
   const { pathname } = useLocation();
+  const requestLeave = useLeaveStaffPage();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
 
@@ -100,14 +100,20 @@ function StaffPortal() {
         </Link>
       )}
       actions={
-        <Button variant="ghost" pending={signingOut} onClick={() => void leave()}>
+        <Button
+          variant="ghost"
+          pending={signingOut}
+          onClick={() => requestLeave(leave)}
+        >
           <LogOut size={18} aria-hidden /> Sign out
         </Button>
       }
     >
       {signOutError && <Banner tone="danger">{signOutError}</Banner>}
       {access ? (
-        <Outlet />
+        <StaffErrorBoundary key={pathname}>
+          <Outlet />
+        </StaffErrorBoundary>
       ) : (
         <>
           <PageHeader title="Staff workspace" />
@@ -128,48 +134,6 @@ function StaffPortal() {
         </>
       )}
     </PortalShell>
-  );
-}
-
-function StaffOverview() {
-  const { access } = useAuth();
-  if (!access) return null;
-  const workspaces = workspaceGroups.flatMap(({ items }) =>
-    items.filter(({ rule }) => permitsSomewhere(access.authorization.grants, rule)),
-  );
-  return (
-    <>
-      <PageHeader
-        eyebrow="University workspace"
-        title="Staff overview"
-        description="Open the university workspaces available to your account."
-      />
-      {workspaces.length ? (
-        <div className="staff-grid">
-          {workspaces.map((workspace) => (
-            <Link
-              className="staff-card"
-              key={workspace.slug}
-              to={workspacePath(workspace)}
-            >
-              <Surface className="u-stack">
-                <workspace.icon size={25} aria-hidden />
-                <h2>{workspace.label}</h2>
-                <p>{workspace.description}</p>
-              </Surface>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <Surface>
-          <ResourceState
-            state="empty"
-            title="No staff workspaces assigned"
-            detail="Ask a university administrator to review your access if you need a workspace."
-          />
-        </Surface>
-      )}
-    </>
   );
 }
 
@@ -194,45 +158,50 @@ function GuardedWorkspace({ workspace }: { workspace: Workspace }) {
 export function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/sign-in" element={<StaffSignIn />} />
-        <Route element={<StaffPortal />}>
-          <Route index element={<Navigate to="/overview" replace />} />
-          <Route path="/overview" element={<StaffOverview />} />
-          {DesignGallery && (
+      <UnsavedMarksProvider>
+        <Routes>
+          <Route path="/sign-in" element={<StaffSignIn />} />
+          <Route element={<StaffPortal />}>
+            <Route index element={<Navigate to="/overview" replace />} />
+            <Route path="/overview" element={<StaffOverview />} />
+            {DesignGallery && (
+              <Route
+                path="/design-system"
+                element={
+                  <Suspense
+                    fallback={
+                      <ResourceState
+                        state="loading"
+                        title="Loading the design system"
+                      />
+                    }
+                  >
+                    <DesignGallery />
+                  </Suspense>
+                }
+              />
+            )}
+            {workspaceGroups.flatMap(({ items }) =>
+              items.map((workspace) => (
+                <Route
+                  key={workspace.slug}
+                  path={workspacePath(workspace) + (workspace.details ? "/*" : "")}
+                  element={<GuardedWorkspace workspace={workspace} />}
+                />
+              )),
+            )}
             <Route
-              path="/design-system"
+              path="*"
               element={
-                <Suspense
-                  fallback={
-                    <ResourceState state="loading" title="Loading the design system" />
-                  }
-                >
-                  <DesignGallery />
-                </Suspense>
+                <>
+                  <PageHeader title="Page not found" />
+                  <Link to="/overview">Return to overview</Link>
+                </>
               }
             />
-          )}
-          {workspaceGroups.flatMap(({ items }) =>
-            items.map((workspace) => (
-              <Route
-                key={workspace.slug}
-                path={workspacePath(workspace) + (workspace.details ? "/*" : "")}
-                element={<GuardedWorkspace workspace={workspace} />}
-              />
-            )),
-          )}
-          <Route
-            path="*"
-            element={
-              <>
-                <PageHeader title="Page not found" />
-                <Link to="/overview">Return to overview</Link>
-              </>
-            }
-          />
-        </Route>
-      </Routes>
+          </Route>
+        </Routes>
+      </UnsavedMarksProvider>
     </AuthProvider>
   );
 }

@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { Badge, DescriptionList, PageHeader, Surface } from "@uemp/ui";
+import { Badge, DescriptionList, PageHeader, ResourceState, Surface } from "@uemp/ui";
 import { studentAccount } from "../../../features/auth/server/session";
 import { academicDetails } from "../../../features/portal/server/student-profile";
+import {
+  RegistrationDashboard,
+  ResultsDashboard,
+} from "../../../features/dashboard/components/student-summary";
 
 export const metadata = { title: "Overview" };
 
@@ -15,9 +20,27 @@ export default async function Overview() {
       <PageHeader
         eyebrow="My studies"
         title={account.firstName ? "Welcome, " + account.firstName : "Student overview"}
-        description="Find your university profile and academic placement in one place."
+        description="Your registration, published results, and university profile in one place."
       />
       <div className="u-panel-grid">
+        <Suspense
+          fallback={
+            <Surface>
+              <ResourceState state="loading" title="Loading registration summary" />
+            </Surface>
+          }
+        >
+          <RegistrationDashboard />
+        </Suspense>
+        <Suspense
+          fallback={
+            <Surface>
+              <ResourceState state="loading" title="Loading results summary" />
+            </Surface>
+          }
+        >
+          <ResultsDashboard />
+        </Suspense>
         <Surface aria-label="Academic placement">
           <Badge tone="info">Student record</Badge>
           <h2 className="mt-3">Academic placement</h2>

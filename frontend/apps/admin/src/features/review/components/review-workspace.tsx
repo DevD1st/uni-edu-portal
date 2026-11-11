@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Route, Routes, useParams } from "react-router";
+import { Link, Route, Routes, useParams, useSearchParams } from "react-router";
 import {
   Banner,
   Button,
@@ -112,9 +112,10 @@ function Queue({
 }
 
 function ReviewQueue() {
+  const [query] = useSearchParams();
   const { grants } = useStaffAccess();
   const resource = useStaffResource(api + "/options", "ResultReviewOptionsDto");
-  const [selected, select] = useState("");
+  const [selected, select] = useState(() => query.get("departmentId") ?? "");
   const [status, setStatus] = useState<ResultStatusValue>("submitted");
   return (
     <Surface className="u-stack">

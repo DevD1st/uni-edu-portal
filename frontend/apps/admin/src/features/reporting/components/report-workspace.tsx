@@ -1,21 +1,11 @@
-import { useState } from "react";
 import { Badge, DataTable, DescriptionList, ResourceState, Surface } from "@uemp/ui";
-import { hasPrivilege } from "../../access/policy";
-import {
-  ChoiceField,
-  CursorControls,
-  StaffResource,
-} from "../../portal/components/staff-controls";
-import {
-  staffPath,
-  useCursor,
-  useStaffAccess,
-  useStaffResource,
-} from "../../portal/staff-data";
+import { CursorControls, StaffResource } from "../../portal/components/staff-controls";
+import { staffPath, useCursor, useStaffResource } from "../../portal/staff-data";
 import { markText, ResultStatus } from "../../teaching/components/result-status";
+import { ReportScope, type ReportFilters } from "./report-scope";
 
 const api = "/v1/admin/reports";
-type Filters = { semesterId: string; departmentId: string | null };
+type Filters = ReportFilters;
 
 function CoursePerformance({ filters }: { filters: Filters }) {
   const cursor = useCursor();
@@ -121,57 +111,14 @@ function Report({ filters }: { filters: Filters }) {
 }
 
 export function ReportWorkspace() {
-  const { grants } = useStaffAccess();
-  const resource = useStaffResource(api + "/options", "AcademicReportOptionsDto");
-  const [selected, select] = useState<{ semesterId?: string; departmentId?: string }>(
-    {},
-  );
-  const university = hasPrivilege(grants, "read_reports", null);
   return (
-    <StaffResource resource={resource} title="report filters">
-      {({ semesters, departments }) => {
-        const eligible = departments.filter(({ id }) =>
-          hasPrivilege(grants, "read_reports", id),
-        );
-        const semesterId =
-          semesters.find(({ id }) => id === selected.semesterId)?.id ??
-          semesters[0]?.id;
-        const departmentId =
-          eligible.find(({ id }) => id === selected.departmentId)?.id ??
-          (university ? null : eligible[0]?.id);
-        if (!semesterId || departmentId === undefined)
-          return <ResourceState state="empty" title="No report scope is available" />;
-        const options = (items: typeof semesters) =>
-          items.map(({ id, label }) => ({ value: id, label }));
-        return (
-          <>
-            <Surface className="staff-fields" aria-label="Report filters">
-              <ChoiceField
-                label="Semester"
-                value={semesterId}
-                options={options(semesters)}
-                emptyLabel={null}
-                onChange={(event) =>
-                  select({ ...selected, semesterId: event.target.value })
-                }
-              />
-              <ChoiceField
-                label="Department"
-                value={departmentId ?? ""}
-                options={options(eligible)}
-                emptyLabel={university ? "Entire university" : null}
-                onChange={(event) =>
-                  select({ ...selected, departmentId: event.target.value })
-                }
-              />
-            </Surface>
-            <Report
-              key={semesterId + ":" + departmentId}
-              filters={{ semesterId, departmentId }}
-            />
-          </>
-        );
-      }}
-    </StaffResource>
+    <ReportScope>
+      {(filters) => (
+        <Report
+          key={filters.semesterId + ":" + filters.departmentId}
+          filters={filters}
+        />
+      )}
+    </ReportScope>
   );
 }
