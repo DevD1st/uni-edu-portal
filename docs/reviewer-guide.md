@@ -1,6 +1,8 @@
 # Reviewer guide
 
-Use this guide to explore the application and locate the supporting technical delivery. The [main README](../README.md#run-the-complete-application) provides the two-command setup, portal URLs, Swagger access, and demo accounts. The supplied `.env.example` contains working local configuration; no external services or host Node.js installation are needed for the Docker route.
+Use this guide to explore the application and locate the supporting technical delivery. Open the hosted [student portal](https://uemp-student.onrender.com/sign-in) or [staff portal](https://uemp-admin.onrender.com/sign-in); the [demo accounts](../README.md#demo-access-and-walkthrough) cover student, lecturer, HOD, and Super Admin access.
+
+The [main README](../README.md#run-the-complete-application) also provides the two-command local setup, local and hosted portal URLs, and local Swagger access. The supplied `.env.example` contains working local configuration; no external services or host Node.js installation are needed for the Docker route.
 
 ## Delivered capabilities and evidence
 
@@ -19,7 +21,7 @@ Use this guide to explore the application and locate the supporting technical de
 
 ## Initial sample data
 
-The seed creates a Faculty of Science, a Computing department and undergraduate programme, academic levels, a current first semester, and one assigned lecturer. The session uses the current UTC year or the next available year if that session already exists. Three students have seven course enrollments; Nora starts without registrations. This is synthetic data for local exploration.
+The seed creates a Faculty of Science, a Computing department and undergraduate programme, academic levels, a current first semester, and one assigned lecturer. The session uses the current UTC year or the next available year if that session already exists. Three students have seven course enrollments; Nora starts without registrations. This is synthetic data for exploring the local or hosted demo.
 
 | Course                              | Units | Initial state            | What to explore                                               |
 | ----------------------------------- | ----: | ------------------------ | ------------------------------------------------------------- |
@@ -83,4 +85,4 @@ Commands and fixture isolation are in [development and verification](development
 
 ## Operational scope
 
-The included deployment is a local demo with persistent PostgreSQL data and backend-only Redis. Public hosting, TLS termination, production backups, external telemetry infrastructure, a demonstration recording, and third-party integrations are not provisioned by the local startup command. The [deployment discussion](architecture.md) explains the transition from the demo to a separately configured environment.
+The local Compose stack provides a demo with persistent PostgreSQL data and backend-only Redis. Public hosting, TLS termination, production backups, external telemetry infrastructure, a demonstration recording, and third-party integrations are not provisioned by the local startup command. The hosted portals linked above are deployed separately; the [Render deployment guide](render-deployment.md) explains their configuration, and the [architecture guide](architecture.md) discusses deployment tradeoffs.

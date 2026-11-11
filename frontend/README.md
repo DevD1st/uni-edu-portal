@@ -11,7 +11,12 @@ Copy-Item .env.example .env
 docker compose up --build --wait
 ```
 
-Open the [student portal](http://localhost:3001) or [staff portal](http://localhost:3002). The initialization job applies migrations and seeds a fresh database before either portal starts. Restarts preserve existing accounts and academic records. The [reviewer guide](../docs/reviewer-guide.md) provides demo accounts and a walkthrough; the [root README](../README.md) documents container configuration and operations.
+| Application    | Local                                   | Hosted                                                                         |
+| -------------- | --------------------------------------- | ------------------------------------------------------------------------------ |
+| Student portal | [localhost:3001](http://localhost:3001) | [uemp-student.onrender.com/sign-in](https://uemp-student.onrender.com/sign-in) |
+| Staff portal   | [localhost:3002](http://localhost:3002) | [uemp-admin.onrender.com/sign-in](https://uemp-admin.onrender.com/sign-in)     |
+
+For local startup, the initialization job applies migrations and seeds a fresh database before either portal starts. Restarts preserve existing accounts and academic records. The [reviewer guide](../docs/reviewer-guide.md) provides demo accounts and a walkthrough; the [root README](../README.md) documents container configuration and operations.
 
 ## Deploy on Render
 

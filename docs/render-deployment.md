@@ -2,6 +2,8 @@
 
 Deploy the student and staff portals as two Docker Web Services using the repository's [render.yaml](../render.yaml) and [shared frontend Dockerfile](../frontend/Dockerfile). Both connect to the existing API at [https://uemp-backend.onrender.com](https://uemp-backend.onrender.com). This configuration creates only the two frontend services; the existing backend, PostgreSQL database and Redis service stay separate.
 
+The current deployments are the [student portal](https://uemp-student.onrender.com/sign-in) and [staff portal](https://uemp-admin.onrender.com/sign-in). The [main README](../README.md#run-the-complete-application) lists these hosted addresses beside their local equivalents.
+
 ## Recommended: create a Blueprint
 
 1. Commit and push the deployment changes to the Git branch you will connect to Render. Include `render.yaml` and the updated frontend Dockerfile. Render builds the pushed repository commit, so local changes alone are not available to it.
@@ -23,7 +25,7 @@ The student service sets `STUDENT_APP_ORIGIN` from its own Render-assigned `REND
     envVarKey: RENDER_EXTERNAL_URL
 ```
 
-This avoids assuming that `https://uemp-student.onrender.com` is available. If you rename the student service in the Blueprint, update this self-reference's `name` too. Render supports [self-referencing default environment variables](https://render.com/docs/blueprint-spec#self-referencing-environment-variables); referenced values update on Blueprint sync. If you later use a custom student domain, configure its actual HTTPS origin as `STUDENT_APP_ORIGIN` instead.
+This uses the assigned student origin, currently `https://uemp-student.onrender.com`, without hard-coding it in the Blueprint. If you rename the student service in the Blueprint, update this self-reference's `name` too. Render supports [self-referencing default environment variables](https://render.com/docs/blueprint-spec#self-referencing-environment-variables); referenced values update on Blueprint sync. If you later use a custom student domain, configure its actual HTTPS origin as `STUDENT_APP_ORIGIN` instead.
 
 ## Service settings and environment variables
 
@@ -59,7 +61,7 @@ These frontend variables contain public origins and app selection only. Do not i
 In the existing **uemp-backend** Render service, open **Environment** and update `CORS_ORIGINS` with both actual frontend origins, separated by a comma:
 
 ```text
-https://<actual-student-host>,https://<actual-staff-host>
+https://uemp-student.onrender.com,https://uemp-admin.onrender.com
 ```
 
 Use the actual Render URLs or custom domains, including `https://`, with no trailing slash or route such as `/sign-in`. Retain any other explicitly allowed origins you still use. Choose **Save and deploy** on the backend so the new runtime configuration takes effect.
