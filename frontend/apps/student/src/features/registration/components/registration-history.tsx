@@ -6,6 +6,7 @@ export function RegistrationHistory({ history }: { history: History }) {
     <AcademicTermList
       title="Registration history"
       emptyTitle="You haven’t registered for any courses yet"
+      emptyDetail="After registering for courses, you can return here to view and print each semester's summary."
       records={history.terms.map((term) => ({
         href: "/registration/" + term.semesterId,
         label: term.semesterName + " · " + term.academicSession,

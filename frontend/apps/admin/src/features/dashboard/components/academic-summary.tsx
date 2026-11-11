@@ -1,4 +1,5 @@
-import { DescriptionList, Surface } from "@uemp/ui";
+import { Surface } from "@uemp/ui";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 import { Link } from "react-router";
 import { StaffResource } from "../../portal/components/staff-controls";
 import { staffPath, useStaffResource } from "../../portal/staff-data";
@@ -15,7 +16,7 @@ function Totals({ filters }: { filters: ReportFilters }) {
   return (
     <StaffResource resource={resource} title="academic summary">
       {(data) => (
-        <DescriptionList
+        <StaffMetrics
           items={[
             { label: "Students registered", value: data.studentCount },
             { label: "Course offerings", value: data.offeringCount },
@@ -32,8 +33,14 @@ function Totals({ filters }: { filters: ReportFilters }) {
 
 export function AcademicSummary() {
   return (
-    <Surface className="u-stack" aria-label="Academic dashboard">
+    <Surface
+      className="u-stack staff-summary-card staff-summary-card--wide"
+      aria-label="Academic dashboard"
+    >
       <h2>Academic summary</h2>
+      <p className="u-muted">
+        Registration and published results for the scope you choose.
+      </p>
       <ReportScope prefix="Report ">
         {(filters) => (
           <>

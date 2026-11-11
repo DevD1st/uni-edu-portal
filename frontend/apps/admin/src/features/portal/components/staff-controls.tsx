@@ -143,7 +143,7 @@ export function StaffDialog({
           {children}
         </fieldset>
         <ActionNotice error={error} />
-        <div className="u-actions">
+        <div className="u-actions staff-dialog-actions">
           <Button variant="secondary" disabled={pending} onClick={close}>
             Cancel
           </Button>

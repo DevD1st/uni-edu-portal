@@ -5,13 +5,16 @@ import {
   Button,
   Checkbox,
   DataTable,
+  DescriptionList,
   Dialog,
   PageHeader,
+  Pagination,
   ResourceState,
   SelectField,
   Surface,
   TextField,
 } from "@uemp/ui";
+import { StaffMetrics } from "./components/staff-metrics";
 
 export function DesignGallery() {
   const [open, setOpen] = useState(false);
@@ -44,6 +47,7 @@ export function DesignGallery() {
             <Button variant="secondary" disabled>
               Disabled action
             </Button>
+            <Button pending>Saving changes</Button>
           </div>
         </Surface>
         <Surface className="u-stack" aria-label="Feedback">
@@ -62,6 +66,55 @@ export function DesignGallery() {
           />
         </Surface>
       </div>
+      <div className="u-panel-grid">
+        <Surface className="u-stack" aria-label="Action hierarchy">
+          <h2>Action hierarchy</h2>
+          <p className="u-muted">
+            Use a clear primary action and reserve danger styling for destructive
+            decisions.
+          </p>
+          <div className="u-actions">
+            <Button>Save changes</Button>
+            <Button variant="secondary">Cancel</Button>
+            <Button variant="ghost">Refresh</Button>
+            <Button variant="danger">Delete record</Button>
+          </div>
+          <DescriptionList
+            items={[
+              { label: "Academic session", value: "2026/2027" },
+              { label: "Department", value: "Computer Science" },
+            ]}
+          />
+        </Surface>
+        <Surface className="u-stack" aria-label="Summary metrics">
+          <h2>Summary metrics</h2>
+          <StaffMetrics
+            items={[
+              { label: "Registered students", value: 124 },
+              { label: "Course offerings", value: 8 },
+              { label: "Awaiting review", value: 3 },
+            ]}
+          />
+        </Surface>
+      </div>
+      <Surface className="u-stack" aria-label="Resource states">
+        <h2>Resource states</h2>
+        <div className="u-panel-grid">
+          <ResourceState state="loading" title="Loading course offerings" />
+          <ResourceState
+            state="restricted"
+            title="This workspace is outside your access"
+            detail="Choose a workspace from your overview."
+          />
+          <ResourceState
+            state="error"
+            title="We couldn't load the records"
+            detail="Check your connection and try again."
+            action={<Button variant="secondary">Try again</Button>}
+          />
+        </div>
+        <Pagination label="Page 2" previous={() => undefined} next={() => undefined} />
+      </Surface>
       <Surface>
         <DataTable
           caption="Example course list"

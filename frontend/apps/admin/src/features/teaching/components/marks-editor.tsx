@@ -85,7 +85,11 @@ export function MarksEditor({
       </p>
       <ul className="staff-mark-list">
         {group.marks.map((mark) => (
-          <li key={mark.id} className="staff-mark-row">
+          <li
+            key={mark.id}
+            className="staff-mark-row"
+            data-edited={draft[mark.id] ? true : undefined}
+          >
             <div className="staff-mark-person">
               <strong>{studentLabel(mark)}</strong>
               <p className="u-muted">
@@ -114,14 +118,17 @@ export function MarksEditor({
                 />
               );
             })}
-            <p className="self-center u-muted">
+            <p className="self-center u-muted staff-mark-total">
               Saved total {markText(mark.totalScore)} · {mark.grade ?? "No grade"}
             </p>
           </li>
         ))}
       </ul>
       {validation && <Banner tone="danger">{validation}</Banner>}
-      <div className="u-actions">
+      <div className="u-actions staff-editor-actions">
+        <p className="staff-editor-state" role="status">
+          {dirty ? "Unsaved changes" : "No unsaved changes"}
+        </p>
         <Button type="submit" disabled={!dirty} pending={pending}>
           Save marks
         </Button>

@@ -90,14 +90,24 @@ function Roster({ offering }: { offering: Offering }) {
       <Link className="u-text-link" to={root}>
         Back to my teaching
       </Link>
-      <PageHeader title={offering.code + " · " + offering.name} />
+      <PageHeader
+        eyebrow="Your teaching assignment"
+        title={offering.code + " · " + offering.name}
+        description={
+          offering.units + " credit units · Class roster and result submission"
+        }
+      />
       <Surface className="u-stack">
         <StaffResource resource={resource} title="class roster">
           {(roster) => {
             const resultGroupId = roster.items[0]?.resultGroupId;
             return (
               <>
-                <div className="staff-filter-tabs">
+                <div
+                  className="staff-filter-tabs"
+                  role="group"
+                  aria-label="Course workspace views"
+                >
                   <Button
                     variant={tab === "roster" ? "primary" : "secondary"}
                     aria-pressed={tab === "roster"}

@@ -65,8 +65,11 @@ export function ReviewSummary() {
   );
   const [selected, select] = useState("");
   return (
-    <Surface className="u-stack" aria-label="Review dashboard">
+    <Surface className="u-stack staff-summary-card" aria-label="Review dashboard">
       <h2>Awaiting departmental review</h2>
+      <p className="u-muted">
+        Submitted marks ready for your department's next decision.
+      </p>
       <StaffResource resource={resource} title="review departments">
         {({ departments }) => {
           const eligible = departments.filter(({ id }) =>

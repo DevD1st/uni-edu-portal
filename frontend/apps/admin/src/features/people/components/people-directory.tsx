@@ -10,6 +10,7 @@ import {
   useStaffResource,
 } from "../../portal/staff-data";
 import { CreatePerson } from "./create-person";
+import { AccountStatus } from "./account-status";
 
 export const peopleRoot = "/workspaces/accounts";
 
@@ -57,7 +58,9 @@ function StudentDirectory() {
                     </th>
                     <td>{item.email}</td>
                     <td>{item.student?.matricNumber ?? "—"}</td>
-                    <td>{item.status}</td>
+                    <td>
+                      <AccountStatus status={item.status} />
+                    </td>
                   </tr>
                 ))}
               </DataTable>
@@ -101,7 +104,9 @@ function StaffDirectory() {
                     </Link>
                   </th>
                   <td>{item.user?.email ?? "—"}</td>
-                  <td>{item.user?.status ?? "—"}</td>
+                  <td>
+                    <AccountStatus status={item.user?.status ?? ""} />
+                  </td>
                 </tr>
               ))}
             </DataTable>
@@ -125,7 +130,7 @@ export function PeopleDirectory() {
   return (
     <Surface className="u-stack">
       <CreatePerson updated={() => revise((value) => value + 1)} />
-      <div className="staff-filter-tabs">
+      <div className="staff-filter-tabs" role="group" aria-label="Account directories">
         {students && (
           <Button
             variant={current === "students" ? "primary" : "secondary"}

@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { Badge, DescriptionList, PageHeader, ResourceState, Surface } from "@uemp/ui";
+import { ArrowRight, GraduationCap, UserRound } from "lucide-react";
+import {
+  Badge,
+  Banner,
+  DescriptionList,
+  PageHeader,
+  ResourceState,
+  Surface,
+} from "@uemp/ui";
 import { studentAccount } from "../../../features/auth/server/session";
 import { academicDetails } from "../../../features/portal/server/student-profile";
+import { StudentSectionHeading } from "../../../features/portal/components/student-section-heading";
 import {
   RegistrationDashboard,
   ResultsDashboard,
@@ -14,7 +23,13 @@ export const metadata = { title: "Overview" };
 export default async function Overview() {
   const account = await studentAccount();
   if (!account) redirect("/sign-in");
-  const academic = await academicDetails(account);
+  const academic = academicDetails(account);
+  const placement = account.student;
+  const needsPlacement =
+    !placement?.facultyId ||
+    !placement.departmentId ||
+    !placement.courseOfStudyId ||
+    !placement.academicLevelId;
   return (
     <>
       <PageHeader
@@ -22,7 +37,7 @@ export default async function Overview() {
         title={account.firstName ? "Welcome, " + account.firstName : "Student overview"}
         description="Your registration, published results, and university profile in one place."
       />
-      <div className="u-panel-grid">
+      <div className="student-overview-grid">
         <Suspense
           fallback={
             <Surface>
@@ -41,21 +56,34 @@ export default async function Overview() {
         >
           <ResultsDashboard />
         </Suspense>
-        <Surface aria-label="Academic placement">
-          <Badge tone="info">Student record</Badge>
-          <h2 className="mt-3">Academic placement</h2>
+        <Surface className="u-stack" aria-label="Academic placement">
+          <StudentSectionHeading
+            title="Academic placement"
+            icon={GraduationCap}
+            description="The university details linked to your student account."
+          />
           <DescriptionList items={academic} />
+          {needsPlacement && (
+            <Banner tone="warning">
+              Ask your department to complete your academic placement before registering
+              for courses.
+            </Banner>
+          )}
         </Surface>
-        <Surface aria-label="Student account">
-          <Badge tone={account.status === "active" ? "success" : "warning"}>
-            {account.status === "active" ? "Active account" : "Suspended account"}
-          </Badge>
-          <h2 className="mt-3">Your account</h2>
-          <p className="u-muted mt-2">
-            Check the name and email linked to your university profile.
-          </p>
-          <Link href="/account" className="u-text-link mt-4 inline-block">
-            View my profile
+        <Surface className="u-stack" aria-label="Student account">
+          <StudentSectionHeading
+            title="Your account"
+            icon={UserRound}
+            description="Keep your personal details up to date."
+          />
+          <div>
+            <Badge tone={account.status === "active" ? "success" : "warning"}>
+              {account.status === "active" ? "Active account" : "Suspended account"}
+            </Badge>
+          </div>
+          <DescriptionList items={[{ label: "Email address", value: account.email }]} />
+          <Link href="/account" className="student-card-action u-text-link">
+            View my profile <ArrowRight size={17} aria-hidden />
           </Link>
         </Surface>
       </div>

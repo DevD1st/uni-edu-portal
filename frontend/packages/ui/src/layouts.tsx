@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
-  ArrowUpRight,
   BookOpen,
   GraduationCap,
   Menu,
@@ -14,6 +13,7 @@ import {
 import { IconButton } from "./controls";
 import { Dialog } from "./dialog";
 import { ThemeSwitch } from "./theme-switch";
+import { useClientReady } from "./use-client-ready";
 
 export function Brand({ portal }: { portal: string }) {
   return (
@@ -60,7 +60,7 @@ function Navigation({
           <p className="u-nav-caption">{label}</p>
           <ul>
             {items.map(({ href, label: itemLabel, icon: Icon, active }) => (
-              <li key={href}>
+              <li key={href} title={itemLabel}>
                 {link({
                   href,
                   className: "u-nav-link",
@@ -109,6 +109,7 @@ export function PortalShell({
   children: ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const ready = useClientReady();
   const storageKey = "uemp:sidebar:" + portal;
   const collapsed = useSyncExternalStore(
     sidebarSubscription,
@@ -123,6 +124,12 @@ export function PortalShell({
   );
   const [temporaryCollapse, setTemporaryCollapse] = useState<boolean>();
   const compact = temporaryCollapse ?? collapsed;
+  const names = account.name.trim().split(/\s+/).filter(Boolean);
+  const initials = [names[0], names.length > 1 ? names.at(-1) : undefined]
+    .filter((name): name is string => Boolean(name))
+    .map((name) => Array.from(name)[0])
+    .join("")
+    .toLocaleUpperCase();
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 64rem)");
@@ -154,6 +161,7 @@ export function PortalShell({
           label="Open navigation"
           aria-haspopup="dialog"
           aria-expanded={drawerOpen}
+          disabled={!ready}
           onClick={() => setDrawerOpen(true)}
         >
           <Menu size={23} aria-hidden />
@@ -167,6 +175,7 @@ export function PortalShell({
           <IconButton
             label={compact ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!compact}
+            disabled={!ready}
             onClick={toggleSidebar}
           >
             {compact ? (
@@ -194,8 +203,13 @@ export function PortalShell({
       <div className="u-portal-main">
         <div className="u-workbar">
           <div className="u-account-brief">
-            <strong>{account.name}</strong>
-            <span>{account.label}</span>
+            <div className="u-account-avatar" aria-hidden="true">
+              {initials || "U"}
+            </div>
+            <div>
+              <strong>{account.name}</strong>
+              <span>{account.label}</span>
+            </div>
           </div>
           <div className="u-actions">
             <ThemeSwitch />
@@ -236,15 +250,18 @@ export function AuthLayout({
           <p className="u-eyebrow">{portal}</p>
           <h1>{title}</h1>
           <p className="u-page-description">{description}</p>
+          <noscript>
+            <p className="u-page-description">
+              Enable JavaScript in your browser to use this form.
+            </p>
+          </noscript>
           {children}
         </section>
         <aside className="u-auth-aside">
           <div className="u-auth-aside-icon">
             <BookOpen size={29} aria-hidden />
           </div>
-          <p className="u-auth-aside-tag">
-            Campus workspace <ArrowUpRight size={16} aria-hidden />
-          </p>
+          <p className="u-auth-aside-tag">Campus workspace</p>
           <h2>{asideTitle}</h2>
           <p>{asideDescription}</p>
           <div className="u-auth-aside-foot">

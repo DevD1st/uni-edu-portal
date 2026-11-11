@@ -41,7 +41,8 @@ export const workspaceGroups: readonly {
         details: true,
         label: "My teaching",
         icon: BookOpen,
-        description: "View the course offerings assigned to you.",
+        description:
+          "Open assigned class rosters, enter marks, and submit results for review.",
         rule: { anyOf: [["teach_course"]] },
       },
       {
@@ -49,7 +50,7 @@ export const workspaceGroups: readonly {
         details: true,
         label: "Result review",
         icon: ClipboardCheck,
-        description: "View submitted results in the departments you can review.",
+        description: "Review submitted result groups within your assigned departments.",
         rule: reviewRule,
       },
     ],
@@ -61,7 +62,8 @@ export const workspaceGroups: readonly {
         slug: "academics",
         label: "Academic setup",
         icon: Building2,
-        description: "Access academic setup for the university or your departments.",
+        description:
+          "Configure academic records, curricula, and course offerings within your scope.",
         rule: { anyOf: [["manage_university"], ["manage_department"]] },
       },
       {
@@ -69,7 +71,8 @@ export const workspaceGroups: readonly {
         details: true,
         label: "Registration oversight",
         icon: GraduationCap,
-        description: "Access course registration oversight in your scope.",
+        description:
+          "Review departmental enrollments and eligible student course selections.",
         rule: {
           anyOf: [...registrationOversight.anyOf, ["register_student_courses"]],
         },
@@ -78,7 +81,8 @@ export const workspaceGroups: readonly {
         slug: "reports",
         label: "Reports",
         icon: FileChartColumn,
-        description: "Access academic reporting for your scope.",
+        description:
+          "Explore enrollments, result progress, and published course performance.",
         rule: { anyOf: [["read_reports"]] },
       },
     ],
@@ -91,7 +95,8 @@ export const workspaceGroups: readonly {
         details: true,
         label: "Accounts",
         icon: UsersRound,
-        description: "Access staff and student account administration.",
+        description:
+          "Find staff and student accounts and manage their permitted details and access.",
         rule: {
           anyOf: [["read_user"], ["read_admin"], ["create_student"], ["create_admin"]],
         },
@@ -100,7 +105,8 @@ export const workspaceGroups: readonly {
         slug: "roles",
         label: "Roles",
         icon: Shield,
-        description: "Access university-wide role definitions and privileges.",
+        description:
+          "Review role definitions and the privileges they provide across the university.",
         rule: { anyOf: [["read_role"], ["manage_roles"]], global: true },
       },
       {
@@ -108,7 +114,8 @@ export const workspaceGroups: readonly {
         details: true,
         label: "Audit trail",
         icon: ListChecks,
-        description: "Access the university-wide record of administrative activity.",
+        description:
+          "Follow administrative changes, access decisions, and their recorded outcomes.",
         rule: { anyOf: [["read_audit"]], global: true },
       },
     ],

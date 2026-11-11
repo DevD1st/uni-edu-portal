@@ -9,8 +9,8 @@ async function signIn(
   origin: string,
   account: string,
   ready = "Staff overview",
+  password = process.env["UEMP_E2E_PASSWORD"],
 ) {
-  const password = process.env["UEMP_E2E_PASSWORD"];
   if (!password)
     throw new Error("Set UEMP_E2E_PASSWORD for the disposable demo backend.");
   await page.goto(origin);
@@ -242,7 +242,8 @@ test.describe("frontend finishing workflows", () => {
     ).toBe(true);
     await page.getByRole("button", { name: "Sign out" }).tap();
     await expect(page).toHaveURL(/\/sign-in$/);
-    const password = process.env["UEMP_E2E_PASSWORD"];
+    // Seeded accounts may use a shorter demo password; new signup follows its own policy.
+    const password = "Dashboard test password 42";
     const account = "dashboard-" + randomUUID();
     const created = await request.post(apiOrigin + "/v1/auth/signup/student", {
       data: {
@@ -253,7 +254,7 @@ test.describe("frontend finishing workflows", () => {
       },
     });
     expect(created.status()).toBe(201);
-    await signIn(page, student, account, "Welcome, Demo");
+    await signIn(page, student, account, "Welcome, Demo", password);
     await expect(registration.getByRole("definition")).toHaveText(["0", "0"]);
     await expect(results.getByRole("definition")).toHaveText([
       "Unavailable",

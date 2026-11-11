@@ -88,7 +88,7 @@ export class UserAdministrationService {
       );
       return {
         ...userView(account),
-        student: studentView(student, matricNumber),
+        student: await this.studentView(manager, student, matricNumber),
       };
     });
     this.log.log('Student account created', {
@@ -259,7 +259,10 @@ export class UserAdministrationService {
         manager,
         student,
       );
-      return { ...userView(user), student: studentView(student, matricNumber) };
+      return {
+        ...userView(user),
+        student: await this.studentView(manager, student, matricNumber),
+      };
     });
     this.log.log('Student placement updated', {
       actorUserId,
@@ -448,7 +451,11 @@ export class UserAdministrationService {
         const matric = await manager
           .getRepository<MatricNumSystem>('MatricNumSystem')
           .findOneBy({ studentId: student.id });
-        view.student = studentView(student, matric?.matricNumber ?? null);
+        view.student = await this.studentView(
+          manager,
+          student,
+          matric?.matricNumber ?? null,
+        );
       }
     }
     if (account.role === 'admin' && relations.has('admin')) {
@@ -458,6 +465,47 @@ export class UserAdministrationService {
       if (admin) view.admin = { id: admin.id };
     }
     return view;
+  }
+
+  private async studentView(
+    manager: EntityManager,
+    student: Student,
+    matricNumber: string | null,
+  ): Promise<NonNullable<UserResponseDto['student']>> {
+    // Deactivation removes choices from signup, not the identity of an existing placement.
+    // Resolve only this profile's assigned references inside the caller's authorized snapshot.
+    const [labels] = await manager.query<
+      {
+        facultyName: string | null;
+        departmentName: string | null;
+        programmeName: string | null;
+        academicLevelDisplayName: string | null;
+      }[]
+    >(
+      `SELECT f.name AS "facultyName", d.name AS "departmentName",
+        p.name AS "programmeName", l.display_name AS "academicLevelDisplayName"
+      FROM students s
+      LEFT JOIN faculties f ON f.id = s.faculty_id
+      LEFT JOIN departments d ON d.id = s.department_id
+      LEFT JOIN courses_of_study p ON p.id = s.course_of_study_id
+      LEFT JOIN academic_levels l ON l.id = s.academic_level_id
+      WHERE s.id = $1`,
+      [student.id],
+    );
+    const { id, academicLevelId, courseOfStudyId, departmentId, facultyId } =
+      student;
+    return {
+      id,
+      academicLevelId,
+      courseOfStudyId,
+      departmentId,
+      facultyId,
+      matricNumber,
+      facultyName: labels?.facultyName ?? null,
+      departmentName: labels?.departmentName ?? null,
+      programmeName: labels?.programmeName ?? null,
+      academicLevelDisplayName: labels?.academicLevelDisplayName ?? null,
+    };
   }
 
   private publishAuthChange(account: User): void {
@@ -470,22 +518,6 @@ export class UserAdministrationService {
 function userView(account: User): UserResponseDto {
   const { id, role, email, firstName, lastName, status, createdAt } = account;
   return { id, role, email, firstName, lastName, status, createdAt };
-}
-
-function studentView(
-  student: Student,
-  matricNumber: string | null,
-): NonNullable<UserResponseDto['student']> {
-  const { id, academicLevelId, courseOfStudyId, departmentId, facultyId } =
-    student;
-  return {
-    id,
-    academicLevelId,
-    courseOfStudyId,
-    departmentId,
-    facultyId,
-    matricNumber,
-  };
 }
 
 export function accountEmail(value: string): string {

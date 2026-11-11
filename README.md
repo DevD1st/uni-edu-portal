@@ -94,6 +94,8 @@ Follow the contributor instructions in [backend/AGENTS.md](backend/AGENTS.md) an
 
 ## Verification and operations
 
+The [assessment verification report](docs/assessment-verification.md) maps the original requirements and approved corrections to implementation evidence, executed checks, and remaining submission handoff items.
+
 Run `pnpm --dir frontend check` and `npm --prefix backend test` for source checks and builds. The [frontend verification guide](frontend/README.md#verification) explains how to run the browser suite against these actual containers without starting host dev servers. Use a fresh disposable demo database because the suite changes registrations, results, accounts, and roles.
 
 Use `up --build --wait` after code or configuration changes so images are rebuilt and readiness is checked. A plain `docker compose restart` reuses the existing images and configuration. It can restart the initialization job alongside PostgreSQL, so the job performs its own connection readiness check before migrations or seeding. Keep the same project name and database volume to retain data.

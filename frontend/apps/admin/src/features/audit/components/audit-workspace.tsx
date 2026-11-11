@@ -81,7 +81,7 @@ function AuditList() {
   return (
     <Surface className="u-stack">
       <form
-        className="u-stack"
+        className="u-stack staff-filter-panel"
         onSubmit={(event) => {
           event.preventDefault();
           const form = new FormData(event.currentTarget);
@@ -164,7 +164,7 @@ function AuditDetail() {
                 ]}
               />
               {event.changes && (
-                <details>
+                <details className="staff-audit-disclosure">
                   <summary>Changes</summary>
                   <pre className="staff-audit-json">
                     {JSON.stringify(event.changes, null, 2)}
@@ -172,7 +172,7 @@ function AuditDetail() {
                 </details>
               )}
               {event.metadata && (
-                <details>
+                <details className="staff-audit-disclosure">
                   <summary>Metadata</summary>
                   <pre className="staff-audit-json">
                     {JSON.stringify(event.metadata, null, 2)}

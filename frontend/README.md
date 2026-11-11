@@ -1,6 +1,6 @@
 # UEMP web workspace
 
-The student portal runs on Next.js at port 3001. The staff portal runs on React and Vite at port 3002. Both share the theme, component library, API transport, and generated contracts. Read [AGENTS.md](AGENTS.md) and the [design system](docs/design-system.md) before contributing.
+The student portal runs on Next.js at port 3001. The staff portal runs on React and Vite at port 3002. Both share the theme, component library, API transport, and generated contracts. Read [AGENTS.md](AGENTS.md), the [design system](docs/design-system.md), and the [UI review questions and inventory](docs/ui-review.md) before contributing.
 
 ## Complete Docker demo
 

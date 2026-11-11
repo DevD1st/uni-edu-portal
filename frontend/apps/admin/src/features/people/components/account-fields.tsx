@@ -16,7 +16,8 @@ export function AccountFields({
   password?: boolean;
 }) {
   return (
-    <>
+    <fieldset className="staff-fields staff-form-group">
+      <legend>Account details</legend>
       <TextField
         name="firstName"
         label="First name"
@@ -51,7 +52,7 @@ export function AccountFields({
           required
         />
       )}
-    </>
+    </fieldset>
   );
 }
 

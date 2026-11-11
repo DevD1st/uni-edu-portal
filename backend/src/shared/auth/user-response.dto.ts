@@ -59,6 +59,45 @@ export class StudentProfileResponseDto {
   })
   @Expose()
   facultyId!: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Name of the assigned faculty, including an inactive faculty.',
+    example: 'Faculty of Science',
+  })
+  @Expose()
+  facultyName?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description:
+      'Name of the assigned department, including an inactive department.',
+    example: 'Computer Science',
+  })
+  @Expose()
+  departmentName?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description:
+      'Name of the assigned programme, including an inactive programme.',
+    example: 'B.Sc. Computer Science',
+  })
+  @Expose()
+  programmeName?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description:
+      'Display label of the assigned academic level, including an inactive level.',
+    example: '100 Level',
+  })
+  @Expose()
+  academicLevelDisplayName?: string | null;
 }
 
 export class UserAdminProfileResponseDto {
@@ -144,6 +183,10 @@ export class UserResponseDto {
       courseOfStudyId: '0191e192-67ad-746b-9acb-c850234b408a',
       departmentId: '0191e192-67ad-746b-9acb-c850234b408a',
       facultyId: '0191e192-67ad-746b-9acb-c850234b408a',
+      facultyName: 'Faculty of Science',
+      departmentName: 'Computer Science',
+      programmeName: 'B.Sc. Computer Science',
+      academicLevelDisplayName: '100 Level',
     },
   })
   @Expose()

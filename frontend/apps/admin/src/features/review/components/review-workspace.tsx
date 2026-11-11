@@ -4,7 +4,6 @@ import {
   Banner,
   Button,
   DataTable,
-  DescriptionList,
   PageHeader,
   ResourceState,
   Surface,
@@ -32,6 +31,7 @@ import {
 } from "../../portal/staff-data";
 import { ResultMarks } from "../../teaching/components/result-marks";
 import { StaffNotFound } from "../../portal/components/staff-not-found";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 import {
   markText,
   ResultStatus,
@@ -132,7 +132,7 @@ function ReviewQueue() {
             );
           return (
             <>
-              <div className="staff-fields">
+              <div className="staff-fields staff-filter-panel">
                 <ChoiceField
                   label="Department"
                   value={departmentId}
@@ -245,9 +245,13 @@ function ReviewDetail() {
             hasPrivilege(grants, "reopen_result", group.departmentId);
           return (
             <>
-              <PageHeader title={group.code + " · " + group.name} />
+              <PageHeader
+                eyebrow="Result group"
+                title={group.code + " · " + group.name}
+                description="Review the submitted marks before making a departmental decision."
+              />
               <Surface className="u-stack">
-                <div className="u-actions">
+                <div className="staff-section-heading">
                   <h2>Departmental review</h2>
                   <ResultStatus status={group.status} />
                   <Button
@@ -258,7 +262,7 @@ function ReviewDetail() {
                     Refresh results
                   </Button>
                 </div>
-                <DescriptionList
+                <StaffMetrics
                   items={[
                     {
                       label: "Complete marks",

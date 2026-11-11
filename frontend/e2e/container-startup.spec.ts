@@ -22,6 +22,14 @@ test("production portals expose readiness, SPA routes, and correctly cached asse
     const license = await request.get(origin + "/licenses/source-sans-3.txt");
     expect(license.status()).toBe(200);
     expect(await license.text()).toContain("SIL OPEN FONT LICENSE");
+    const signIn = await request.get(origin + "/sign-in");
+    const icon = /<link\b(?=[^>]*\brel="icon")[^>]*\bhref="([^"]+)"/.exec(
+      await signIn.text(),
+    )?.[1];
+    expect(icon).toBeTruthy();
+    const mark = await request.get(new URL(icon ?? "", origin).href);
+    expect(mark.status()).toBe(200);
+    expect(mark.headers()["content-type"]).toContain("image/svg+xml");
   }
 
   const route = await request.get(adminOrigin + "/workspaces/result-review");

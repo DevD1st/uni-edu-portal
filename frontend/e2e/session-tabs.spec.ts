@@ -145,8 +145,14 @@ test("student logout waits for another tab's renewal and cannot restore its cook
   await other.getByRole("button", { name: "Sign out" }).click();
   expect(signingOut).toBe(false);
   release();
-  await expect(other).toHaveURL(studentOrigin + "/sign-in");
-  await page.reload();
+  // Let renewal leave its temporary page before checking the logged-out tab again.
+  await Promise.all([
+    other.waitForURL(studentOrigin + "/sign-in", { waitUntil: "domcontentloaded" }),
+    page.waitForURL((url) => ["/account", "/sign-in"].includes(url.pathname), {
+      waitUntil: "domcontentloaded",
+    }),
+  ]);
+  await page.goto(studentOrigin + "/account");
   await expect(page).toHaveURL(studentOrigin + "/sign-in");
   expect(
     (await context.cookies(studentOrigin)).some(({ name }) =>

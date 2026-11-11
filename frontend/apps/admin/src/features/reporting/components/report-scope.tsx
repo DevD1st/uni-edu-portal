@@ -47,7 +47,7 @@ export function ReportScope({
         return (
           <>
             <div
-              className="staff-fields"
+              className="staff-fields staff-filter-panel"
               role="group"
               aria-label={(prefix.trim() || "Report") + " filters"}
             >

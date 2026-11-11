@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { PageHeader } from "@uemp/ui";
+import { StudentBackLink } from "../../../../features/portal/components/student-back-link";
 import { ResultStatement } from "../../../../features/results/components/result-statement";
 import { resultStatement } from "../../../../features/results/server/results";
 
@@ -12,11 +12,10 @@ export default async function ResultStatementPage({
   const statement = await resultStatement(semesterId);
   return (
     <>
-      <Link href="/results" className="u-text-link" prefetch={false}>
-        Back to results
-      </Link>
+      <StudentBackLink href="/results">Back to results</StudentBackLink>
       <PageHeader
         title="Result statement"
+        eyebrow="Published academic record"
         description={statement.semesterName + " · " + statement.academicSession}
       />
       <ResultStatement statement={statement} />

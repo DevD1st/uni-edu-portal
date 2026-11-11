@@ -163,7 +163,7 @@ export function PersonActions({
           </Button>
         )}
         {allowDelete && (
-          <Button variant="secondary" onClick={() => open("delete")}>
+          <Button variant="danger" onClick={() => open("delete")}>
             Delete account
           </Button>
         )}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Banner, Button, DescriptionList, ResourceState } from "@uemp/ui";
+import { Banner, Button, ResourceState } from "@uemp/ui";
 import type { Dto } from "@uemp/api-contracts/response";
 import { hasPrivilege, permits } from "../../access/policy";
 import {
@@ -21,6 +21,7 @@ import {
 import { MarksEditor } from "./marks-editor";
 import { ResultMarks } from "./result-marks";
 import { markText, ResultStatus } from "./result-status";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 
 const grading = { anyOf: [["teach_course", "grade_result"]] } as const;
 
@@ -73,7 +74,7 @@ export function TeachingMarks({
         const canSubmit = editable && closed && complete && !dirty;
         return (
           <section className="u-stack" aria-label="Marks and submission">
-            <div className="u-actions">
+            <div className="staff-section-heading">
               <h2>Marks and submission</h2>
               <ResultStatus status={group.status} />
               <Button
@@ -84,7 +85,7 @@ export function TeachingMarks({
                 Refresh results
               </Button>
             </div>
-            <DescriptionList
+            <StaffMetrics
               items={[
                 {
                   label: "Complete marks",

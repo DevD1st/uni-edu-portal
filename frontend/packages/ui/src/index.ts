@@ -21,3 +21,4 @@ export { AuthLayout, Brand, PortalShell } from "./layouts";
 export type { NavigationGroup, NavigationItem, NavigationLink } from "./layouts";
 export { SignInForm } from "./sign-in";
 export { ThemeSwitch } from "./theme-switch";
+export { useClientReady } from "./use-client-ready";

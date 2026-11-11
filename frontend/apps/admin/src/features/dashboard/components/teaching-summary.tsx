@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import { DescriptionList, ResourceState, Surface } from "@uemp/ui";
+import { ResourceState, Surface } from "@uemp/ui";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 import { hasPrivilege } from "../../access/policy";
 import { StaffResource } from "../../portal/components/staff-controls";
 import { useStaffAccess, useStaffResource } from "../../portal/staff-data";
@@ -11,7 +12,7 @@ export function TeachingSummary() {
     "TeachingOfferingsResponseDto",
   );
   return (
-    <Surface className="u-stack" aria-label="Teaching dashboard">
+    <Surface className="u-stack staff-summary-card" aria-label="Teaching dashboard">
       <h2>Your teaching</h2>
       <p className="u-muted">Across the course offerings assigned to you.</p>
       <StaffResource resource={resource} title="teaching summary">
@@ -21,7 +22,7 @@ export function TeachingSummary() {
           );
           return (
             <>
-              <DescriptionList
+              <StaffMetrics
                 items={[
                   { label: "Assigned offerings", value: assigned.length },
                   {

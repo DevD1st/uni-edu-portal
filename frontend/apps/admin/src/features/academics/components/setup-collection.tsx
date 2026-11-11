@@ -37,8 +37,13 @@ export function SetupCollection<Row extends Base>({
   const row = editor?.kind === "edit" ? editor.row : undefined;
   return (
     <Surface className="u-stack" aria-label={title}>
-      <div className="u-actions">
-        <h2>{title}</h2>
+      <div className="staff-section-heading">
+        <div>
+          <h2>{title}</h2>
+          <p>
+            {records.length} {records.length === 1 ? "record" : "records"}
+          </p>
+        </div>
         {canCreate && (
           <Button
             onClick={() => {

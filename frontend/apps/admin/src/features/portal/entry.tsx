@@ -27,7 +27,11 @@ export function WorkspaceEntry({ workspace }: { workspace: Workspace }) {
   return (
     <>
       {pathname.replace(/\/$/, "") === workspacePath(workspace) && (
-        <PageHeader title={workspace.label} />
+        <PageHeader
+          eyebrow="Staff workspace"
+          title={workspace.label}
+          description={workspace.description}
+        />
       )}
       <View />
     </>

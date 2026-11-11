@@ -54,7 +54,12 @@ export function CreatePerson({ updated }: { updated: () => void }) {
           <Button onClick={() => open("student")}>Create student account</Button>
         )}
         {canStaff && (
-          <Button onClick={() => open("staff")}>Create staff account</Button>
+          <Button
+            variant={canStudent ? "secondary" : "primary"}
+            onClick={() => open("staff")}
+          >
+            Create staff account
+          </Button>
         )}
       </div>
       {!mode && <ActionNotice error={action.error} success={action.success} />}

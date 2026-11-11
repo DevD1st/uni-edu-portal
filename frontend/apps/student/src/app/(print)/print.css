@@ -1,10 +1,27 @@
 .student-print-view {
+  display: block;
   max-inline-size: 64rem;
   margin-inline: auto;
   padding: var(--uemp-gutter);
   background: var(--uemp-surface);
   min-block-size: 100dvh;
   overflow-wrap: anywhere;
+}
+
+.student-print-view .student-record-details {
+  border: 0;
+  padding: 0;
+}
+
+.student-print-view .student-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uemp-space-4) var(--uemp-space-8);
+}
+
+.student-print-view .student-metrics > div {
+  border: 0;
+  padding: 0;
 }
 
 .student-print-view > * + * {
@@ -24,9 +41,14 @@
 }
 
 .student-print-heading {
+  display: block;
   border-block-end: 2px solid var(--uemp-ink);
   padding-block: var(--uemp-space-4);
   break-inside: avoid;
+}
+
+.student-print-heading > * + * {
+  margin-block-start: var(--uemp-space-2);
 }
 
 .student-print-heading h1 {
@@ -82,6 +104,9 @@
   /* Scrolling helps on phones; paper needs every column to fit on the page. */
   .student-print-view .u-table-region {
     overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .student-print-view .u-table {
@@ -90,6 +115,7 @@
     font-size: 10pt;
   }
 
+  .student-print-view .u-table tbody th,
   .student-print-view .u-table th,
   .student-print-view .u-table td {
     padding: 2mm 1mm;

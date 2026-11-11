@@ -113,7 +113,8 @@ export function GrantFields({
   const canAssign = hasPrivilege(grants, "manage_admin_roles", departmentId);
 
   return (
-    <>
+    <fieldset className="staff-fields staff-form-group">
+      <legend>Role and access</legend>
       <ChoiceField
         name="departmentId"
         label="Scope"
@@ -135,6 +136,6 @@ export function GrantFields({
       ) : (
         <p className="u-muted">The account can be created without an initial role.</p>
       )}
-    </>
+    </fieldset>
   );
 }

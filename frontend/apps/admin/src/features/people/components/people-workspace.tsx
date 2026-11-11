@@ -8,6 +8,7 @@ import { PeopleDirectory, accountName, peopleRoot } from "./people-directory";
 import { BackToPeople, PersonActions } from "./person-actions";
 import { StaffRoleAssignments } from "./staff-role-assignments";
 import { StaffNotFound } from "../../portal/components/staff-not-found";
+import { AccountStatus } from "./account-status";
 
 function StudentProfile() {
   const { userId } = useParams();
@@ -48,12 +49,19 @@ function StudentProfile() {
           const data = references.data;
           return (
             <>
-              <PageHeader title={accountName(student)} />
+              <PageHeader
+                eyebrow="Student account"
+                title={accountName(student)}
+                description="Profile, academic placement, and account access."
+              />
               <Surface className="u-stack">
                 <DescriptionList
                   items={[
                     { label: "Email address", value: student.email },
-                    { label: "Status", value: student.status },
+                    {
+                      label: "Status",
+                      value: <AccountStatus status={student.status} />,
+                    },
                     {
                       label: "Matriculation number",
                       value: placement?.matricNumber ?? "Pending assignment",
@@ -125,13 +133,18 @@ function StaffProfile() {
         {(admin) => (
           <>
             <PageHeader
+              eyebrow="Staff account"
               title={admin.user ? accountName(admin.user) : "Staff account"}
+              description="Profile, account access, and assigned roles."
             />
             <Surface className="u-stack">
               <DescriptionList
                 items={[
                   { label: "Email address", value: admin.user?.email ?? "Unavailable" },
-                  { label: "Status", value: admin.user?.status ?? "Unavailable" },
+                  {
+                    label: "Status",
+                    value: <AccountStatus status={admin.user?.status ?? ""} />,
+                  },
                 ]}
               />
               {admin.user && (

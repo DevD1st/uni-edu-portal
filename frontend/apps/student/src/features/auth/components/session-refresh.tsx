@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Banner, Button } from "@uemp/ui";
+import Link from "next/link";
+import { Banner, Button, ResourceState } from "@uemp/ui";
 import {
   ApiError,
   createApiClient,
@@ -55,8 +56,15 @@ export function SessionRefresh({ returnTo }: { returnTo: string }) {
       >
         Try again
       </Button>
+      <Link className="u-text-link" href="/sign-in">
+        Return to sign in
+      </Link>
     </div>
   ) : (
-    <p role="status">Renewing your session…</p>
+    <ResourceState
+      state="loading"
+      title="Renewing your session…"
+      detail="You'll return to the page you were viewing."
+    />
   );
 }

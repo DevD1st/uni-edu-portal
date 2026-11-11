@@ -1,5 +1,13 @@
-import { ResourceState } from "@uemp/ui";
+import { ResourceState, Surface } from "@uemp/ui";
 
 export default function Loading() {
-  return <ResourceState state="loading" title="Loading your workspace" />;
+  return (
+    <Surface>
+      <ResourceState
+        state="loading"
+        title="Loading your workspace"
+        detail="Getting your latest student records."
+      />
+    </Surface>
+  );
 }

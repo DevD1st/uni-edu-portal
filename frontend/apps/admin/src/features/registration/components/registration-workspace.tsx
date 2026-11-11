@@ -36,6 +36,7 @@ import {
   writeStaff,
 } from "../../portal/staff-data";
 import { studentLabel } from "../../teaching/components/result-marks";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 
 const root = "/workspaces/registration";
 const api = "/v1/admin/registrations";
@@ -99,6 +100,9 @@ function DepartmentRegistration() {
   return (
     <Surface className="u-stack">
       <h2>Department registrations</h2>
+      <p className="u-muted">
+        Review student enrollments by department and academic semester.
+      </p>
       <StaffResource resource={resource} title="registration filters">
         {({ departments, semesters, sessions, faculties }) => {
           const allowed = departments.filter(({ id }) =>
@@ -130,7 +134,7 @@ function DepartmentRegistration() {
           });
           return (
             <>
-              <div className="staff-fields">
+              <div className="staff-fields staff-filter-panel">
                 <ChoiceField
                   label="Department"
                   options={namedOptions(allowed)}
@@ -178,6 +182,9 @@ function StudentChooser() {
   return (
     <Surface className="u-stack">
       <h2>Register courses for a student</h2>
+      <p className="u-muted">
+        Choose a student to review eligible courses and their remaining credit units.
+      </p>
       {canRead && (
         <StaffResource resource={resource} title="student accounts">
           {({ items, nextCursor }) => {
@@ -291,7 +298,7 @@ function Selection({
 
   return (
     <Surface className="u-stack">
-      <DescriptionList
+      <StaffMetrics
         items={[
           { label: "Registered units", value: available.registeredUnits },
           { label: "Semester limit", value: available.maxUnits },
@@ -304,7 +311,7 @@ function Selection({
           title="No courses are available for this student"
         />
       ) : (
-        <fieldset className="u-stack min-w-0">
+        <fieldset className="u-stack min-w-0 staff-course-choices">
           <legend>Available courses</legend>
           {available.courses.map((course) => {
             const checked = chosen.includes(course.offeringId);
@@ -313,7 +320,15 @@ function Selection({
                 key={course.offeringId}
                 checked={checked}
                 label={
-                  course.code + " · " + course.name + " (" + course.units + " units)"
+                  <span className="staff-course-option">
+                    <span>
+                      <strong>{course.code}</strong>
+                      <span className="staff-course-option-title">{course.name}</span>
+                    </span>
+                    <span className="staff-course-option-units">
+                      {course.units} units
+                    </span>
+                  </span>
                 }
                 disabled={
                   !checked &&

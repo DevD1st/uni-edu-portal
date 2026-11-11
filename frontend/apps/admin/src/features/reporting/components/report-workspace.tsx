@@ -1,4 +1,5 @@
-import { Badge, DataTable, DescriptionList, ResourceState, Surface } from "@uemp/ui";
+import { Badge, DataTable, ResourceState, Surface } from "@uemp/ui";
+import { StaffMetrics } from "../../portal/components/staff-metrics";
 import { CursorControls, StaffResource } from "../../portal/components/staff-controls";
 import { staffPath, useCursor, useStaffResource } from "../../portal/staff-data";
 import { markText, ResultStatus } from "../../teaching/components/result-status";
@@ -80,30 +81,61 @@ function Report({ filters }: { filters: Filters }) {
         <h2>Academic overview</h2>
         <StaffResource resource={resource} title="the academic overview">
           {(overview) => (
-            <DescriptionList
-              items={[
-                { label: "Offerings", value: overview.offeringCount },
-                { label: "Active offerings", value: overview.activeOfferingCount },
-                { label: "Closed rosters", value: overview.closedRosterCount },
-                { label: "Students registered", value: overview.studentCount },
-                { label: "Enrollments", value: overview.enrollmentCount },
-                { label: "Draft groups", value: overview.pendingCount },
-                { label: "Awaiting review", value: overview.submittedCount },
-                {
-                  label: "Corrections requested",
-                  value: overview.correctionRequestedCount,
-                },
-                { label: "Approved groups", value: overview.approvedCount },
-                { label: "Published grades", value: overview.publishedCount },
-                { label: "Passing grades", value: overview.passedCount },
-                { label: "Published average", value: markText(overview.averageScore) },
-              ]}
-            />
+            <div className="u-stack">
+              <section
+                className="staff-metric-group"
+                aria-label="Registration activity"
+              >
+                <h3>Registration activity</h3>
+                <StaffMetrics
+                  items={[
+                    { label: "Offerings", value: overview.offeringCount },
+                    { label: "Active offerings", value: overview.activeOfferingCount },
+                    { label: "Closed rosters", value: overview.closedRosterCount },
+                    { label: "Students registered", value: overview.studentCount },
+                    { label: "Enrollments", value: overview.enrollmentCount },
+                  ]}
+                />
+              </section>
+              <section className="staff-metric-group" aria-label="Result workflow">
+                <h3>Result workflow</h3>
+                <StaffMetrics
+                  items={[
+                    { label: "Draft groups", value: overview.pendingCount },
+                    { label: "Awaiting review", value: overview.submittedCount },
+                    {
+                      label: "Corrections requested",
+                      value: overview.correctionRequestedCount,
+                    },
+                    { label: "Approved groups", value: overview.approvedCount },
+                  ]}
+                />
+              </section>
+              <section
+                className="staff-metric-group"
+                aria-label="Published performance"
+              >
+                <h3>Published performance</h3>
+                <StaffMetrics
+                  items={[
+                    { label: "Published grades", value: overview.publishedCount },
+                    { label: "Passing grades", value: overview.passedCount },
+                    {
+                      label: "Published average",
+                      value: markText(overview.averageScore),
+                    },
+                  ]}
+                />
+              </section>
+            </div>
           )}
         </StaffResource>
       </Surface>
       <Surface className="u-stack">
         <h2>Course performance</h2>
+        <p className="u-muted">
+          Only published results contribute to passing grades and average scores.
+        </p>
         <CoursePerformance filters={filters} />
       </Surface>
     </>

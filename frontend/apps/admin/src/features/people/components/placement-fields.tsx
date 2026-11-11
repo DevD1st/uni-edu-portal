@@ -47,7 +47,7 @@ export function PlacementFields({
       )
     : [];
   return (
-    <fieldset className="u-stack min-w-0">
+    <fieldset className="staff-fields staff-form-group">
       <legend>Academic placement</legend>
       <ChoiceField
         name="facultyId"

@@ -32,7 +32,7 @@ export function AcademicWorkspace() {
     <>
       <Surface>
         <div
-          className="staff-filter-tabs"
+          className="staff-filter-tabs staff-academic-sections"
           role="group"
           aria-label="Academic setup sections"
         >

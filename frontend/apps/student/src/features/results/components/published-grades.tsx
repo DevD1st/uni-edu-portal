@@ -10,6 +10,7 @@ export function PublishedGrades({ courses }: { courses: Courses }) {
       <ResourceState
         state="empty"
         title="No grades have been published for this semester"
+        detail="Approved results will appear here after departmental review. Your averages will update when results are published."
       />
     );
 
@@ -22,7 +23,11 @@ export function PublishedGrades({ courses }: { courses: Courses }) {
             <li key={course.id}>
               <div className="student-grade-heading">
                 <h3>
-                  <strong>{course.code}</strong> · {course.name}
+                  <strong className="student-grade-code">{course.code}</strong>
+                  <span className="student-grade-name">
+                    <span className="sr-only"> · </span>
+                    {course.name}
+                  </span>
                 </h3>
                 <Badge tone={course.grade === "F" ? "warning" : "neutral"}>
                   Grade {course.grade}
@@ -41,17 +46,20 @@ export function PublishedGrades({ courses }: { courses: Courses }) {
                   <dt>Exam</dt>
                   <dd>{course.examScore.toFixed(2)}</dd>
                 </div>
-                <div>
+                <div className="student-grade-total">
                   <dt>Total</dt>
                   <dd>{course.totalScore.toFixed(2)}</dd>
                 </div>
               </dl>
+              <p className="student-grade-detail">
+                Grade points <strong>{course.gradePoint.toFixed(2)}</strong>
+              </p>
             </li>
           ))}
         </ul>
       </section>
-      <div className="hidden medium:block">
-        <PublishedGradesTable courses={courses} />
+      <div className="student-grades-table hidden medium:block">
+        <PublishedGradesTable courses={courses} includeGradePoints />
       </div>
     </>
   );

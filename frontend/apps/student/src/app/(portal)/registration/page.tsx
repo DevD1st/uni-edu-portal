@@ -15,7 +15,11 @@ export default async function RegistrationPage() {
   ]);
   return (
     <>
-      <PageHeader title="Course registration" />
+      <PageHeader
+        eyebrow="My studies"
+        title="Course registration"
+        description="Choose eligible courses for your current semester and revisit your saved registrations."
+      />
       {current.available ? (
         <CourseSelection
           key={current.available.semesterId}

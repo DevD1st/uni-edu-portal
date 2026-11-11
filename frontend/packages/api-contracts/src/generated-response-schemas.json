@@ -144,6 +144,22 @@
         "type": "string",
         "format": "uuid",
         "nullable": true
+      },
+      "facultyName": {
+        "type": "string",
+        "nullable": true
+      },
+      "departmentName": {
+        "type": "string",
+        "nullable": true
+      },
+      "programmeName": {
+        "type": "string",
+        "nullable": true
+      },
+      "academicLevelDisplayName": {
+        "type": "string",
+        "nullable": true
       }
     }
   },

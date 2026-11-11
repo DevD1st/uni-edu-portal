@@ -51,7 +51,7 @@ export function StaffRoleAssignments({
 
   return (
     <Surface className="u-stack" aria-label="Role assignments">
-      <div className="u-actions">
+      <div className="staff-section-heading">
         <h2>Role assignments</h2>
         {manage && (
           <Button onClick={() => open({ type: "assign" })}>Assign role</Button>

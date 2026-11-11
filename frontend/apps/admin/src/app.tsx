@@ -149,7 +149,11 @@ function GuardedWorkspace({ workspace }: { workspace: Workspace }) {
         state="restricted"
         title="You don’t have access to this workspace"
         detail="Choose one of the workspaces listed in your overview."
-        action={<Link to="/overview">Return to overview</Link>}
+        action={
+          <Link className="u-text-link" to="/overview">
+            Return to overview
+          </Link>
+        }
       />
     </>
   );
@@ -194,8 +198,15 @@ export function App() {
               path="*"
               element={
                 <>
-                  <PageHeader title="Page not found" />
-                  <Link to="/overview">Return to overview</Link>
+                  <PageHeader
+                    title="Page not found"
+                    description="This page is unavailable. Return to your overview to choose a workspace."
+                  />
+                  <div className="u-actions">
+                    <Link className="u-button" data-variant="secondary" to="/overview">
+                      Return to overview
+                    </Link>
+                  </div>
                 </>
               }
             />

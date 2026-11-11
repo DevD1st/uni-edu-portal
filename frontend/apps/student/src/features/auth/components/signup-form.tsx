@@ -1,20 +1,23 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Banner, Button, TextField } from "@uemp/ui";
+import { Banner, Button, TextField, useClientReady } from "@uemp/ui";
 import { readNoContent, readableError, ApiError } from "@uemp/web-client";
 import { portalApi } from "../../portal/student-request";
 import type { AcademicReferences, SignupInput } from "../signup-contract";
 import { AcademicPlacementFields } from "./academic-placement-fields";
+import { NewPasswordFields } from "./new-password-fields";
 
 export function SignupForm({ references }: { references: AcademicReferences | null }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
   const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const ready = useClientReady();
+  const disabled = !ready || pending;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (!ready || pending) return;
     setError(undefined);
     const fields = new FormData(event.currentTarget);
     const password = String(fields.get("password") ?? "");
@@ -58,21 +61,27 @@ export function SignupForm({ references }: { references: AcademicReferences | nu
   }
 
   return (
-    <form className="u-sign-in-form" onSubmit={(event) => void submit(event)}>
-      <fieldset disabled={pending} className="u-stack min-w-0">
-        <legend className="sr-only">Account details</legend>
-        <TextField
-          label="First name"
-          name="firstName"
-          autoComplete="given-name"
-          maxLength={100}
-        />
-        <TextField
-          label="Last name"
-          name="lastName"
-          autoComplete="family-name"
-          maxLength={100}
-        />
+    <form
+      method="post"
+      className="u-sign-in-form"
+      onSubmit={(event) => void submit(event)}
+    >
+      <fieldset disabled={disabled} className="student-signup-section u-stack min-w-0">
+        <legend>Account details</legend>
+        <div className="student-field-grid">
+          <TextField
+            label="First name"
+            name="firstName"
+            autoComplete="given-name"
+            maxLength={100}
+          />
+          <TextField
+            label="Last name"
+            name="lastName"
+            autoComplete="family-name"
+            maxLength={100}
+          />
+        </div>
         <TextField
           label="Email address"
           name="email"
@@ -81,35 +90,17 @@ export function SignupForm({ references }: { references: AcademicReferences | nu
           required
           maxLength={254}
         />
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={12}
-          maxLength={72}
-          required
-          hint="Use at least 12 characters."
-          onChange={() => setPasswordMismatch(false)}
-        />
-        <TextField
-          label="Confirm password"
-          name="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          required
-          {...(passwordMismatch
-            ? { error: "Enter the same password in both fields." }
-            : {})}
+        <NewPasswordFields
+          mismatch={passwordMismatch}
           onChange={() => setPasswordMismatch(false)}
         />
       </fieldset>
       {references && references.faculties.length > 0 && (
-        <AcademicPlacementFields references={references} disabled={pending} />
+        <AcademicPlacementFields references={references} disabled={disabled} />
       )}
       {error && <Banner tone="danger">{error}</Banner>}
-      <Button type="submit" pending={pending}>
-        {pending ? "Creating account" : "Create account"}
+      <Button type="submit" disabled={!ready} pending={pending}>
+        {!ready ? "Loading form" : pending ? "Creating account" : "Create account"}
       </Button>
     </form>
   );

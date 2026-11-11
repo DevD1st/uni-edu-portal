@@ -1,7 +1,7 @@
 :root {
   color-scheme: light dark;
   --uemp-font: "Source Sans 3", system-ui, sans-serif;
-  --uemp-canvas: light-dark(#f4f7fa, #0f1726);
+  --uemp-canvas: light-dark(#f3f6f9, #0f1726);
   --uemp-surface: light-dark(#ffffff, #172235);
   --uemp-ink: light-dark(#16243a, #eef4fa);
   --uemp-muted: light-dark(#4c6075, #b1c2d5);
@@ -15,6 +15,7 @@
   --uemp-hero: #102e39;
   --uemp-hero-text: #f4fbfa;
   --uemp-hero-muted: #b8d9d5;
+  --uemp-hero-accent: #74dfc6;
   --uemp-info: light-dark(#194c85, #b8d7ff);
   --uemp-info-bg: light-dark(#e8f1fd, #1d3451);
   --uemp-success: light-dark(#166344, #b9f4d5);
@@ -25,6 +26,8 @@
   --uemp-danger-bg: light-dark(#fbe9ec, #452630);
   --uemp-scrim: rgb(5 13 24 / 55%);
   --uemp-shadow: 0 12px 30px rgb(12 32 50 / 9%);
+  --uemp-shadow-soft: 0 2px 8px rgb(12 32 50 / 3%);
+  --uemp-shadow-control: 0 1px 2px rgb(12 32 50 / 8%);
   --uemp-space-1: 0.25rem;
   --uemp-space-2: 0.5rem;
   --uemp-space-3: 0.75rem;
@@ -36,9 +39,9 @@
   --uemp-space-12: 3rem;
   --uemp-space-16: 4rem;
   --uemp-gutter: var(--uemp-space-4);
-  --uemp-radius-control: 0.375rem;
-  --uemp-radius-panel: 0.625rem;
-  --uemp-radius-hero: 1rem;
+  --uemp-radius-control: 0.5rem;
+  --uemp-radius-panel: 0.875rem;
+  --uemp-radius-hero: 1.25rem;
   --uemp-touch: 2.75rem;
   --uemp-fast: 140ms;
   --uemp-transition: 200ms;
@@ -96,6 +99,8 @@ body {
   font-family: var(--uemp-font);
   font-size: var(--uemp-text);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 ::selection {
   background: var(--uemp-selected);
@@ -119,6 +124,7 @@ button:disabled {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }

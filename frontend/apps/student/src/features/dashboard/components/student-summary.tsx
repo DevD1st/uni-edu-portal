@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { ArrowRight, CalendarDays, ClipboardList, GraduationCap } from "lucide-react";
 import { ApiError, readableError } from "@uemp/web-client";
 import { ResourceState, Surface } from "@uemp/ui";
 import { AcademicMetrics } from "../../portal/components/academic-metrics";
+import { StudentSectionHeading } from "../../portal/components/student-section-heading";
 import { registrationHistory } from "../../registration/server/registration";
 import { resultHistory } from "../../results/server/results";
 import { gradeAverage } from "../../results/grade-average";
@@ -40,7 +42,11 @@ export async function RegistrationDashboard() {
   const latest = history.terms[0];
   return (
     <Surface className="u-stack" aria-label="Registration dashboard">
-      <h2>Your registration</h2>
+      <StudentSectionHeading
+        title="Your registration"
+        icon={ClipboardList}
+        description="Your saved semesters and most recent credit total."
+      />
       <AcademicMetrics
         label="Registration summary"
         items={[
@@ -49,14 +55,18 @@ export async function RegistrationDashboard() {
         ]}
       />
       {latest ? (
-        <Link className="u-text-link block" href={"/registration/" + latest.semesterId}>
-          {latest.semesterName} · {latest.academicSession}
+        <Link
+          className="student-context-link u-text-link"
+          href={"/registration/" + latest.semesterId}
+        >
+          <CalendarDays size={17} aria-hidden /> {latest.semesterName} ·{" "}
+          {latest.academicSession}
         </Link>
       ) : (
         <p>You haven’t registered for any courses yet.</p>
       )}
-      <Link className="u-text-link block" href="/registration">
-        Open course registration
+      <Link className="student-card-action u-text-link" href="/registration">
+        Open course registration <ArrowRight size={17} aria-hidden />
       </Link>
     </Surface>
   );
@@ -78,7 +88,11 @@ export async function ResultsDashboard() {
   const latest = history.terms.find(({ approvedUnits }) => approvedUnits > 0);
   return (
     <Surface className="u-stack" aria-label="Results dashboard">
-      <h2>Your published results</h2>
+      <StudentSectionHeading
+        title="Your published results"
+        icon={GraduationCap}
+        description="Academic averages from your approved results."
+      />
       <AcademicMetrics
         label="Results summary"
         items={[
@@ -87,14 +101,18 @@ export async function ResultsDashboard() {
         ]}
       />
       {latest ? (
-        <Link className="u-text-link block" href={"/results/" + latest.semesterId}>
-          {latest.semesterName} · {latest.academicSession}
+        <Link
+          className="student-context-link u-text-link"
+          href={"/results/" + latest.semesterId}
+        >
+          <CalendarDays size={17} aria-hidden /> {latest.semesterName} ·{" "}
+          {latest.academicSession}
         </Link>
       ) : (
         <p>No grades have been published yet.</p>
       )}
-      <Link className="u-text-link block" href="/results">
-        Open my results
+      <Link className="student-card-action u-text-link" href="/results">
+        Open my results <ArrowRight size={17} aria-hidden />
       </Link>
     </Surface>
   );

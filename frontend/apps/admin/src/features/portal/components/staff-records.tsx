@@ -19,9 +19,9 @@ export function StaffRecords({
       {items.map(({ id, title, details, actions }) => (
         <li key={id}>
           <Surface className="u-stack staff-record">
-            <h3>{title}</h3>
+            <h3 className="staff-record-title">{title}</h3>
             {details?.length ? <DescriptionList items={details} /> : null}
-            {actions && <div className="u-actions">{actions}</div>}
+            {actions && <div className="u-actions staff-record-actions">{actions}</div>}
           </Surface>
         </li>
       ))}

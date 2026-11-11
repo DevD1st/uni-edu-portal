@@ -3,6 +3,7 @@
 import { useId, useSyncExternalStore } from "react";
 import { Contrast } from "lucide-react";
 import { themeStorageKey } from "./theme-init";
+import { useClientReady } from "./use-client-ready";
 
 const themeEvent = "uemp-theme-change";
 type Theme = "system" | "light" | "dark";
@@ -28,6 +29,7 @@ function syncTheme(value: Theme) {
 
 export function ThemeSwitch() {
   const id = useId();
+  const ready = useClientReady();
   const theme = useSyncExternalStore(
     (callback) => {
       function onStorage(event: StorageEvent) {
@@ -58,6 +60,7 @@ export function ThemeSwitch() {
       <select
         id={id}
         value={theme}
+        disabled={!ready}
         onChange={(event) => {
           const value = event.target.value;
           const next = value === "light" || value === "dark" ? value : "system";

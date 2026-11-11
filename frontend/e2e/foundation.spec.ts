@@ -63,6 +63,7 @@ async function verifyMobileDrawer(page: Page) {
 test("student profile is protected, responsive, and uses HTTP-only token cookies", async ({
   page,
   context,
+  browser,
 }) => {
   await page.goto(studentOrigin + "/account");
   await expect(page).toHaveURL(/\/sign-in$/);
@@ -72,6 +73,37 @@ test("student profile is protected, responsive, and uses HTTP-only token cookies
   await expect(
     page.getByRole("heading", { name: /welcome|student overview/i }),
   ).toBeVisible();
+  const beforeScripts = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 390, height: 840 },
+  });
+  try {
+    await beforeScripts.addCookies(await context.cookies(studentOrigin));
+    const view = await beforeScripts.newPage();
+    await view.goto(studentOrigin + "/account");
+    await expect(view.getByLabel("First name", { exact: true })).toBeDisabled();
+    await expect(view.getByLabel("Last name", { exact: true })).toBeDisabled();
+    await expect(view.locator("form")).toHaveAttribute("method", "post");
+    await expect(
+      view.getByRole("button", {
+        name: "Save profile",
+        exact: true,
+        includeHidden: true,
+      }),
+    ).toBeDisabled();
+    await view.goto(studentOrigin + "/registration");
+    await expect(view.getByLabel("Find a course", { exact: true })).toBeDisabled();
+    // Protected routes stream content behind a loading boundary before scripts reveal it.
+    const choices = await view.getByRole("checkbox", { includeHidden: true }).all();
+    expect(choices.length).toBeGreaterThan(0);
+    for (const choice of choices) await expect(choice).toBeDisabled();
+    await expect(
+      view.getByRole("button", { name: "Open navigation", exact: true }),
+    ).toBeDisabled();
+    await expect(view.getByLabel("Color theme", { exact: true })).toBeDisabled();
+  } finally {
+    await beforeScripts.close();
+  }
   await verifyLayout(page);
   await verifyMobileDrawer(page);
   await page.getByRole("link", { name: "My profile", exact: true }).click();
@@ -189,7 +221,7 @@ test.describe("student workflows on a phone", () => {
     await page.getByLabel("Last name").fill("Student");
     await page.getByLabel("Email address").fill(email);
     await page.getByLabel("Password", { exact: true }).fill(signupPassword);
-    const confirmation = page.getByLabel("Confirm password");
+    const confirmation = page.getByLabel("Confirm password", { exact: true });
     await confirmation.fill("Different demo password");
     await page
       .getByLabel("Faculty", { exact: true })

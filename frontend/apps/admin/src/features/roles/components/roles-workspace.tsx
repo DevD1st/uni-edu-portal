@@ -58,6 +58,10 @@ export function RolesWorkspace() {
 
   return (
     <Surface className="u-stack">
+      <p className="u-muted">
+        Review each role's scope of responsibility and expand its privileges for the
+        full list. System roles are protected.
+      </p>
       <div className="u-actions">
         {manage && (
           <Button onClick={() => open({ type: "create" })}>Create custom role</Button>
@@ -80,10 +84,27 @@ export function RolesWorkspace() {
                         <Badge>{item.kind === "system" ? "System" : "Custom"}</Badge>
                       ),
                     },
-                    { label: "Description", value: item.description ?? "—" },
+                    {
+                      label: "Description",
+                      value: item.description ?? "No description added.",
+                    },
                     {
                       label: "Privileges",
-                      value: item.privileges.join(", ") || "None",
+                      value: item.privileges.length ? (
+                        <details className="staff-privilege-disclosure">
+                          <summary>
+                            {item.privileges.length}{" "}
+                            {item.privileges.length === 1 ? "privilege" : "privileges"}
+                          </summary>
+                          <ul className="staff-privilege-list">
+                            {item.privileges.map((privilege) => (
+                              <li key={privilege}>{privilege.replaceAll("_", " ")}</li>
+                            ))}
+                          </ul>
+                        </details>
+                      ) : (
+                        "None"
+                      ),
                     },
                   ],
                   actions: canChange(item) ? (
@@ -95,7 +116,7 @@ export function RolesWorkspace() {
                         Edit role
                       </Button>
                       <Button
-                        variant="secondary"
+                        variant="danger"
                         onClick={() => open({ type: "delete", role: item })}
                       >
                         Delete role
@@ -184,7 +205,7 @@ export function RolesWorkspace() {
                 defaultValue={role?.description ?? ""}
                 maxLength={255}
               />
-              <fieldset className="staff-fields min-w-0">
+              <fieldset className="staff-fields staff-form-group staff-privilege-choices">
                 <legend>Privileges</legend>
                 {owned.map((privilege) => (
                   <Checkbox

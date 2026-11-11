@@ -56,7 +56,7 @@ export function ResourceState({
     return <Banner tone={state === "error" ? "danger" : "warning"}>{content}</Banner>;
   const Icon = state === "loading" ? LoaderCircle : Inbox;
   return (
-    <div className="u-resource" role="status">
+    <div className="u-resource" role="status" data-state={state}>
       <Icon
         size={22}
         className={state === "loading" ? "u-spin" : undefined}

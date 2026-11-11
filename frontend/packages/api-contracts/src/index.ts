@@ -50,6 +50,11 @@ export function readSession(value: unknown): Session {
   throw new Error("Invalid session response");
 }
 
+function placementLabel(value: unknown): string | null | undefined {
+  if (value === undefined || nullableString(value)) return value;
+  throw new Error("Invalid student placement label");
+}
+
 export function readAccount(value: unknown): Account {
   if (
     !record(value) ||
@@ -84,6 +89,12 @@ export function readAccount(value: unknown): Account {
       !nullableString(student["academicLevelId"])
     )
       throw new Error("Invalid student profile");
+    const facultyName = placementLabel(student["facultyName"]);
+    const departmentName = placementLabel(student["departmentName"]);
+    const programmeName = placementLabel(student["programmeName"]);
+    const academicLevelDisplayName = placementLabel(
+      student["academicLevelDisplayName"],
+    );
     result.student = {
       id: student["id"],
       matricNumber: student["matricNumber"],
@@ -91,6 +102,10 @@ export function readAccount(value: unknown): Account {
       departmentId: student["departmentId"],
       courseOfStudyId: student["courseOfStudyId"],
       academicLevelId: student["academicLevelId"],
+      ...(facultyName !== undefined ? { facultyName } : {}),
+      ...(departmentName !== undefined ? { departmentName } : {}),
+      ...(programmeName !== undefined ? { programmeName } : {}),
+      ...(academicLevelDisplayName !== undefined ? { academicLevelDisplayName } : {}),
     };
   }
   const admin = value["admin"];

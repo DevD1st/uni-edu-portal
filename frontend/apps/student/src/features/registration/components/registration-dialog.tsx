@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dialog } from "@uemp/ui";
+import { Badge, Button, Dialog } from "@uemp/ui";
 import type { AvailableCourses } from "../contracts";
 
 export function RegistrationDialog({
@@ -23,22 +23,33 @@ export function RegistrationDialog({
   canSubmit: boolean;
 }) {
   return (
-    <Dialog open={open} onClose={close} title="Confirm course registration">
+    <Dialog
+      open={open}
+      onClose={close}
+      title="Confirm course registration"
+      lockClose={pending}
+    >
       <div className="u-stack">
+        <p className="u-muted">
+          Check your courses and credit units before confirming.
+        </p>
         <ul className="student-course-list">
           {courses.map(({ offeringId, code, name, units }) => (
             <li key={offeringId}>
-              {code} · {name} ({units} units)
+              <span>
+                <strong>{code}</strong> · {name}
+              </span>
+              <Badge>{units} units</Badge>
             </li>
           ))}
         </ul>
-        <p>
+        <p className="student-confirm-total">
           <strong>
             {totalUnits} of {maxUnits} credit units
           </strong>{" "}
           after registration.
         </p>
-        <div className="u-actions">
+        <div className="student-dialog-actions u-actions">
           <Button variant="secondary" disabled={pending} onClick={close}>
             Edit selection
           </Button>

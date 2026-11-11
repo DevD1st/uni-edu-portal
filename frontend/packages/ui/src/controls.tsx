@@ -32,13 +32,14 @@ export function Button({
 export function IconButton({
   label,
   children,
+  className,
   ...props
 }: ComponentPropsWithoutRef<"button"> & { label: string }) {
   return (
     <Button
       {...props}
       variant="ghost"
-      className="u-icon-button"
+      className={["u-icon-button", className].filter(Boolean).join(" ")}
       aria-label={label}
       title={label}
     >
@@ -94,10 +95,18 @@ function Field({
   hint,
   error,
   children,
-}: FieldDescription & { id: string; children: ReactNode }) {
+  required,
+}: FieldDescription & { id: string; children: ReactNode; required?: boolean }) {
   return (
     <div className="u-field">
-      <label htmlFor={id}>{label}</label>
+      <div className="u-field-label">
+        <label htmlFor={id}>{label}</label>
+        {required && (
+          <span className="u-required-mark" aria-hidden="true">
+            *
+          </span>
+        )}
+      </div>
       {children}
       {hint && (
         <span className="u-field-hint" id={id + "-hint"}>
@@ -126,24 +135,38 @@ export function TextField({
   error,
   id: suppliedId,
   className,
+  trailingAction,
   ...props
-}: ComponentPropsWithoutRef<"input"> & FieldDescription) {
+}: ComponentPropsWithoutRef<"input"> &
+  FieldDescription & { trailingAction?: ReactNode }) {
   const fallback = useId();
   const id = suppliedId ?? fallback;
+  const input = (
+    <input
+      {...props}
+      id={id}
+      className={["u-input", className].filter(Boolean).join(" ")}
+      aria-invalid={error ? true : props["aria-invalid"]}
+      aria-describedby={fieldDescription(id, hint, error, props["aria-describedby"])}
+    />
+  );
   return (
     <Field
       id={id}
       label={label}
+      {...(props.required ? { required: true } : {})}
       {...(hint ? { hint } : {})}
       {...(error ? { error } : {})}
     >
-      <input
-        {...props}
-        id={id}
-        className={["u-input", className].filter(Boolean).join(" ")}
-        aria-invalid={error ? true : props["aria-invalid"]}
-        aria-describedby={fieldDescription(id, hint, error, props["aria-describedby"])}
-      />
+      {trailingAction ? (
+        <div className="u-input-with-action">
+          {/* Help and errors sit outside this wrapper so the action stays on the input. */}
+          {input}
+          <div className="u-input-action">{trailingAction}</div>
+        </div>
+      ) : (
+        input
+      )}
     </Field>
   );
 }
@@ -154,6 +177,7 @@ export function SelectField({
   error,
   id: suppliedId,
   children,
+  className,
   ...props
 }: ComponentPropsWithoutRef<"select"> & FieldDescription) {
   const fallback = useId();
@@ -162,13 +186,14 @@ export function SelectField({
     <Field
       id={id}
       label={label}
+      {...(props.required ? { required: true } : {})}
       {...(hint ? { hint } : {})}
       {...(error ? { error } : {})}
     >
       <select
         {...props}
         id={id}
-        className="u-input"
+        className={["u-input", className].filter(Boolean).join(" ")}
         aria-invalid={error ? true : props["aria-invalid"]}
         aria-describedby={fieldDescription(id, hint, error, props["aria-describedby"])}
       >
@@ -181,7 +206,7 @@ export function SelectField({
 export function Checkbox({
   label,
   ...props
-}: Omit<ComponentPropsWithoutRef<"input">, "type"> & { label: string }) {
+}: Omit<ComponentPropsWithoutRef<"input">, "type"> & { label: ReactNode }) {
   return (
     <label className="u-checkbox">
       <input {...props} type="checkbox" /> <span>{label}</span>

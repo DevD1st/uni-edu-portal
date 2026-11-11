@@ -1,8 +1,6 @@
 import "server-only";
 
-import { readCampusLabels, type Account } from "@uemp/api-contracts";
-import { createApiClient } from "@uemp/web-client";
-import { studentConfig } from "../../auth/server/config";
+import type { Account } from "@uemp/api-contracts";
 
 export function accountName(account: Account) {
   return (
@@ -10,12 +8,9 @@ export function accountName(account: Account) {
   );
 }
 
-export async function academicDetails(account: Account) {
+export function academicDetails(account: Account) {
   const profile = account.student;
-  const api = createApiClient({ baseUrl: studentConfig().api.origin, timeoutMs: 3000 });
-  const reference = await api
-    .request("/v1/academic-references", readCampusLabels)
-    .catch(() => null);
+  // The authenticated profile retains assigned labels after records leave signup choices.
   return [
     {
       label: "Matriculation number",
@@ -23,27 +18,19 @@ export async function academicDetails(account: Account) {
     },
     {
       label: "Faculty",
-      value:
-        reference?.faculties.find(({ id }) => id === profile?.facultyId)?.name ??
-        "Unavailable",
+      value: profile?.facultyName ?? "Unavailable",
     },
     {
       label: "Department",
-      value:
-        reference?.departments.find(({ id }) => id === profile?.departmentId)?.name ??
-        "Unavailable",
+      value: profile?.departmentName ?? "Unavailable",
     },
     {
       label: "Programme",
-      value:
-        reference?.programmes.find(({ id }) => id === profile?.courseOfStudyId)?.name ??
-        "Unavailable",
+      value: profile?.programmeName ?? "Unavailable",
     },
     {
       label: "Academic level",
-      value:
-        reference?.levels.find(({ id }) => id === profile?.academicLevelId)
-          ?.displayName ?? "Unavailable",
+      value: profile?.academicLevelDisplayName ?? "Unavailable",
     },
   ];
 }

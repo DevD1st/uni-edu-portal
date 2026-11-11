@@ -250,6 +250,18 @@ test(
 
       const staff = await signIn(adminEmail, 'admin');
       const staffToken = staff.access.token;
+      await verifyPlacementLabels({
+        request,
+        student,
+        faculty,
+        department,
+        programme,
+        level,
+        studentToken: rotated.access.token,
+        staffToken,
+        password,
+        suffix,
+      });
       const invalidPath = await request(
         'GET',
         '/v1/admin/users/invalid-id',
@@ -432,6 +444,12 @@ test(
         { email: studentEmail, password },
       );
       assert.notEqual(replacement.id, student.id);
+      assert.deepEqual(placementLabels(replacement), {
+        facultyName: null,
+        departmentName: null,
+        programmeName: null,
+        academicLevelDisplayName: null,
+      });
       const replacementTokens = await signIn(studentEmail, 'student');
       await request(
         'POST',
@@ -511,6 +529,128 @@ test(
 
 function UserWithFields(Entity, fields) {
   return Object.assign(new Entity(), fields);
+}
+
+function placementLabels(account) {
+  const {
+    facultyName,
+    departmentName,
+    programmeName,
+    academicLevelDisplayName,
+  } = account.student;
+  return {
+    facultyName,
+    departmentName,
+    programmeName,
+    academicLevelDisplayName,
+  };
+}
+
+async function verifyPlacementLabels({
+  request,
+  student,
+  faculty,
+  department,
+  programme,
+  level,
+  studentToken,
+  staffToken,
+  password,
+  suffix,
+}) {
+  const expected = {
+    facultyName: faculty.name,
+    departmentName: department.name,
+    programmeName: programme.name,
+    academicLevelDisplayName: level.displayName,
+  };
+  assert.deepEqual(placementLabels(student), expected);
+  const setFaculty = (status) =>
+    request(
+      'PUT',
+      '/v1/admin/academic/faculties/' + faculty.id,
+      200,
+      { name: faculty.name, status },
+      staffToken,
+    );
+  const setDepartment = (status) =>
+    request(
+      'PUT',
+      '/v1/admin/academic/departments/' + department.id,
+      200,
+      { name: department.name, facultyId: faculty.id, status },
+      staffToken,
+    );
+  const setProgramme = (status) =>
+    request(
+      'PUT',
+      '/v1/admin/academic/programmes/' + programme.id,
+      200,
+      {
+        name: programme.name,
+        departmentId: department.id,
+        programType: programme.programType,
+        status,
+      },
+      staffToken,
+    );
+  const setLevel = (status) =>
+    request(
+      'PUT',
+      '/v1/admin/academic/levels/' + level.id + '/status',
+      200,
+      { status },
+      staffToken,
+    );
+  try {
+    await setLevel('inactive');
+    await setProgramme('inactive');
+    await setDepartment('inactive');
+    await setFaculty('inactive');
+
+    // Existing students retain readable placement identity; signup cannot select it again.
+    const own = await request(
+      'GET',
+      '/v1/users/me',
+      200,
+      undefined,
+      studentToken,
+    );
+    assert.deepEqual(placementLabels(own), expected);
+    assert.equal(own.student.matricNumber, student.student.matricNumber);
+    const populated = await request(
+      'GET',
+      '/v1/admin/users/' + student.id + '?populate=student',
+      200,
+      undefined,
+      staffToken,
+    );
+    assert.deepEqual(placementLabels(populated), expected);
+    const available = await request('GET', '/v1/academic-references', 200);
+    assert.ok(!available.faculties.some(({ id }) => id === faculty.id));
+    assert.ok(!available.departments.some(({ id }) => id === department.id));
+    assert.ok(!available.programmes.some(({ id }) => id === programme.id));
+    assert.ok(!available.levels.some(({ id }) => id === level.id));
+    await request('POST', '/v1/auth/signup/student', 400, {
+      email: 'inactive-placement-' + suffix + '@example.test',
+      password,
+      courseOfStudyId: programme.id,
+      academicLevelId: level.id,
+    });
+  } finally {
+    await setFaculty('active');
+    await setDepartment('active');
+    await setProgramme('active');
+    await setLevel('active');
+  }
+  const updated = await request(
+    'PUT',
+    '/v1/admin/users/' + student.id + '/student-placement',
+    200,
+    { courseOfStudyId: programme.id, academicLevelId: level.id },
+    staffToken,
+  );
+  assert.deepEqual(placementLabels(updated), expected);
 }
 
 async function checkOpenApi(url) {
