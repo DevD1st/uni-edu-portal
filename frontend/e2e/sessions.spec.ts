@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { apiOrigin } from "./support/demo-api";
 import { adminOrigin, studentOrigin } from "./support/origins";
 import { signIn, expireStudentAccess, studentAccess } from "./support/session-browser";
+import { openPrintView } from "./support/print-view";
 
 test.use({ viewport: { width: 390, height: 840 } });
 
@@ -117,7 +118,7 @@ test("two student tabs renew shared cookies without losing their destinations", 
   await expect(other.getByRole("region", { name: "Cumulative GPA" })).toBeVisible();
 });
 
-test("profile writes and downloads renew cookies after access expiry", async ({
+test("profile writes and print views renew cookies after access expiry", async ({
   page,
   context,
 }) => {
@@ -134,12 +135,12 @@ test("profile writes and downloads renew cookies after access expiry", async ({
     .getByRole("link")
     .first()
     .click();
-  const beforeDownload = await studentAccess(context);
+  const beforePrint = await studentAccess(context);
   await expireStudentAccess(context);
-  const file = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download result statement" }).click();
-  expect((await file).suggestedFilename()).toBe("result-statement.txt");
-  expect((await studentAccess(context)) !== beforeDownload).toBe(true);
+  const view = await openPrintView(page, "Print result statement");
+  await expect(view).toHaveURL(/\/results\/[\da-f-]+\/print$/);
+  expect((await studentAccess(context)) !== beforePrint).toBe(true);
+  await view.close();
 });
 
 test("revoked student credentials clear cookies and cannot redirect outside the portal", async ({

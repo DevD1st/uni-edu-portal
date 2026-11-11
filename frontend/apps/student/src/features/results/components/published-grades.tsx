@@ -1,5 +1,6 @@
-import { Badge, DataTable, ResourceState } from "@uemp/ui";
+import { Badge, ResourceState } from "@uemp/ui";
 import type { ResultStatement } from "../contracts";
+import { PublishedGradesTable } from "./published-grades-table";
 
 type Courses = ResultStatement["courses"];
 
@@ -50,30 +51,7 @@ export function PublishedGrades({ courses }: { courses: Courses }) {
         </ul>
       </section>
       <div className="hidden medium:block">
-        <DataTable
-          caption="Published grades"
-          columns={[
-            { label: "Code" },
-            { label: "Course" },
-            { label: "Units", numeric: true },
-            { label: "CA", numeric: true },
-            { label: "Exam", numeric: true },
-            { label: "Total", numeric: true },
-            { label: "Grade" },
-          ]}
-        >
-          {courses.map((course) => (
-            <tr key={course.id}>
-              <th scope="row">{course.code}</th>
-              <td>{course.name}</td>
-              <td data-numeric>{course.units}</td>
-              <td data-numeric>{course.caScore.toFixed(2)}</td>
-              <td data-numeric>{course.examScore.toFixed(2)}</td>
-              <td data-numeric>{course.totalScore.toFixed(2)}</td>
-              <td>{course.grade}</td>
-            </tr>
-          ))}
-        </DataTable>
+        <PublishedGradesTable courses={courses} />
       </div>
     </>
   );

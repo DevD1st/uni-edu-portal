@@ -1,0 +1,114 @@
+.student-print-view {
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding: var(--uemp-gutter);
+  background: var(--uemp-surface);
+  min-block-size: 100dvh;
+  overflow-wrap: anywhere;
+}
+
+.student-print-view > * + * {
+  margin-block-start: var(--uemp-space-6);
+}
+
+.student-print-view .u-table tbody th {
+  white-space: nowrap;
+}
+
+.student-print-results .u-table {
+  min-inline-size: 44rem;
+}
+
+.student-print-actions {
+  justify-content: space-between;
+}
+
+.student-print-heading {
+  border-block-end: 2px solid var(--uemp-ink);
+  padding-block: var(--uemp-space-4);
+  break-inside: avoid;
+}
+
+.student-print-heading h1 {
+  font-size: var(--uemp-h1);
+  font-weight: 650;
+}
+
+.student-print-footer {
+  border-block-start: 1px solid var(--uemp-line);
+  padding-block-start: var(--uemp-space-4);
+  font-size: var(--uemp-text-sm);
+  color: var(--uemp-muted);
+}
+
+@page {
+  size: A4 portrait;
+  margin: 14mm 12mm;
+}
+
+@media print {
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--uemp-surface);
+  }
+
+  .student-print-view {
+    max-inline-size: none;
+    min-block-size: 0;
+    padding: 0;
+    font-size: 11pt;
+  }
+
+  .student-print-actions {
+    display: none;
+  }
+
+  .student-print-heading h1 {
+    font-size: 22pt;
+  }
+
+  .student-print-heading {
+    margin-block-start: 0;
+  }
+
+  .student-print-view .u-description {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Scrolling helps on phones; paper needs every column to fit on the page. */
+  .student-print-view .u-table-region {
+    overflow: visible;
+  }
+
+  .student-print-view .u-table {
+    min-inline-size: 0;
+    table-layout: fixed;
+    font-size: 10pt;
+  }
+
+  .student-print-view .u-table th,
+  .student-print-view .u-table td {
+    padding: 2mm 1mm;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .student-print-view .u-table th:nth-child(2) {
+    inline-size: 30%;
+  }
+
+  .student-print-view thead {
+    display: table-header-group;
+  }
+
+  .student-print-view tr,
+  .student-print-view .u-description > div,
+  .student-print-view .student-metrics,
+  .student-print-footer {
+    break-inside: avoid;
+  }
+}

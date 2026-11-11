@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { apiOrigin, demoAdminHeaders, demoSemester } from "./support/demo-api";
 import { studentOrigin, adminOrigin } from "./support/origins";
+import { openPrintView } from "./support/print-view";
 
 const password = process.env["UEMP_E2E_PASSWORD"];
 const widths = [320, 390, 768, 1024, 1440];
@@ -274,11 +274,13 @@ test.describe("student workflows on a phone", () => {
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
         .toBeLessThanOrEqual(320);
 
-      const file = page.waitForEvent("download");
-      await page.getByRole("button", { name: "Download registration summary" }).click();
-      const summary = await file;
-      expect(summary.suggestedFilename()).toBe("course-registration.txt");
-      expect(await readFile(await summary.path(), "utf8")).toContain("Total units: 2");
+      const summary = await openPrintView(page, "Print registration summary");
+      await expect(summary.getByText("Amaka Student", { exact: true })).toBeVisible();
+      await expect(summary.getByRole("row", { name: /DEMO104/ })).toHaveCount(1);
+      await expect(
+        summary.getByRole("definition").filter({ hasText: /^2$/ }),
+      ).toHaveCount(1);
+      await summary.close();
 
       const registration = (await submission).postDataJSON();
       const denied = await context.request.post(
@@ -321,7 +323,7 @@ test.describe("student workflows on a phone", () => {
     }
   });
 
-  test("student results show and download only the signed-in student's published grades", async ({
+  test("student results show and print only the signed-in student's published grades", async ({
     page,
     request,
   }) => {
@@ -352,20 +354,23 @@ test.describe("student workflows on a phone", () => {
     await page.getByLabel("Color theme").selectOption("dark");
     await page.setViewportSize({ width: 390, height: 840 });
     await verifyA11y(page);
-    const file = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Download result statement" }).click();
-    const statement = await file;
-    expect(statement.suggestedFilename()).toBe("result-statement.txt");
-    const contents = await readFile(await statement.path(), "utf8");
-    expect(contents).toContain("DEMO105");
-    expect(contents).toContain("CGPA: 4.00");
-    expect(contents).not.toContain("DEMO106");
+    const statement = await openPrintView(page, "Print result statement");
+    await expect(
+      statement.getByRole("row", { name: /DEMO105.*65\.00.*B/ }),
+    ).toBeVisible();
+    await expect(statement.getByText("DEMO106")).toHaveCount(0);
+    await expect(
+      statement.getByRole("definition").filter({ hasText: /^4\.00$/ }),
+    ).toHaveCount(2);
+    await statement.close();
 
     const semester = new URL(page.url()).pathname.split("/").at(-1);
     const denied = await request.get(
-      studentOrigin + "/api/student/results/" + semester + "/download",
+      studentOrigin + "/results/" + semester + "/print",
+      { maxRedirects: 0 },
     );
-    expect(denied.status()).toBe(401);
+    expect(denied.status()).toBe(307);
+    expect(denied.headers()["location"]).toBe("/sign-in");
 
     const headers = await demoAdminHeaders(request, "hod");
     const access = await request.get(apiOrigin + "/v1/admin/admins/me/authorization", {
@@ -394,6 +399,9 @@ test.describe("student workflows on a phone", () => {
       await expect(
         page.getByRole("definition").filter({ hasText: "4.40" }),
       ).toHaveCount(2);
+      const published = await openPrintView(page, "Print result statement");
+      await expect(published.getByRole("row", { name: /DEMO106/ })).toBeVisible();
+      await published.close();
     } finally {
       const reopen = await request.post(resultPath + "/reopen", {
         headers,
@@ -413,5 +421,8 @@ test.describe("student workflows on a phone", () => {
     await expect(page.getByRole("definition").filter({ hasText: "4.00" })).toHaveCount(
       2,
     );
+    const withdrawn = await openPrintView(page, "Print result statement");
+    await expect(withdrawn.getByText("DEMO106")).toHaveCount(0);
+    await withdrawn.close();
   });
 });

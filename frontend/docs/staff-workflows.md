@@ -28,7 +28,7 @@ The student overview streams registration and result cards through server compon
 
 Privileges from different department grants cannot be combined to authorize an operation in either department. A global grant can supply its privilege to a department operation. Review choices come from `/v1/admin/results/options`; inactive departments remain selectable because deactivation does not delete historical results. The endpoint returns only the departments covered by review, approval, or reopening access and uses one snapshot for authorization and choices.
 
-Approval publishes student grades and recalculates the values returned by result statements. Reopening withdraws the awards and returns the group to draft, while registration stays closed. Student pages, downloads, GPA, and CGPA use the backend's currently approved awards and pinned grading policy. See the [results workflow guide](../../docs/results-workflow.md) for state transitions, score limits, weighted calculations, and repeated attempts.
+Approval publishes student grades and recalculates the values returned by result statements. Reopening withdraws the awards and returns the group to draft, while registration stays closed. Student pages, print views, GPA, and CGPA use the backend's currently approved awards and pinned grading policy. See the [results workflow guide](../../docs/results-workflow.md) for state transitions, score limits, weighted calculations, and repeated attempts.
 
 ## UI state and mobile use
 

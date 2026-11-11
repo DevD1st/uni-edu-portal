@@ -1,6 +1,6 @@
 import { Surface } from "@uemp/ui";
 import { AcademicMetrics } from "../../portal/components/academic-metrics";
-import { DownloadButton } from "../../portal/components/download-button";
+import { PrintViewLink } from "../../portal/components/print-view-link";
 import { StudentRecordDetails } from "../../portal/components/student-record-details";
 import type { ResultStatement as Statement } from "../contracts";
 import { gradeAverage } from "../grade-average";
@@ -19,10 +19,9 @@ export function ResultStatement({ statement }: { statement: Statement }) {
       />
       <StudentRecordDetails record={statement} />
       <PublishedGrades courses={statement.courses} />
-      <DownloadButton
-        path={"/api/student/results/" + statement.semesterId + "/download"}
-        filename="result-statement.txt"
-        label="Download result statement"
+      <PrintViewLink
+        href={"/results/" + statement.semesterId + "/print"}
+        label="Print result statement"
       />
     </Surface>
   );

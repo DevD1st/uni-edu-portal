@@ -49,9 +49,11 @@ The API remains authoritative for permissions. The staff shell uses current priv
 ## Student workflows
 
 - Create an account at `/sign-up` and sign in with the new credentials. Academic placement is optional at signup. The profile lets students update their names and view the placement and matriculation number on record.
-- Open `/registration` to select eligible courses for the current semester and confirm the total credit units. Use registration history to open or download a saved semester summary. Try the workflow with `student-nora@demo.example.test` and the available `DEMO104` offering.
-- Open `/results` to view the cumulative GPA and each semester statement. Phones show each course and its marks in a stacked layout. Statements and downloads show the published grades and averages returned by the API. The demo Maya and Theo accounts have published grades for `DEMO105`, while `DEMO106` is awaiting review.
+- Open `/registration` to select eligible courses for the current semester and confirm the total credit units. Use registration history to open a saved semester summary, then choose **Print registration summary**. Try the workflow with `student-nora@demo.example.test` and the available `DEMO104` offering.
+- Open `/results` to view the cumulative GPA and each semester statement. Phones show each course and its marks in a stacked layout. Choose **Print result statement** for the published grades and averages returned by the API. The demo Maya and Theo accounts have published grades for `DEMO105`, while `DEMO106` is awaiting review.
 - The student overview includes the latest registration, published CGPA and semester GPA, direct links, and empty states. These summaries are fetched on the server using the student's own session.
+
+Print actions open a dedicated view in a new tab at `/registration/{semesterId}/print` or `/results/{semesterId}/print`. The view includes student identity, saved academic placement, semester and session, course details, totals, and a generation timestamp. Results also include CA, exam and total scores, grades, grade points, GPA, and CGPA. Choose **Print** on that page to open the browser's print dialog. Portal navigation and print controls are excluded from paper output, tables fit A4 and repeat their headings across pages, and printing uses a light palette regardless of the screen theme. These authenticated pages read the same student-scoped API records as the portal; expired sessions renew before returning to the print view. Empty or unpublished results remain unavailable, and no text file is downloaded.
 
 ## Staff workflows
 
