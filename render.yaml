@@ -9,7 +9,8 @@ services:
     # Paths stay relative to the repository root; the context contains the whole web workspace.
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
-    healthCheckPath: /health/ready
+    # Restart the frontend only for its own failure; the API may be waking separately.
+    healthCheckPath: /health/live
     envVars:
       # Render also passes these variables as Docker build arguments.
       - key: FRONTEND_APP

@@ -9,15 +9,19 @@ test("production portals expose readiness, SPA routes, and correctly cached asse
     process.env["UEMP_E2E_PRODUCTION"] !== "1",
     "This checks production container delivery.",
   );
-  const [api, student, admin] = await Promise.all([
+  const [api, student, studentLive, admin] = await Promise.all([
     request.get(apiOrigin + "/health/ready"),
     request.get(studentOrigin + "/health/ready"),
+    request.get(studentOrigin + "/health/live"),
     request.get(adminOrigin + "/health/ready"),
   ]);
-  for (const result of [api, student, admin]) expect(result.status()).toBe(200);
+  for (const result of [api, student, studentLive, admin])
+    expect(result.status()).toBe(200);
   expect(await student.json()).toEqual({ status: "ok" });
+  expect(await studentLive.json()).toEqual({ status: "ok" });
   expect(await admin.json()).toEqual({ status: "ok" });
   expect(student.headers()["cache-control"]).toContain("no-store");
+  expect(studentLive.headers()["cache-control"]).toContain("no-store");
   for (const origin of [studentOrigin, adminOrigin]) {
     const license = await request.get(origin + "/licenses/source-sans-3.txt");
     expect(license.status()).toBe(200);

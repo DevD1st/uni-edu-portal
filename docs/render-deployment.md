@@ -9,7 +9,7 @@ The current deployments are the [student portal](https://uemp-student.onrender.c
 1. Commit and push the deployment changes to the Git branch you will connect to Render. Include `render.yaml` and the updated frontend Dockerfile. Render builds the pushed repository commit, so local changes alone are not available to it.
 2. In the Render Dashboard, choose **New > Blueprint**, connect this repository and select that branch. Use the root **Blueprint Path** `render.yaml`.
 3. Review the proposed resources: `uemp-student` and `uemp-admin`, both Docker Web Services on the Free plan in Oregon. The list should contain two frontend services and no new backend or datastore.
-4. Choose **Deploy Blueprint** and wait for both services to become live. The file configures `/health/ready` as their health check.
+4. Choose **Deploy Blueprint** and wait for both services to become live. The student service uses `/health/live`; the staff service uses `/health/ready`. Both deployment probes check only the frontend service itself.
 5. Open each service and copy its actual HTTPS public URL. Render may assign a different hostname when a name collides; use the displayed URL rather than constructing one from the service name.
 6. Complete the existing backend's [CORS configuration](#allow-the-frontend-origins-on-the-existing-backend) before testing staff sign-in.
 
@@ -38,9 +38,12 @@ Both services use these paths relative to the repository root:
 | Dockerfile Path                | `frontend/Dockerfile`                                 |
 | Docker Build Context Directory | `frontend`                                            |
 | Docker Command                 | Leave blank; use the selected image's default command |
-| Health Check Path              | `/health/ready`                                       |
+| Student Health Check Path      | `/health/live`                                        |
+| Staff Health Check Path        | `/health/ready`                                       |
 
 The context must include the entire frontend workspace so the build can access both app manifests, the pnpm lockfile and shared packages. Do not set Root Directory to `frontend` while also using the paths above: Render interprets those paths relative to the root directory. See [Render monorepo path rules](https://render.com/docs/monorepo-support#root-relative-settings).
+
+The student `/health/live` endpoint reports whether the Next.js server can respond, without contacting the API. Its separate `/health/ready` endpoint checks the API with a three-second timeout and returns HTTP 503 when that dependency is unavailable. Keep `/health/live` as Render's student health check: Render uses one probe both to admit traffic and to restart unresponsive instances. An independently sleeping API should not prevent the sign-in page from loading or cause a healthy student server to restart. Render requires HTTP health checks to succeed within five seconds and restarts running instances after 60 seconds of consecutive failures; extending the upstream timeout would not solve that mismatch. See [Render health-check behaviour](https://render.com/docs/health-checks).
 
 | Service | Variable             | Value                               | Purpose                                                                                                               |
 | ------- | -------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -73,9 +76,9 @@ This is a change to the existing API service. Keep its database, Redis, signing 
 Use this route instead of the Blueprint when configuring the services individually.
 
 1. In Render, choose **New > Web Service**, connect the same repository and branch, and select **Docker** as the language. Choose an available student service name, the Free plan and your intended region.
-2. Apply the shared path/health settings above: Root Directory blank, Dockerfile `frontend/Dockerfile`, context `frontend`, health path `/health/ready`, and no Docker Command override. Keep build/start behavior in the Dockerfile rather than adding a pnpm command to the service form. Render documents the [Docker service creation fields](https://render.com/docs/docker#building-from-a-dockerfile).
+2. Apply the shared path/health settings above: Root Directory blank, Dockerfile `frontend/Dockerfile`, context `frontend`, health path `/health/live` for the student service, and no Docker Command override. Keep build/start behavior in the Dockerfile rather than adding a pnpm command to the service form. Render documents the [Docker service creation fields](https://render.com/docs/docker#building-from-a-dockerfile).
 3. Add the student variables: `FRONTEND_APP=student`, `PORT=10000` and `STUDENT_API_URL=https://uemp-backend.onrender.com`. Set `STUDENT_APP_ORIGIN` to the actual assigned HTTPS origin when it is known. If Render has not shown that URL yet, complete the first deploy, then add the exact origin under **Environment** and choose **Save and deploy** before signing in. The health route can start before that origin is configured.
-4. Create a second Docker Web Service for staff using the same repository, branch, Dockerfile, context and health path. Set `FRONTEND_APP=admin`, `PORT=8080` and `VITE_API_URL=https://uemp-backend.onrender.com` before its first build.
+4. Create a second Docker Web Service for staff using the same repository, branch, Dockerfile and context, with health path `/health/ready`. Set `FRONTEND_APP=admin`, `PORT=8080` and `VITE_API_URL=https://uemp-backend.onrender.com` before its first build.
 5. Copy both displayed public origins and update the existing backend's `CORS_ORIGINS` as described above.
 
 No publish directory is needed: the student service runs a Next.js server, and the staff Docker image already serves its built files with Nginx.
@@ -95,7 +98,7 @@ No publish directory is needed: the student service runs a Next.js server, and t
 
 Free web services sleep after inactivity and can take about a minute to start again. Open the API and portal readiness URLs and wait for HTTP 200 before starting the walkthrough after an idle period. See [Render's free-service behavior](https://render.com/docs/free#spinning-down-on-idle).
 
-1. Confirm both frontend services are live and that each public `/health/ready` URL returns HTTP 200. Student readiness checks the API; staff readiness checks its static server.
+1. Confirm both frontend services are live: [student liveness](https://uemp-student.onrender.com/health/live) and [staff readiness](https://uemp-admin.onrender.com/health/ready) should return HTTP 200. Then check [API readiness](https://uemp-backend.onrender.com/health/ready) and [student readiness](https://uemp-student.onrender.com/health/ready) separately before testing authenticated workflows. Student liveness stays successful while the API wakes; dependency readiness can temporarily return HTTP 503.
 2. Open the actual student HTTPS URL and sign in with a student account from the [reviewer guide](reviewer-guide.md). Confirm the dashboard, current placement, registration history and published results load. Use the password already seeded in this backend; changing a seed environment variable does not reset existing passwords.
 3. Open a registration summary and result statement print view. They should open in a new tab on the student origin and retain their student/semester context. Their Print button should open the browser print dialog.
 4. Open the staff HTTPS URL. Sign in as lecturer, HOD or Super Admin and confirm the expected workspaces appear. Reload a permitted nested workspace URL directly to verify the Nginx route fallback. A permission denial for an unauthorized role is expected behavior.
@@ -103,14 +106,15 @@ Free web services sleep after inactivity and can take about a minute to start ag
 
 ## Troubleshooting
 
-| Symptom                                                            | Check                                                                                                                                                                 |
-| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Student URL shows the staff application                            | Set `FRONTEND_APP=student` on that service, then rebuild and deploy. The Dockerfile defaults to `admin`.                                                              |
-| Build cannot find workspace manifests or lockfiles                 | Restore Root Directory blank, Dockerfile Path `frontend/Dockerfile` and Docker Build Context Directory `frontend`.                                                    |
-| Staff browser sends requests to `localhost:3000` or an old API URL | Set the correct `VITE_API_URL` and choose **Save, rebuild, and deploy**. A runtime-only deploy cannot rewrite the compiled assets.                                    |
-| Student sign-in or writes say to open the student portal           | Match `STUDENT_APP_ORIGIN` to the actual HTTPS address-bar origin, then deploy the runtime configuration. It must be the student URL, not the backend URL.            |
-| Browser reports a CORS error in the staff app                      | Update and deploy the existing backend's `CORS_ORIGINS` with the exact staff origin. Check the API's public readiness URL separately if requests cannot connect.      |
-| Student readiness fails or records cannot load                     | Check `STUDENT_API_URL`, the existing API's `/health/ready` response and Render service logs. Use its public HTTPS API URL, not the local Compose hostname `backend`. |
-| Sign-in reaches the API but returns a credential error             | Use the existing seeded account type/password. Do not rerun migrations or seed to troubleshoot frontend configuration.                                                |
+| Symptom                                                            | Check                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Student URL shows the staff application                            | Set `FRONTEND_APP=student` on that service, then rebuild and deploy. The Dockerfile defaults to `admin`.                                                                                                                                                                          |
+| Build cannot find workspace manifests or lockfiles                 | Restore Root Directory blank, Dockerfile Path `frontend/Dockerfile` and Docker Build Context Directory `frontend`.                                                                                                                                                                |
+| Staff browser sends requests to `localhost:3000` or an old API URL | Set the correct `VITE_API_URL` and choose **Save, rebuild, and deploy**. A runtime-only deploy cannot rewrite the compiled assets.                                                                                                                                                |
+| Student sign-in or writes say to open the student portal           | Match `STUDENT_APP_ORIGIN` to the actual HTTPS address-bar origin, then deploy the runtime configuration. It must be the student URL, not the backend URL.                                                                                                                        |
+| Browser reports a CORS error in the staff app                      | Update and deploy the existing backend's `CORS_ORIGINS` with the exact staff origin. Check the API's public readiness URL separately if requests cannot connect.                                                                                                                  |
+| Student readiness fails or records cannot load                     | Check `STUDENT_API_URL`, the existing API's `/health/ready` response and Render service logs. Use its public HTTPS API URL, not the local Compose hostname `backend`.                                                                                                             |
+| Student keeps showing Render's loading page or repeatedly restarts | Check Render Events and Metrics for health failures or memory limits. After deploying the liveness route, sync the Blueprint and confirm the student Health Check Path is `/health/live`. Its backend-dependent `/health/ready` endpoint is for diagnostics, not Render restarts. |
+| Sign-in reaches the API but returns a credential error             | Use the existing seeded account type/password. Do not rerun migrations or seed to troubleshoot frontend configuration.                                                                                                                                                            |
 
 Use [security](security.md) for cookie/session behavior and [development](development.md) for the separate local Docker workflow.
