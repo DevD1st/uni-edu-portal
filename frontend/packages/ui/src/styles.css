@@ -1,3 +1,5 @@
+@import "./charts.css";
+
 /* Shared controls and shell styling consume the theme's semantic variables. */
 @layer components {
   .u-stack {

@@ -184,5 +184,3 @@ pnpm --dir frontend check
 ```
 
 Live integration and browser suites use disposable databases because they create accounts, close rosters, and change results. The [verification guide](docs/development.md#verification) distinguishes source checks, PostgreSQL/Redis integration, normal browser mode, production-container checks, and real token-expiry checks. The [reviewer guide](docs/reviewer-guide.md#verification-evidence) explains what those checks establish and the recorded execution limits.
-
-Contributor instructions remain in [backend/AGENTS.md](backend/AGENTS.md) and [frontend/AGENTS.md](frontend/AGENTS.md).

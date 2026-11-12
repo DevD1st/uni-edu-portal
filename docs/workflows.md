@@ -63,6 +63,8 @@ The staff editor warns before navigation, reload, or sign-out with unsaved marks
 
 ### Result API identifiers and pagination
 
+Initial lecturer drafts are intentionally private to their assigned teaching workflow. HODs first see a result after submission; the department queue opens on Awaiting review. Its Reopened drafts filter contains previously submitted results returned to draft, not new work that the lecturer has never submitted.
+
 The offering ID identifies a course delivery, the result group ID identifies that delivery's marks workflow, and an enrollment ID identifies one registered course. Student statement routes take the academic semester ID, not the student's saved term-record ID. The API derives the signed-in student and does not accept another student's ID on self-service routes.
 
 Lecturer result lists include assigned groups; department review lists include previously submitted groups and default to `status=submitted`. Review choices retain inactive departments where the account still has access. Lists/details use `limit` from 1–100 (default 25), `cursor`, and a returned `nextCursor`; keep the same filters when paging. Detail rows are in `marks`, and list rows are in `items`. A null cursor means the final page. Summaries distinguish enrolled count, complete mark count, and average total of complete entries.

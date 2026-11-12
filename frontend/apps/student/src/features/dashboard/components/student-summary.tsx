@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, ClipboardList, GraduationCap } from "lucide-react";
 import { ApiError, readableError } from "@uemp/web-client";
-import { ResourceState, Surface } from "@uemp/ui";
+import { BarChart, ResourceState, Surface, TrendChart } from "@uemp/ui";
 import { AcademicMetrics } from "../../portal/components/academic-metrics";
 import { StudentSectionHeading } from "../../portal/components/student-section-heading";
 import { registrationHistory } from "../../registration/server/registration";
 import { resultHistory } from "../../results/server/results";
 import { gradeAverage } from "../../results/grade-average";
+import { registrationChartData, resultChartData } from "../chart-data";
 
 function SummaryFailure({ title, detail }: { title: string; detail: string }) {
   return (
@@ -54,6 +55,14 @@ export async function RegistrationDashboard() {
           { label: "Latest registered units", value: latest?.totalUnits ?? 0 },
         ]}
       />
+      <BarChart
+        title="Registered credit load"
+        description="Credit units in your six most recent registered semesters."
+        data={registrationChartData(history.terms)}
+        valueLabel="Credit units"
+        categoryLabel="Semester"
+        emptyMessage="Your credit-load comparison will appear after your first course registration."
+      />
       {latest ? (
         <Link
           className="student-context-link u-text-link"
@@ -99,6 +108,16 @@ export async function ResultsDashboard() {
           { label: "Cumulative GPA", value: gradeAverage(history.cgpa) },
           { label: "Latest published GPA", value: gradeAverage(latest?.gpa ?? null) },
         ]}
+      />
+      <TrendChart
+        title="Published GPA by semester"
+        description="Your six most recent published semester averages, on a five-point scale."
+        data={resultChartData(history.terms)}
+        valueLabel="Semester GPA"
+        valueFormat="grade"
+        maximum={5}
+        categoryLabel="Semester"
+        emptyMessage="Your GPA history will appear when your first results are approved."
       />
       {latest ? (
         <Link

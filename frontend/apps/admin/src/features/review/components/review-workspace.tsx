@@ -44,7 +44,7 @@ const root = "/workspaces/result-review";
 const api = "/v1/admin/results";
 const statusOptions = Object.entries(resultLabels).map(([value, label]) => ({
   value,
-  label,
+  label: value === "pending" ? "Reopened drafts" : label,
 }));
 const reasons = [
   { value: "mark_correction", label: "Mark correction" },
@@ -120,6 +120,10 @@ function ReviewQueue() {
   const [status, setStatus] = useState<ResultStatusValue>("submitted");
   return (
     <Surface className="u-stack">
+      <p className="u-muted">
+        Lecturer drafts appear after submission. Use Reopened drafts to find previously
+        submitted results returned to draft.
+      </p>
       <StaffResource resource={resource} title="departments">
         {({ departments }) => {
           const eligible = departments.filter(({ id }) =>

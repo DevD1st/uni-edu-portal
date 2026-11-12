@@ -17,6 +17,8 @@ UEMP presents academic records and decisions with clear hierarchy, a calm ink an
 
 Published GPA and CGPA use the shared average formatter on every screen and print view: `4.20 / 5.00`. A numeric zero displays `0.00 / 5.00`; an average without approved units displays `Unavailable`. API values remain numbers or `null`. Grade points awarded to an individual course remain distinct from an academic average. See [GPA and CGPA rules](../../docs/workflows.md#gpa-and-cgpa).
 
+Staff overview charts compare categorical counts with a zero baseline. The teaching chart uses the complete list of the viewer's assigned offerings across semesters; its roster state does not imply that an inactive offering is eligible for registration. The report chart uses authoritative result-group totals for the selected semester and authorized department or university scope. Keep those units and scopes visible, allow keyboard and touch selection, and expose exact values in a data table. Do not turn the paginated review preview into a distribution or total. Empty assignments and reporting scopes show an empty state instead of a graph with invented data.
+
 ## Shared component decisions
 
 | Component                  | Implementation standard                                                                                                                                                                                                                          |

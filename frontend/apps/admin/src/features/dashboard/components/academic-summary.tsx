@@ -7,6 +7,7 @@ import {
   ReportScope,
   type ReportFilters,
 } from "../../reporting/components/report-scope";
+import { ResultWorkflowChart } from "./result-workflow-chart";
 
 function Totals({ filters }: { filters: ReportFilters }) {
   const resource = useStaffResource(
@@ -16,16 +17,17 @@ function Totals({ filters }: { filters: ReportFilters }) {
   return (
     <StaffResource resource={resource} title="academic summary">
       {(data) => (
-        <StaffMetrics
-          items={[
-            { label: "Students registered", value: data.studentCount },
-            { label: "Course offerings", value: data.offeringCount },
-            { label: "Awaiting review", value: data.submittedCount },
-            { label: "Corrections requested", value: data.correctionRequestedCount },
-            { label: "Published grades", value: data.publishedCount },
-            { label: "Closed rosters", value: data.closedRosterCount },
-          ]}
-        />
+        <>
+          <StaffMetrics
+            items={[
+              { label: "Students registered", value: data.studentCount },
+              { label: "Course offerings", value: data.offeringCount },
+              { label: "Published grades", value: data.publishedCount },
+              { label: "Closed rosters", value: data.closedRosterCount },
+            ]}
+          />
+          <ResultWorkflowChart summary={data} />
+        </>
       )}
     </StaffResource>
   );

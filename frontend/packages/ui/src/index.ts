@@ -22,3 +22,5 @@ export type { NavigationGroup, NavigationItem, NavigationLink } from "./layouts"
 export { SignInForm } from "./sign-in";
 export { ThemeSwitch } from "./theme-switch";
 export { useClientReady } from "./use-client-ready";
+export { BarChart, TrendChart } from "./charts";
+export type { ChartDatum, ChartProps, ChartValueFormat } from "./charts";

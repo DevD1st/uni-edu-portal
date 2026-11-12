@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
-import { expect, test, type Page, type Request } from "@playwright/test";
+import { expect, test, type Locator, type Page, type Request } from "@playwright/test";
+import type { Dto } from "../packages/api-contracts/src/response";
 import { apiOrigin, demoAdminHeaders } from "./support/demo-api";
 import { studentOrigin as student, adminOrigin as staff } from "./support/origins";
 
@@ -69,6 +70,52 @@ async function layout(page: Page, name: string, modal = false) {
   }
 }
 
+async function inspectCountChart(
+  chart: Locator,
+  title: string,
+  unit: string,
+  points: readonly { label: string; value: number }[],
+) {
+  const bar = (point: { label: string }) =>
+    chart.getByRole("button").filter({ hasText: point.label });
+  for (const point of points) await expect(bar(point)).toBeVisible();
+  const first = points[0];
+  const last = points.at(-1);
+  if (!first || !last) throw new Error("A dashboard chart needs real data to inspect.");
+  const firstBar = bar(first);
+  const lastBar = bar(last);
+  await firstBar.focus();
+  await firstBar.press("End");
+  await expect(lastBar).toBeFocused();
+  await expect(lastBar).toHaveAttribute("aria-pressed", "true");
+  await lastBar.press("Home");
+  await expect(firstBar).toBeFocused();
+  await expect(firstBar).toHaveAttribute("aria-pressed", "true");
+  const next = points[1];
+  if (next) {
+    await firstBar.press("ArrowRight");
+    const nextBar = bar(next);
+    await expect(nextBar).toBeFocused();
+    await expect(nextBar).toHaveAttribute("aria-pressed", "true");
+  }
+  await lastBar.tap();
+  await expect(chart.getByRole("status")).toContainText(last.label);
+  await expect(chart.getByRole("status")).toContainText(unit);
+  await expect(lastBar).toHaveAttribute("aria-pressed", "true");
+  await chart.getByText("View data table", { exact: true }).tap();
+  const table = chart.getByRole("table", { name: title + " data", exact: true });
+  await expect(
+    table.getByRole("columnheader", { name: unit, exact: true }),
+  ).toBeVisible();
+  for (const point of points) {
+    const row = table.getByRole("row").filter({ hasText: point.label });
+    await expect(
+      row.getByRole("cell", { name: String(point.value), exact: true }),
+    ).toBeVisible();
+  }
+  await chart.getByText("View data table", { exact: true }).tap();
+}
+
 async function openMarks(page: Page) {
   await signIn(page, staff, "lecturer");
   await page.getByRole("link", { name: "Open my teaching" }).tap();
@@ -101,7 +148,15 @@ test.describe("frontend finishing workflows", () => {
     test.setTimeout(180_000);
     const requests: string[] = [];
     page.on("request", (request) => requests.push(new URL(request.url()).pathname));
+    const teachingResponse = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/v1/lecturer/offerings" &&
+        response.status() === 200,
+    );
     await signIn(page, staff, "lecturer");
+    const assigned = (
+      (await (await teachingResponse).json()) as Dto<"TeachingOfferingsResponseDto">
+    ).offerings;
     const teaching = page.getByRole("region", {
       name: "Teaching dashboard",
       exact: true,
@@ -110,6 +165,28 @@ test.describe("frontend finishing workflows", () => {
       teaching.getByText("Assigned offerings", { exact: true }),
     ).toBeVisible();
     await expect(teaching.getByRole("definition").first()).toHaveText("6");
+    await inspectCountChart(
+      teaching.getByRole("figure", { name: "Assigned roster status", exact: true }),
+      "Assigned roster status",
+      "Offerings",
+      [
+        {
+          label: "Open rosters",
+          value: assigned.filter(
+            ({ registrationStatus }) => registrationStatus === "opened",
+          ).length,
+        },
+        {
+          label: "Closed rosters",
+          value: assigned.filter(
+            ({ registrationStatus }) => registrationStatus === "closed",
+          ).length,
+        },
+      ],
+    );
+    await expect(
+      page.getByRole("figure", { name: "Result workflow", exact: true }),
+    ).toHaveCount(0);
     await expect(page.getByRole("region", { name: "Review dashboard" })).toHaveCount(0);
     await expect(page.getByRole("region", { name: "Academic dashboard" })).toHaveCount(
       0,
@@ -124,7 +201,13 @@ test.describe("frontend finishing workflows", () => {
     await page.getByRole("button", { name: "Sign out" }).tap();
     await expect(page).toHaveURL(/\/sign-in$/);
 
+    const reportResponse = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/v1/admin/reports/overview" &&
+        response.status() === 200,
+    );
     await signIn(page, staff, "hod");
+    const report = (await (await reportResponse).json()) as Dto<"AcademicOverviewDto">;
     const review = page.getByRole("region", { name: "Review dashboard", exact: true });
     await expect(review.getByRole("link", { name: /DEMO106/ })).toBeVisible();
     await expect(page.getByLabel("Review department").getByRole("option")).toHaveText([
@@ -141,6 +224,26 @@ test.describe("frontend finishing workflows", () => {
         .getByRole("region", { name: "Academic dashboard" })
         .getByText("Students registered", { exact: true }),
     ).toBeVisible();
+    const resultChart = page.getByRole("figure", {
+      name: "Result workflow",
+      exact: true,
+    });
+    await inspectCountChart(resultChart, "Result workflow", "Result groups", [
+      { label: "Draft", value: report.pendingCount },
+      { label: "Awaiting review", value: report.submittedCount },
+      { label: "Corrections requested", value: report.correctionRequestedCount },
+      { label: "Approved", value: report.approvedCount },
+    ]);
+    // A zero count is a selectable observed state, not an unavailable value or a fabricated bar.
+    expect(report.correctionRequestedCount).toBe(0);
+    await resultChart
+      .getByRole("button")
+      .filter({ hasText: "Corrections requested" })
+      .tap();
+    await expect(resultChart.getByRole("status")).toContainText(
+      "Corrections requested",
+    );
+    await expect(resultChart.getByRole("status")).toContainText("0");
     const authorizedDepartment = await page
       .getByLabel("Report department")
       .inputValue();
@@ -195,6 +298,9 @@ test.describe("frontend finishing workflows", () => {
     await expect(page).toHaveURL(/\/sign-in$/);
 
     await signIn(page, staff, "super-admin");
+    await expect(
+      page.getByRole("figure", { name: "Assigned roster status", exact: true }),
+    ).toHaveCount(0);
     await expect(
       page.getByLabel("Report department").getByRole("option").first(),
     ).toHaveText("Entire university");

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ResourceState, Surface } from "@uemp/ui";
+import { BarChart, ResourceState, Surface } from "@uemp/ui";
 import { StaffMetrics } from "../../portal/components/staff-metrics";
 import { hasPrivilege } from "../../access/policy";
 import { StaffResource } from "../../portal/components/staff-controls";
@@ -23,35 +23,50 @@ export function TeachingSummary() {
           return (
             <>
               <StaffMetrics
-                items={[
-                  { label: "Assigned offerings", value: assigned.length },
-                  {
-                    label: "Registration open",
-                    value: assigned.filter(
-                      ({ registrationStatus }) => registrationStatus === "opened",
-                    ).length,
-                  },
-                  {
-                    label: "Registration closed",
-                    value: assigned.filter(
-                      ({ registrationStatus }) => registrationStatus === "closed",
-                    ).length,
-                  },
-                ]}
+                items={[{ label: "Assigned offerings", value: assigned.length }]}
               />
               {assigned.length ? (
-                <ul className="staff-summary-list">
-                  {assigned.slice(0, 3).map((offering) => (
-                    <li key={offering.offeringId}>
-                      <Link
-                        className="u-text-link"
-                        to={"/workspaces/teaching/" + offering.offeringId}
-                      >
-                        {offering.code} · {offering.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <BarChart
+                    title="Assigned roster status"
+                    description="Registration state across all your assigned course offerings and semesters."
+                    categoryLabel="Registration state"
+                    valueLabel="Offerings"
+                    data={[
+                      {
+                        id: "opened",
+                        label: "Open rosters",
+                        shortLabel: "Open",
+                        value: assigned.filter(
+                          ({ registrationStatus }) => registrationStatus === "opened",
+                        ).length,
+                        detail: "Assigned offerings whose roster has not been closed.",
+                      },
+                      {
+                        id: "closed",
+                        label: "Closed rosters",
+                        shortLabel: "Closed",
+                        value: assigned.filter(
+                          ({ registrationStatus }) => registrationStatus === "closed",
+                        ).length,
+                        detail:
+                          "Registration is permanently closed for these offerings.",
+                      },
+                    ]}
+                  />
+                  <ul className="staff-summary-list">
+                    {assigned.slice(0, 3).map((offering) => (
+                      <li key={offering.offeringId}>
+                        <Link
+                          className="u-text-link"
+                          to={"/workspaces/teaching/" + offering.offeringId}
+                        >
+                          {offering.code} · {offering.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               ) : (
                 <ResourceState state="empty" title="No course offerings assigned yet" />
               )}
