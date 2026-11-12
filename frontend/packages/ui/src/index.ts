@@ -20,6 +20,8 @@ export { Dialog } from "./dialog";
 export { AuthLayout, Brand, PortalShell } from "./layouts";
 export type { NavigationGroup, NavigationItem, NavigationLink } from "./layouts";
 export { SignInForm } from "./sign-in";
+export { AuthSupportLinks } from "./auth-support";
+export type { AuthSupportLinksProps } from "./auth-support";
 export { ThemeSwitch } from "./theme-switch";
 export { useClientReady } from "./use-client-ready";
 export { BarChart, TrendChart } from "./charts";

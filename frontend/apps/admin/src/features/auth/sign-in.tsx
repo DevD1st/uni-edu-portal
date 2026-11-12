@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router";
-import { AuthLayout, SignInForm } from "@uemp/ui";
+import { AuthLayout, AuthSupportLinks, SignInForm } from "@uemp/ui";
 import { readableError } from "@uemp/web-client";
 import { signIn } from "./api";
 import { useAuth } from "./provider";
@@ -39,6 +39,21 @@ export function StaffSignIn() {
       asideDescription="Your workspace reflects the privileges and departments assigned to your account."
     >
       <SignInForm onSubmit={submit} error={error} pending={pending} />
+      <AuthSupportLinks
+        otherPortal={{
+          href: "https://uemp-student.onrender.com/sign-in",
+          label: "Student portal",
+        }}
+        demoCredentialsHref="https://github.com/DevD1st/uni-edu-portal#demo-access-and-walkthrough"
+        backendDocsHref="https://uemp-backend.onrender.com/docs"
+        backendNote={
+          <>
+            Before you continue, open the backend API docs and confirm they load. Use{" "}
+            <code>uemp</code> for both the username and password. If Render is waking
+            up, wait for the documentation page to load, then return here.
+          </>
+        }
+      />
     </AuthLayout>
   );
 }

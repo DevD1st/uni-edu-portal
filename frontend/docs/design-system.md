@@ -41,6 +41,8 @@ Staff overview charts compare categorical counts with a zero baseline. The teach
 
 Controls that need hydration use `useClientReady` before accepting interaction. This includes navigation toggles, theme controls, credential/profile controls, and print actions. Keep a short loading explanation and a JavaScript-disabled message where necessary. Credential and profile forms retain a native POST fallback so their values cannot enter the URL.
 
+Sign-in and student-signup pages place a shared demo-access panel after the form. Each app supplies its counterpart portal, public demo-account documentation, and backend documentation links. Documentation opens in a clearly labelled new tab so entered form values stay in place; the service note explains how to confirm the demo backend is awake. This guidance does not gate form submission.
+
 Theme choice supports system, light, and dark modes with the existing persistence behavior. Motion reduction applies to loading animations as well as transitions. Browser icons use the same campus mark as the shell.
 
 ## Student page and component inventory

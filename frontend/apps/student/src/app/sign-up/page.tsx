@@ -3,6 +3,7 @@ import { AuthLayout, Banner } from "@uemp/ui";
 import { SignupForm } from "../../features/auth/components/signup-form";
 import { publicApi } from "../../features/portal/server/student-api";
 import { readReferences } from "../../features/auth/signup-contract";
+import { StudentReviewLinks } from "../../features/auth/components/review-access-links";
 
 export const metadata = { title: "Create student account" };
 
@@ -31,6 +32,7 @@ export default async function SignupPage() {
           Sign in
         </Link>
       </p>
+      <StudentReviewLinks />
     </AuthLayout>
   );
 }

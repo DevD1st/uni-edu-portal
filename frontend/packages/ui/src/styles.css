@@ -546,6 +546,80 @@
     min-inline-size: calc(var(--uemp-touch) - 2px);
     min-block-size: calc(var(--uemp-touch) - 2px);
   }
+  .u-auth-support {
+    display: grid;
+    min-inline-size: 0;
+    gap: var(--uemp-space-3);
+    margin-block-start: var(--uemp-space-6);
+    padding-block-start: var(--uemp-space-5);
+    border-block-start: 1px solid var(--uemp-line);
+    font-size: var(--uemp-text-sm);
+  }
+  .u-auth-support > h2 {
+    margin: 0;
+    color: var(--uemp-ink);
+    font-size: var(--uemp-text-sm);
+    font-weight: 650;
+  }
+  .u-auth-support-list {
+    display: grid;
+    gap: var(--uemp-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .u-auth-support-list > li {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--uemp-space-2);
+  }
+  .u-auth-support-icon {
+    display: grid;
+    place-items: center;
+    block-size: 1.75rem;
+    margin-block-start: var(--uemp-space-2);
+    border-radius: var(--uemp-radius-control);
+    color: var(--uemp-accent);
+    background: var(--uemp-selected);
+  }
+  .u-auth-support-content {
+    min-inline-size: 0;
+  }
+  .u-auth-support-link {
+    display: flex;
+    min-block-size: var(--uemp-touch);
+    max-inline-size: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding-block: var(--uemp-space-1);
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .u-auth-support-link-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--uemp-space-1);
+    max-inline-size: 100%;
+  }
+  .u-auth-support-link-title svg {
+    flex: none;
+  }
+  .u-auth-support-hint,
+  .u-auth-support-note {
+    color: var(--uemp-muted);
+    font-weight: 400;
+  }
+  .u-auth-support-hint {
+    font-size: var(--uemp-text-label);
+  }
+  .u-auth-support-note {
+    margin-block-start: var(--uemp-space-1);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
   .u-auth-aside {
     display: none;
     position: relative;

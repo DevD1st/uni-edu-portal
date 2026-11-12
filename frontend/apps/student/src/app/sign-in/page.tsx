@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AuthLayout, Banner } from "@uemp/ui";
 import { StudentSignIn } from "../../features/auth/components/sign-in-form";
+import { StudentReviewLinks } from "../../features/auth/components/review-access-links";
 
 export const metadata = { title: "Sign in" };
 
@@ -26,6 +27,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
           Create an account
         </Link>
       </p>
+      <StudentReviewLinks />
     </AuthLayout>
   );
 }
