@@ -24,9 +24,18 @@ Concurrent registrations serialize around the student, term, and selected offeri
 
 ## Marks, review, and publication
 
-![result lifecycle diagram](diagrams/result-lifecycle.svg)
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> submitted: Complete marks and closed roster
+    submitted --> approved: Approve and award grades
+    submitted --> correction_requested: Return with feedback
+    correction_requested --> submitted: Correct and resubmit
+    submitted --> pending: Authorized reopening
+    approved --> pending: Reopen and withdraw publication
+```
 
-[Editable Mermaid source](diagrams/result-lifecycle.mmd)
+[Diagram source](diagrams/result-lifecycle.mmd)
 
 Registration closure is separate from these result states. It stays closed through every transition in the diagram.
 
@@ -37,7 +46,7 @@ Registration closure is separate from these result states. It stays closed throu
 | `correction_requested` | Read feedback, correct saved marks, and resubmit                  | Read previously submitted records                                             | No marks or awards                                    |
 | `approved`             | Read published group; editing is locked                           | Reopen with a reason if authorized                                            | Own awarded grades, GPA/CGPA, and printable statement |
 
-Teaching reads require `teach_course` and the actual lecturer assignment. Saving and submitting additionally require `grade_result` in the offering's department. Department approval needs `approve_result`; returning work needs `review_result`; reopening needs `reopen_result`. Each action is checked independently. A lecturer with approval access in the owning department can approve their own submission.
+Teaching reads require `teach_course` and the actual lecturer assignment. Saving and submitting additionally require `grade_result` in the offering's department. Department approval needs `approve_result`; returning work needs `review_result`; reopening needs `reopen_result`. Each action is checked independently. Lecturers/HODs cannot approve results they taught, entered, or submitted, even when they also hold departmental approval privileges. Another authorized reviewer must approve them. Only a university-wide assignment of the protected Super Admin system role permits self-approval, while retaining normal approval scope and state checks.
 
 ### Marks and decisions
 
@@ -45,6 +54,7 @@ Teaching reads require `teach_course` and the actual lecturer assignment. Saving
 - A save contains 1–100 distinct enrollments from one result group. Omitted components retain their saved value; `null` clears a component. One invalid entry rejects the whole batch. Repeating an identical save reports no changes.
 - Submission requires a closed roster and both scores for every enrollment. Submission and approval can include a trimmed note of 1–1,000 characters when supplied.
 - Requesting corrections requires feedback. Marks stay saved, and the lecturer sees the reason before editing and resubmitting.
+- Self-approval checks include the offering/group lecturer, the submitting administrator, and successful marks contributions recorded in the audit trail. Reassigning an offering does not erase authorship. The staff screen shows a reason when another approver is required, and the API independently rejects a prohibited approval without changing marks, awards, or publication.
 - Reopening a submitted or approved group requires `mark_correction`, `review_error`, or `administrative_request`. It returns the group to `pending`, preserves entered marks, and removes awarded grades. Submission and approval must happen again before students see the results.
 
 Approval awards all enrolled grades and publishes the group in one transaction. Required success audit records commit with the same change; an audit failure rolls the result mutation back. Student queries enforce approved-group visibility and a valid award from the offering's pinned policy in SQL. Hiding an action in the UI is never the authorization boundary.

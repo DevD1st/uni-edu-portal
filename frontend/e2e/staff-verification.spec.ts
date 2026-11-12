@@ -4,6 +4,7 @@ import { expect, test, type APIResponse, type Page } from "@playwright/test";
 import type { components } from "../packages/api-contracts/src/generated";
 import { apiOrigin, demoAdminHeaders } from "./support/demo-api";
 import { adminOrigin as origin } from "./support/origins";
+import { staffTokens } from "./support/session-browser";
 
 type Dto<Name extends keyof components["schemas"]> = components["schemas"][Name];
 
@@ -21,6 +22,20 @@ async function signIn(page: Page, account: string) {
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).tap();
   await expect(page.getByRole("heading", { name: "Staff overview" })).toBeVisible();
+}
+
+async function signOut(page: Page) {
+  await page.getByRole("button", { name: "Sign out" }).tap();
+  await expect(page).toHaveURL(/\/sign-in$/);
+}
+
+async function approveResults(page: Page) {
+  await page.getByRole("button", { name: "Approve and publish", exact: true }).tap();
+  await page
+    .getByRole("dialog", { name: "Approve and publish results" })
+    .getByRole("button", { name: "Approve and publish results", exact: true })
+    .tap();
+  await expect(page.getByText("Results published.", { exact: true })).toBeVisible();
 }
 
 async function verifyLayout(page: Page) {
@@ -48,17 +63,25 @@ async function verifyLayout(page: Page) {
 test.describe("staff permission and state regressions", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
-  test("review scopes retain inactive departments, drafts survive roster paging, and a lecturer can approve their own submission", async ({
+  test("review scopes and drafts are preserved while own results need another approver or a Super Admin", async ({
     page,
     request,
   }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
     const headers = await demoAdminHeaders(request, "super-admin");
     const setup = await read<Dto<"AcademicSetupResponseDto">>(
       request.get(apiOrigin + "/v1/admin/academic", { headers }),
     );
     const department = setup.departments.find(({ name }) => name === "Demo Computing");
     if (!department) throw new Error("The demo Computing department is required.");
+    const roles = await read<Dto<"RolePageResponseDto">>(
+      request.get(apiOrigin + "/v1/admin/roles", { headers, params: { limit: 100 } }),
+    );
+    const hodRole = roles.items.find(({ systemKey }) => systemKey === "hod");
+    if (!hodRole) throw new Error("The seeded HOD role is required.");
+    const superAdmin = await read<Dto<"AdminAuthorizationResponseDto">>(
+      request.get(apiOrigin + "/v1/admin/admins/me/authorization", { headers }),
+    );
     const queue = await read<Dto<"ResultGroupPageDto">>(
       request.get(apiOrigin + "/v1/admin/results", {
         headers,
@@ -144,7 +167,7 @@ test.describe("staff permission and state regressions", () => {
       ownGrant = await read<Dto<"RoleAssignmentResponseDto">>(
         request.post(grantPath, {
           headers,
-          data: { roleId: role.id, departmentId: department.id },
+          data: { roleId: hodRole.id, departmentId: department.id },
         }),
       );
       await read(
@@ -191,16 +214,33 @@ test.describe("staff permission and state regressions", () => {
       await page.goto(origin + "/workspaces/result-review/" + group.id);
       await expect(
         page.getByRole("button", { name: "Request corrections", exact: true }),
+      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "Reopen results" })).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Approve and publish", exact: true }),
       ).toHaveCount(0);
-      await expect(page.getByRole("button", { name: "Reopen results" })).toHaveCount(0);
-      await page
-        .getByRole("button", { name: "Approve and publish", exact: true })
-        .tap();
-      await page
-        .getByRole("dialog", { name: "Approve and publish results" })
-        .getByRole("button", { name: "Approve and publish results", exact: true })
-        .tap();
-      await expect(page.getByText("Results published.", { exact: true })).toBeVisible();
+      const ownTokens = await staffTokens(page);
+      if (!ownTokens) throw new Error("The combined lecturer/HOD session is required.");
+      const ownHeaders = { Authorization: "Bearer " + ownTokens.access.token };
+      const ownDetail = await read<Dto<"ResultGroupDetailDto">>(
+        request.get(resultPath, { headers: ownHeaders }),
+      );
+      expect(ownDetail.canApprove).toBe(false);
+      const blockedReason = ownDetail.approvalBlockedReason;
+      if (!blockedReason)
+        throw new Error("Self-approval needs a friendly explanation.");
+      expect(blockedReason).toMatch(/another authorized reviewer/);
+      await expect(page.getByText(blockedReason, { exact: true })).toBeVisible();
+      const blocked = await request.post(resultPath + "/approve", {
+        headers: ownHeaders,
+        data: {},
+      });
+      expect(blocked.status()).toBe(403);
+      expect((await blocked.json()).message).toBe(ownDetail.approvalBlockedReason);
+      const unchanged = await read<Dto<"ResultGroupDetailDto">>(
+        request.get(resultPath, { headers: ownHeaders }),
+      );
+      expect(unchanged.status).toBe("submitted");
       await verifyLayout(page);
       await page.goto(origin + "/workspaces/teaching/missing/nested");
       await expect(page.getByText("Page not found", { exact: true })).toBeVisible();
@@ -208,26 +248,65 @@ test.describe("staff permission and state regressions", () => {
       await expect(
         page.getByRole("table", { name: "Your course offerings" }),
       ).toBeVisible();
+      await signOut(page);
+
+      // A different departmental reviewer can still publish the lecturer's submission.
+      await signIn(page, "hod");
+      await page.goto(origin + "/workspaces/result-review/" + group.id);
+      await approveResults(page);
+      await signOut(page);
+
+      await read(
+        request.post(resultPath + "/reopen", {
+          headers,
+          data: { reason: "mark_correction" },
+        }),
+      );
+      await read(
+        request.patch(apiOrigin + "/v1/admin/courses/offerings/" + group.offeringId, {
+          headers,
+          data: { lecturerId: superAdmin.adminId },
+        }),
+      );
+      // The exception is exercised on an actual own submission, not a forged response.
+      await signIn(page, "super-admin");
+      await page.goto(origin + "/workspaces/teaching/" + group.offeringId);
+      await page.getByRole("button", { name: "Marks", exact: true }).tap();
+      await page.getByRole("button", { name: "Submit for review" }).tap();
+      await page
+        .getByRole("dialog", { name: "Submit results for review" })
+        .getByRole("button", { name: "Submit results", exact: true })
+        .tap();
+      await expect(page.getByText("Awaiting review", { exact: true })).toBeVisible();
+      await page.goto(origin + "/workspaces/result-review/" + group.id);
+      await approveResults(page);
     } finally {
+      // A browser sign-in replaces that account's API token pair; obtain a current cleanup session.
+      const headers = await demoAdminHeaders(request, "super-admin");
       const current = await read<Dto<"ResultGroupDetailDto">>(
         request.get(resultPath, { headers }),
       );
-      if (current.status !== "submitted") {
-        if (current.status === "approved")
-          await read(
-            request.post(resultPath + "/reopen", {
-              headers,
-              data: { reason: "mark_correction" },
-            }),
-          );
-        const lecturerHeaders = await demoAdminHeaders(request, "lecturer");
+      if (current.status === "submitted" || current.status === "approved")
         await read(
-          request.post(apiOrigin + "/v1/lecturer/results/" + group.id + "/submit", {
-            headers: lecturerHeaders,
-            data: {},
+          request.post(resultPath + "/reopen", {
+            headers,
+            data: { reason: "mark_correction" },
           }),
         );
-      }
+      if (current.lecturerId !== group.lecturerId)
+        await read(
+          request.patch(apiOrigin + "/v1/admin/courses/offerings/" + group.offeringId, {
+            headers,
+            data: { lecturerId: group.lecturerId },
+          }),
+        );
+      const lecturerHeaders = await demoAdminHeaders(request, "lecturer");
+      await read(
+        request.post(apiOrigin + "/v1/lecturer/results/" + group.id + "/submit", {
+          headers: lecturerHeaders,
+          data: {},
+        }),
+      );
       for (const grant of [ownGrant, otherGrant]) {
         if (grant)
           expect(

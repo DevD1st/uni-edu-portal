@@ -60,6 +60,13 @@ export function hasAnyScope(
   return access.grants.some((grant) => grant.privileges.includes(privilege));
 }
 
+export function hasGlobalSuperAdmin(access: AdminAccess): boolean {
+  // The protected system key identifies this role; names and broad custom grants do not.
+  return access.grants.some(
+    (grant) => grant.systemKey === 'super_admin' && grant.departmentId === null,
+  );
+}
+
 export function canManageLecturerProfile(
   actor: AdminAccess,
   grants: readonly {

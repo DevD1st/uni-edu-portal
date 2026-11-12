@@ -1,14 +1,307 @@
 # Database design
 
-PostgreSQL stores accounts, academic placement, departmental course delivery, registration, grading, and audit history. The model separates a shared catalog course from each department's offering so programmes can reuse course definitions without sharing another department's roster or approval authority. A lecturer with approval privileges in the owning department may also approve their own submission.
+PostgreSQL stores accounts, academic placement, departmental course delivery, registration, grading, and audit history. The model separates a shared catalog course from each department's offering so programmes can reuse course definitions without sharing another department's roster or approval authority. Self-approval is reserved for a university-wide protected Super Admin grant together with the normal approval privilege; departmental approval alone does not permit it.
 
 The physical schema is defined by the [timestamped migrations](../backend/src/core/database/migrations/) and mirrored by the [TypeORM entities](../backend/src/modules/). Automatic ORM synchronization is disabled in [database configuration](../backend/src/core/database/ormconfig.ts); the initialization job applies migrations before the API starts. PostgreSQL 17 is the Compose database version.
 
 ## Complete entity relationship diagram
 
-![Complete PostgreSQL ERD with all tables, columns and enforced foreign keys](diagrams/database.svg)
+The focused views below render directly in GitHub Markdown. The complete physical schema is available in the expandable diagram; the `.mmd` files remain the editable sources.
 
-[Open the full-size SVG](diagrams/database.svg) · [Mermaid source](diagrams/database.mmd)
+<details>
+<summary>Expand the complete physical schema: all 22 tables and 185 columns</summary>
+
+```mermaid
+%% Complete physical PostgreSQL schema. All attributes are NOT NULL unless marked NULL.
+%% PK = primary key; FK = enforced foreign key; UK = single-column unique constraint.
+%% Composite/expression/partial unique constraints are documented in database.md.
+%% Dashed lines are non-identifying FK relationships; every domain table uses a surrogate UUID PK.
+%% Audit actor/target UUIDs are logical identifiers, deliberately not FK relationships.
+erDiagram
+    direction LR
+    users {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        text first_name "NULL"
+        text last_name "NULL"
+        text role
+        text email
+        text hashed_password "NULL"
+        integer auth_version "default 0"
+        timestamptz deleted_at "NULL"
+        text status "default 'active'"
+    }
+    academic_levels {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        text program_type
+        smallint stage
+        varchar display_name "varchar(100)"
+        text status "default 'active'"
+    }
+    academic_sessions {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        smallint start_year
+        smallint end_year
+        text status "default 'inactive'"
+    }
+    semesters {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid academic_session_id FK
+        smallint term_number
+        text name
+        smallint max_units
+        text status "default 'inactive'"
+    }
+    faculties {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        text name
+        text status "default 'active'"
+        uuid current_semester_id FK "NULL"
+        integer short_id UK "identity; default AS IDENTITY NOT NULL"
+    }
+    departments {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid faculty_id FK
+        text name
+        text status "default 'active'"
+        integer short_id UK "identity; default AS IDENTITY NOT NULL"
+    }
+    courses_of_study {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid department_id FK
+        text name
+        text program_type
+        text status "default 'active'"
+        integer short_id UK "identity; default AS IDENTITY NOT NULL"
+    }
+    students {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid user_id FK,UK
+        uuid academic_level_id FK "NULL"
+        uuid course_of_study_id FK "NULL"
+        uuid department_id FK "NULL"
+        uuid faculty_id FK "NULL"
+    }
+    matric_num_systems {
+        uuid id PK
+        timestamptz created_at "default now()"
+        uuid student_id FK,UK
+        uuid faculty_id FK
+        uuid department_id FK
+        uuid course_of_study_id FK
+        smallint issued_year
+        integer short_id UK "identity; default AS IDENTITY NOT NULL"
+        text matric_number UK
+    }
+    admins {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid user_id FK,UK
+        uuid created_by_admin_id FK "NULL"
+    }
+    roles {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        text name UK
+        text description "NULL"
+        text kind
+        text system_key UK "NULL"
+        uuid created_by_admin_id FK "NULL"
+        text[] privileges "default '{}'::text[]"
+    }
+    admin_roles {
+        uuid id PK
+        timestamptz created_at "default now()"
+        uuid admin_id FK
+        uuid role_id FK
+        uuid assigned_by_admin_id FK "NULL"
+        uuid department_id FK "NULL"
+    }
+    courses {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        text name
+        text code UK
+        smallint units
+        text status "default 'active'"
+    }
+    course_of_study_courses {
+        uuid id PK
+        timestamptz created_at "default now()"
+        uuid course_of_study_id FK
+        uuid course_id FK
+    }
+    grading_policies {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        integer version UK
+        text name
+        numeric max_ca_score "numeric(5,2)"
+        numeric max_exam_score "numeric(5,2)"
+        text status "default 'draft'"
+    }
+    grade_systems {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid grading_policy_id FK
+        text grade
+        numeric min_score "numeric(5,2)"
+        numeric max_score "numeric(5,2)"
+        numeric point "numeric(5,2)"
+    }
+    course_offerings {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid course_id FK
+        uuid department_id FK
+        uuid semester_id FK
+        uuid academic_level_id FK
+        uuid lecturer_id FK "NULL"
+        smallint units
+        uuid grading_policy_id FK
+        text status "default 'inactive'"
+    }
+    student_register_semesters {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid student_id FK
+        uuid semester_id FK
+        uuid academic_level_id FK
+        uuid course_of_study_id FK
+        uuid department_id FK
+        uuid faculty_id FK
+    }
+    result_groups {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid course_offering_id FK,UK
+        uuid lecturer_id FK
+        text status "default 'pending'"
+        text registration_status "default 'opened'"
+        timestamptz registration_closed_at "NULL"
+        uuid registration_closed_by_admin_id FK "NULL"
+        timestamptz submitted_at "NULL"
+        uuid submitted_by_admin_id FK "NULL"
+        text submission_reason "NULL"
+        timestamptz approved_at "NULL"
+        uuid approved_by_admin_id FK "NULL"
+        text approval_reason "NULL"
+        timestamptz correction_requested_at "NULL"
+        uuid correction_requested_by_admin_id FK "NULL"
+        text correction_request_reason "NULL"
+    }
+    student_registered_courses {
+        uuid id PK
+        timestamptz created_at "default now()"
+        timestamptz updated_at "default now()"
+        uuid student_id FK
+        uuid course_id FK
+        uuid student_register_semester_id FK
+        uuid result_group_id FK
+        uuid registered_by_user_id FK
+        smallint registered_units
+        numeric ca_score "NULL; numeric(5,2)"
+        numeric exam_score "NULL; numeric(5,2)"
+        uuid awarded_grade_system_id FK "NULL"
+    }
+    admin_audit_events {
+        uuid id PK
+        text action
+        text category
+        uuid actor_user_id "NULL; logical UUID; no FK"
+        uuid actor_admin_id "NULL; logical UUID; no FK"
+        text target_type
+        uuid target_id "NULL; logical UUID; no FK"
+        text outcome
+        text reason "NULL"
+        jsonb changes "NULL"
+        jsonb metadata "NULL"
+        text request_id "NULL"
+        text trace_id "NULL"
+        timestamptz occurred_at "default now()"
+    }
+    migrations {
+        integer id PK "generated increment; infrastructure ledger"
+        bigint timestamp "migration class timestamp"
+        varchar name "migration class name"
+    }
+
+    academic_sessions ||..o{ semesters : "academic_session_id; RESTRICT"
+    semesters |o..o{ faculties : "current_semester_id; RESTRICT"
+    faculties ||..o{ departments : "faculty_id; CASCADE"
+    departments ||..o{ courses_of_study : "department_id; RESTRICT"
+    users ||..o| students : "user_id; RESTRICT"
+    academic_levels |o..o{ students : "academic_level_id; SET NULL"
+    courses_of_study |o..o{ students : "course_of_study_id; SET NULL"
+    departments |o..o{ students : "department_id; SET NULL"
+    faculties |o..o{ students : "faculty_id; SET NULL"
+    students ||..o| matric_num_systems : "student_id; RESTRICT"
+    faculties ||..o{ matric_num_systems : "faculty_id; RESTRICT"
+    departments ||..o{ matric_num_systems : "department_id; RESTRICT"
+    courses_of_study ||..o{ matric_num_systems : "course_of_study_id; RESTRICT"
+    users ||..o| admins : "user_id; RESTRICT"
+    admins |o..o{ admins : "created_by_admin_id; SET NULL"
+    admins |o..o{ roles : "created_by_admin_id; SET NULL"
+    admins ||..o{ admin_roles : "admin_id; CASCADE"
+    roles ||..o{ admin_roles : "role_id; CASCADE"
+    admins |o..o{ admin_roles : "assigned_by_admin_id; SET NULL"
+    departments |o..o{ admin_roles : "department_id; RESTRICT"
+    courses_of_study ||..o{ course_of_study_courses : "course_of_study_id; RESTRICT"
+    courses ||..o{ course_of_study_courses : "course_id; RESTRICT"
+    grading_policies ||..o{ grade_systems : "grading_policy_id; RESTRICT"
+    courses ||..o{ course_offerings : "course_id; RESTRICT"
+    departments ||..o{ course_offerings : "department_id; RESTRICT"
+    semesters ||..o{ course_offerings : "semester_id; RESTRICT"
+    academic_levels ||..o{ course_offerings : "academic_level_id; RESTRICT"
+    admins |o..o{ course_offerings : "lecturer_id; RESTRICT"
+    grading_policies ||..o{ course_offerings : "grading_policy_id; RESTRICT"
+    students ||..o{ student_register_semesters : "student_id; RESTRICT"
+    semesters ||..o{ student_register_semesters : "semester_id; RESTRICT"
+    academic_levels ||..o{ student_register_semesters : "academic_level_id; RESTRICT"
+    courses_of_study ||..o{ student_register_semesters : "course_of_study_id; RESTRICT"
+    departments ||..o{ student_register_semesters : "department_id; RESTRICT"
+    faculties ||..o{ student_register_semesters : "faculty_id; RESTRICT"
+    course_offerings ||..o| result_groups : "course_offering_id; RESTRICT"
+    admins ||..o{ result_groups : "lecturer_id; RESTRICT"
+    admins |o..o{ result_groups : "registration_closed_by_admin_id; RESTRICT"
+    admins |o..o{ result_groups : "submitted_by_admin_id; RESTRICT"
+    admins |o..o{ result_groups : "approved_by_admin_id; RESTRICT"
+    admins |o..o{ result_groups : "correction_requested_by_admin_id; RESTRICT"
+    students ||..o{ student_registered_courses : "student_id; RESTRICT"
+    courses ||..o{ student_registered_courses : "course_id; RESTRICT"
+    student_register_semesters ||..o{ student_registered_courses : "student_register_semester_id; RESTRICT"
+    result_groups ||..o{ student_registered_courses : "result_group_id; RESTRICT"
+    users ||..o{ student_registered_courses : "registered_by_user_id; RESTRICT"
+    grade_systems |o..o{ student_registered_courses : "awarded_grade_system_id; RESTRICT"
+    student_register_semesters ||..o{ student_registered_courses : "composite student_register_semester_id, student_id; RESTRICT"
+```
+
+</details>
+
+[Complete Mermaid source](diagrams/database.mmd)
 
 The complete diagram includes **21 domain tables, the TypeORM migration ledger, 185 columns, and all 48 foreign key constraints**. The focused diagrams below omit non-key fields and some secondary actor references for readability; the full diagram and foreign key inventory are exhaustive.
 
@@ -20,7 +313,43 @@ The complete diagram includes **21 domain tables, the TypeORM migration ledger, 
 
 ### Identity and access
 
-![database identity diagram](diagrams/database-identity.svg)
+```mermaid
+erDiagram
+    users ||..o| students : user_id
+    users ||..o| admins : user_id
+    admins ||..o{ admin_roles : admin_id
+    roles ||..o{ admin_roles : role_id
+    departments |o..o{ admin_roles : department_id
+    admins |o..o{ admins : created_by_admin_id
+    users {
+        uuid id PK
+        text role "student or admin"
+        text email "unique with role"
+    }
+    students {
+        uuid id PK
+        uuid user_id FK,UK
+    }
+    admins {
+        uuid id PK
+        uuid user_id FK,UK
+        uuid created_by_admin_id FK "NULL"
+    }
+    roles {
+        uuid id PK
+        text name UK
+        text[] privileges
+    }
+    admin_roles {
+        uuid id PK
+        uuid admin_id FK
+        uuid role_id FK
+        uuid department_id FK "NULL means university-wide grant"
+    }
+    departments {
+        uuid id PK
+    }
+```
 
 [Editable Mermaid source](diagrams/database-identity.mmd)
 
@@ -28,7 +357,30 @@ The database allows zero or one profile of each kind per user; account creation 
 
 ### Academic catalog and departmental delivery
 
-![database academics diagram](diagrams/database-academics.svg)
+```mermaid
+erDiagram
+    academic_sessions ||..o{ semesters : academic_session_id
+    semesters |o..o{ faculties : current_semester_id
+    faculties ||..o{ departments : faculty_id
+    departments ||..o{ courses_of_study : department_id
+    courses_of_study ||..o{ course_of_study_courses : course_of_study_id
+    courses ||..o{ course_of_study_courses : course_id
+    courses ||..o{ course_offerings : course_id
+    departments ||..o{ course_offerings : department_id
+    semesters ||..o{ course_offerings : semester_id
+    academic_levels ||..o{ course_offerings : academic_level_id
+    grading_policies ||..o{ course_offerings : grading_policy_id
+    admins |o..o{ course_offerings : lecturer_id
+    course_offerings {
+        uuid id PK
+        uuid course_id FK
+        uuid department_id FK
+        uuid semester_id FK
+        uuid academic_level_id FK
+        uuid grading_policy_id FK
+        uuid lecturer_id FK "NULL until allocated"
+    }
+```
 
 [Editable Mermaid source](diagrams/database-academics.mmd)
 
@@ -36,7 +388,45 @@ The database allows zero or one profile of each kind per user; account creation 
 
 ### Registration, publication and retained history
 
-![database results diagram](diagrams/database-results.svg)
+```mermaid
+erDiagram
+    students ||..o| matric_num_systems : student_id
+    students ||..o{ student_register_semesters : student_id
+    semesters ||..o{ student_register_semesters : semester_id
+    student_register_semesters ||..o{ student_registered_courses : "term ID and composite student match"
+    students ||..o{ student_registered_courses : student_id
+    courses ||..o{ student_registered_courses : course_id
+    users ||..o{ student_registered_courses : registered_by_user_id
+    course_offerings ||..o| result_groups : course_offering_id
+    result_groups ||..o{ student_registered_courses : result_group_id
+    grading_policies ||..o{ grade_systems : grading_policy_id
+    grade_systems |o..o{ student_registered_courses : awarded_grade_system_id
+    student_register_semesters {
+        uuid id PK
+        uuid student_id FK
+        uuid semester_id FK
+    }
+    student_registered_courses {
+        uuid id PK
+        uuid student_register_semester_id FK
+        uuid student_id FK
+        uuid result_group_id FK
+        uuid awarded_grade_system_id FK "NULL until approval"
+    }
+    result_groups {
+        uuid id PK
+        uuid course_offering_id FK,UK
+        text status "only approved publishes grades"
+        text registration_status "closure is permanent"
+    }
+    admin_audit_events {
+        uuid id PK
+        uuid actor_user_id "NULL; logical UUID, no FK"
+        uuid actor_admin_id "NULL; logical UUID, no FK"
+        uuid target_id "NULL; logical UUID, no FK"
+        text target_type
+    }
+```
 
 [Editable Mermaid source](diagrams/database-results.mmd)
 
@@ -344,23 +734,23 @@ The `(gradingPolicyId, grade)` pair is unique. Checks require `minScore ≤ maxS
 
 PostgreSQL table `result_groups`. One group represents the roster and result lifecycle of one offering.
 
-| Property                       | Type and default                                                                     | Comment                                                                                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `courseOfferingId`             | Reference to CourseOffering, unique                                                  | Connects the group to one course delivery and supplies its course, owning department, semester, academic level, and grading policy.        |
-| `lecturerId`                   | Reference to Admin                                                                   | Identifies the responsible lecturer, copied from the offering and updated with an authorized reassignment.                                 |
-| `status`                       | `pending`, `submitted`, `approved`, or `correction_requested`, defaults to `pending` | Tracks grading and review. Pending is the draft state. Approved is the only state that publishes grades to students.                       |
-| `registrationStatus`           | `opened` or `closed`, defaults to `opened`                                           | Tracks whether students can join the roster. Once closed, this field cannot return to opened.                                              |
-| `registrationClosedAt`         | Timestamp with time zone, optional                                                   | Records when the lecturer closed the roster. It is required for a closed roster.                                                           |
-| `registrationClosedByAdminId`  | Reference to Admin, optional                                                         | Identifies the lecturer who closed registration. It is required for a closed roster.                                                       |
-| `submittedAt`                  | Timestamp with time zone, optional                                                   | Records when the latest submission was sent for review.                                                                                    |
-| `submittedByAdminId`           | Reference to Admin, optional                                                         | Records the lecturer who made the latest submission, even if the group is reassigned later.                                                |
-| `submissionReason`             | Text, optional                                                                       | Records an explanatory note on the latest submission.                                                                                      |
-| `approvedAt`                   | Timestamp with time zone, optional                                                   | Records when the latest approval was given. Current publication is determined by status.                                                   |
-| `approvedByAdminId`            | Reference to Admin, optional                                                         | Records the admin who gave the latest approval. The same person may have submitted it if they have approval privileges for the department. |
-| `approvalReason`               | Text, optional                                                                       | Records an explanatory note on the latest approval.                                                                                        |
-| `correctionRequestedAt`        | Timestamp with time zone, optional                                                   | Records when the most recent request for corrections was made.                                                                             |
-| `correctionRequestedByAdminId` | Reference to Admin, optional                                                         | Identifies the admin who made the most recent correction request.                                                                          |
-| `correctionRequestReason`      | Text, optional until a correction is requested                                       | Records the feedback the lecturer needs to address before resubmission.                                                                    |
+| Property                       | Type and default                                                                     | Comment                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `courseOfferingId`             | Reference to CourseOffering, unique                                                  | Connects the group to one course delivery and supplies its course, owning department, semester, academic level, and grading policy. |
+| `lecturerId`                   | Reference to Admin                                                                   | Identifies the responsible lecturer, copied from the offering and updated with an authorized reassignment.                          |
+| `status`                       | `pending`, `submitted`, `approved`, or `correction_requested`, defaults to `pending` | Tracks grading and review. Pending is the draft state. Approved is the only state that publishes grades to students.                |
+| `registrationStatus`           | `opened` or `closed`, defaults to `opened`                                           | Tracks whether students can join the roster. Once closed, this field cannot return to opened.                                       |
+| `registrationClosedAt`         | Timestamp with time zone, optional                                                   | Records when the lecturer closed the roster. It is required for a closed roster.                                                    |
+| `registrationClosedByAdminId`  | Reference to Admin, optional                                                         | Identifies the lecturer who closed registration. It is required for a closed roster.                                                |
+| `submittedAt`                  | Timestamp with time zone, optional                                                   | Records when the latest submission was sent for review.                                                                             |
+| `submittedByAdminId`           | Reference to Admin, optional                                                         | Records the lecturer who made the latest submission, even if the group is reassigned later.                                         |
+| `submissionReason`             | Text, optional                                                                       | Records an explanatory note on the latest submission.                                                                               |
+| `approvedAt`                   | Timestamp with time zone, optional                                                   | Records when the latest approval was given. Current publication is determined by status.                                            |
+| `approvedByAdminId`            | Reference to Admin, optional                                                         | Records the latest approver. Own-work approval additionally requires a protected university-wide Super Admin grant.                 |
+| `approvalReason`               | Text, optional                                                                       | Records an explanatory note on the latest approval.                                                                                 |
+| `correctionRequestedAt`        | Timestamp with time zone, optional                                                   | Records when the most recent request for corrections was made.                                                                      |
+| `correctionRequestedByAdminId` | Reference to Admin, optional                                                         | Identifies the admin who made the most recent correction request.                                                                   |
+| `correctionRequestReason`      | Text, optional until a correction is requested                                       | Records the feedback the lecturer needs to address before resubmission.                                                             |
 
 The first successful registration creates the group and enrollment in the same transaction. The unique offering key prevents concurrent first registrations from creating multiple groups. A group can have an open roster only in the pending state. A closed roster requires both closure fields. Submission, approval, and correction-request states require the corresponding action time and actor, plus a reason for a correction request. These fields summarize the latest action of each kind. The audit history preserves every transition and remains the source for prior review cycles.
 
@@ -522,7 +912,7 @@ A programme's curriculum links shared catalog courses to its department's offeri
 
 ### Grading and approval
 
-An offering's result group holds its permanent roster closure and grading state. Mark entry, submission and review use the owning department and current grants; an authorized approver may also be the submitting lecturer. Submitted marks stay locked until a corrections or reopening transition. Approval awards pinned-policy grades atomically; reopening withdraws publication without admitting new students. State transitions, actor requirements and database guards are listed in the constraint reference above, with API behavior in [marks, review and publication](workflows.md#marks-review-and-publication).
+An offering's result group holds its permanent roster closure and grading state. Mark entry, submission and review use the owning department and current grants. An approver cannot approve work they own as its assigned lecturer, latest submitter or a recorded successful marks contributor, including after reassignment. The exception requires both a protected `Role.systemKey = super_admin` grant with `AdminRole.departmentId = null` and the normal approval privilege; the role name or an HOD grant alone does not qualify. Submitted marks stay locked until a corrections or reopening transition. Approval awards pinned-policy grades atomically; reopening withdraws publication without admitting new students. State transitions, actor requirements and database guards are listed in the constraint reference above, with API behavior in [marks, review and publication](workflows.md#marks-review-and-publication).
 
 The migration seeds CA out of **30**, exam out of **70**, and these inclusive bands:
 

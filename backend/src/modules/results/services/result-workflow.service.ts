@@ -160,6 +160,7 @@ export class ResultWorkflowService {
       async (manager, context) => {
         const { group, actor, offering } = context;
         requireSubmitted(group);
+        await this.access.requireApproval(context, manager);
         const rows = await completeRows(manager, group.id);
         const bands = await manager
           .getRepository<GradeSystem>('GradeSystem')

@@ -1,13 +1,16 @@
 sequenceDiagram
-    participant U as Account service
+    participant U as UserAdministrationService
     participant P as PostgreSQL
     participant E as In-process EventBus
     participant S as AccountAuthSaga
     participant C as CommandBus
+    participant H as ClearRevokedSessionHandler
     participant R as Redis
     U->>P: Commit account change and advance authVersion
     P-->>U: Committed
     U->>E: Publish AccountAuthChangedEvent
     E->>S: Deliver event
     S->>C: ClearRevokedSessionCommand
-    C->>R: Remove token families older than version
+    C->>H: Execute cleanup command
+    H->>R: TokenRegistryService removes older families
+    Note over P,R: PostgreSQL already rejects the revoked version

@@ -11,6 +11,8 @@ Copy-Item .env.example .env
 docker compose up --build --wait
 ```
 
+Compose needs only the root `.env`; no frontend `.env.local` copies are needed for this demo. It supplies the student's Next.js settings at runtime and the staff `VITE_API_URL` as a Docker build argument. Individual app environment files are for [host development](../docs/development.md#host-development).
+
 | Application    | Local                                   | Hosted                                                                         |
 | -------------- | --------------------------------------- | ------------------------------------------------------------------------------ |
 | Student portal | [localhost:3001](http://localhost:3001) | [uemp-student.onrender.com/sign-in](https://uemp-student.onrender.com/sign-in) |

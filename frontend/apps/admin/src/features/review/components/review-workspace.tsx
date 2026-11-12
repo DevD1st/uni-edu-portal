@@ -9,7 +9,8 @@ import {
   Surface,
 } from "@uemp/ui";
 import { isUuid, type Dto } from "@uemp/api-contracts/response";
-import { hasPrivilege, permits, reviewRule } from "../../access/policy";
+import { permits, reviewRule } from "../../access/policy";
+import { reviewActions } from "../policy";
 import {
   ActionNotice,
   ChoiceField,
@@ -235,14 +236,8 @@ function ReviewDetail() {
                 title="This result is outside your departments"
               />
             );
-          const submitted = group.status === "submitted";
-          const approve =
-            submitted && hasPrivilege(grants, "approve_result", group.departmentId);
-          const correct =
-            submitted && hasPrivilege(grants, "review_result", group.departmentId);
-          const reopen =
-            (submitted || group.status === "approved") &&
-            hasPrivilege(grants, "reopen_result", group.departmentId);
+          const { approve, correct, reopen } = reviewActions(grants, group);
+          const allowedDecisions = { approve, "request-corrections": correct, reopen };
           return (
             <>
               <PageHeader
@@ -278,7 +273,12 @@ function ReviewDetail() {
                 {group.correctionRequestReason && (
                   <Banner tone="warning">{group.correctionRequestReason}</Banner>
                 )}
-                {!decision && (
+                {group.status === "submitted" &&
+                  !approve &&
+                  group.approvalBlockedReason && (
+                    <Banner>{group.approvalBlockedReason}</Banner>
+                  )}
+                {(!decision || !allowedDecisions[decision]) && (
                   <ActionNotice error={action.error} success={action.success} />
                 )}
                 <ResultMarks marks={group.marks} />
@@ -302,7 +302,7 @@ function ReviewDetail() {
                   )}
                 </div>
               </Surface>
-              {decision && (
+              {decision && allowedDecisions[decision] && (
                 <StaffDialog
                   title={decisionText[decision].title}
                   label={decisionText[decision].title}

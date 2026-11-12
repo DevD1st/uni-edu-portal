@@ -11,6 +11,7 @@ import { AdminAuthorizationService } from '#shared/admin-authorization/admin-aut
 import {
   authorizedDepartments,
   canManageLecturerProfile,
+  hasGlobalSuperAdmin,
   hasPrivilege,
 } from '#shared/admin-authorization/privilege.js';
 import type {
@@ -481,12 +482,6 @@ export class AdminManagementService {
       name: role.name,
     };
   }
-}
-
-function hasGlobalSuperAdmin(actor: AdminAccess): boolean {
-  return actor.grants.some(
-    (grant) => grant.systemKey === 'super_admin' && grant.departmentId === null,
-  );
 }
 
 function requireDelegable(

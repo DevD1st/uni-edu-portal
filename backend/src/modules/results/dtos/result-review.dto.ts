@@ -286,6 +286,26 @@ export class ResultMarkResponseDto {
 
 export class ResultGroupDetailDto extends ResultGroupSummaryDto {
   @ApiProperty({
+    type: Boolean,
+    description:
+      'Whether this viewer can approve the submitted group. Teaching, submission or marks authorship prevents self-approval unless the viewer has the protected university-wide Super Admin role; approval privilege in the owning department is still required.',
+    example: false,
+  })
+  @Expose()
+  canApprove!: boolean;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Public explanation when approval is unavailable to this viewer; null when approval is permitted.',
+    example:
+      'You cannot approve results you taught, submitted, or entered marks for. Ask another authorized reviewer or a Super Admin to approve them.',
+  })
+  @Expose()
+  approvalBlockedReason!: string | null;
+
+  @ApiProperty({
     type: String,
     nullable: true,
     description: 'Optional note on the latest submission.',

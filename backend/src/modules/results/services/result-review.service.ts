@@ -116,9 +116,13 @@ export class ResultReviewService {
     scope: 'teaching' | 'department',
   ): Promise<ResultGroupDetailDto> {
     return this.database.transaction('REPEATABLE READ', async (manager) => {
-      const { offering } = await this.access.load(actorId, id, scope, manager);
+      const context = await this.access.load(actorId, id, scope, manager);
+      const { offering } = context;
       const [group] = await manager.query<
-        Omit<ResultGroupDetailDto, 'marks' | 'nextCursor'>[]
+        Omit<
+          ResultGroupDetailDto,
+          'marks' | 'nextCursor' | 'canApprove' | 'approvalBlockedReason'
+        >[]
       >(projection + ' WHERE g.id = $1', [id]);
       const rows = await manager.query<ResultMarkResponseDto[]>(
         `
@@ -139,7 +143,12 @@ export class ResultReviewService {
         [id, offering.gradingPolicyId, query.cursor ?? null, query.limit + 1],
       );
       const page = pageOf(rows, query.limit);
-      return { ...group, marks: page.items, nextCursor: page.nextCursor };
+      return {
+        ...group,
+        ...(await this.access.approvalEligibility(context, manager)),
+        marks: page.items,
+        nextCursor: page.nextCursor,
+      };
     });
   }
 

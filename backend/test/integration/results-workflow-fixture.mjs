@@ -263,7 +263,7 @@ export async function verifyResultsWorkflow({
   await save([{ enrollmentId: adaEnrollment, examScore: 45.5 }]);
   assert.equal((await submit()).status, 'submitted');
 
-  // An assigned lecturer may approve their own submission after obtaining approval authority in this department.
+  // Combining Lecturer and HOD grants must not allow the lecturer to review their own work.
   await send(
     'POST',
     assignments,
@@ -271,12 +271,44 @@ export async function verifyResultsWorkflow({
     staffToken,
     201,
   );
+  const hodAdmin = await get('/v1/admin/admins/me/authorization', hod);
+  const ownDetail = await get(reviewGroup, teacher);
+  assert.equal(ownDetail.canApprove, false);
+  assert.match(ownDetail.approvalBlockedReason, /cannot approve results you taught/);
+  const peerDetail = await get(reviewGroup, hod);
+  assert.equal(peerDetail.canApprove, true);
+  assert.equal(peerDetail.approvalBlockedReason, null);
+  const approvalSnapshot = () =>
+    database.query(
+      `SELECT g.status, g.approved_at, g.approved_by_admin_id,
+      e.id, e.ca_score, e.exam_score, e.awarded_grade_system_id
+    FROM result_groups g JOIN student_registered_courses e ON e.result_group_id = g.id
+    WHERE g.id = $1 ORDER BY e.id`,
+      [groupId],
+    );
+  const beforeDenial = await approvalSnapshot();
+  const denied = await approve(teacher, 403);
+  assert.equal(denied.message, ownDetail.approvalBlockedReason);
+  assert.deepEqual(await approvalSnapshot(), beforeDenial);
+  const deniedHistory = await get(
+    '/v1/admin/audit-events?action=result.approve&targetId=' + groupId,
+  );
+  assert.ok(
+    deniedHistory.items.some(
+      (event) =>
+        event.actorAdminId === lecturer.id &&
+        event.outcome === 'denied' &&
+        event.reason === 'insufficient_privilege',
+    ),
+  );
+  assert.ok(!deniedHistory.items.some(({ outcome }) => outcome === 'succeeded'));
+  assert.deepEqual((await statement()).courses, []);
   // A failed success-audit insert must roll back both publication and grade awards.
   await database.query(
     "ALTER TABLE admin_audit_events ADD CONSTRAINT test_block_result_approval_audit CHECK (action <> 'result.approve' OR outcome <> 'succeeded') NOT VALID",
   );
   try {
-    const rejected = await approve(teacher, 503);
+    const rejected = await approve(hod, 503);
     assert.equal(
       rejected.message,
       'We could not record this change. Please try again.',
@@ -297,7 +329,7 @@ export async function verifyResultsWorkflow({
       'ALTER TABLE admin_audit_events DROP CONSTRAINT test_block_result_approval_audit',
     );
   }
-  assert.equal((await approve(teacher)).status, 'approved');
+  assert.equal((await approve(hod)).status, 'approved');
   const published = await statement();
   assert.equal(published.gpa, 5);
   assert.equal(published.cgpa, 5);
@@ -351,7 +383,7 @@ export async function verifyResultsWorkflow({
       (event) => event.action === action && event.outcome === 'succeeded',
     );
   assert.equal(success('result.approve').length, 1);
-  assert.equal(success('result.approve')[0].actorAdminId, lecturer.id);
+  assert.equal(success('result.approve')[0].actorAdminId, hodAdmin.adminId);
   assert.ok(
     success('result.submit').every(
       ({ actorAdminId }) => actorAdminId === lecturer.id,
@@ -595,5 +627,89 @@ export async function verifyResultsWorkflow({
   assert.equal(historicMark.lastName, null);
   assert.equal(historicMark.matricNumber, null);
   assert.equal(historicMark.grade, 'F');
+  assert.equal((await get(studentResults, ada.token)).cgpa, 3.44);
+
+  // A global Super Admin may approve their own assigned and submitted group.
+  const superAdmin = await get('/v1/admin/admins/me/authorization');
+  const ownOffering = differentDepartment.courses[0];
+  const superTeaching = lecturerResults + '/' + ownOffering.resultGroupId;
+  const superReview = departmentalResults + '/' + ownOffering.resultGroupId;
+  await send('PATCH', superTeaching + '/marks', {
+    marks: [{ enrollmentId: ownOffering.id, caScore: 25, examScore: 60 }],
+  });
+  await send(
+    'POST',
+    '/v1/lecturer/offerings/' + ownOffering.offeringId + '/close-registration',
+  );
+  await send('POST', superTeaching + '/submit', {});
+  const superDetail = await get(superReview);
+  assert.equal(superDetail.canApprove, true);
+  assert.equal(superDetail.approvalBlockedReason, null);
+  assert.equal(
+    (await send('POST', superReview + '/approve', {})).status,
+    'approved',
+  );
+  const [superGroup] = await database.query(
+    'SELECT submitted_by_admin_id, approved_by_admin_id FROM result_groups WHERE id = $1',
+    [ownOffering.resultGroupId],
+  );
+  assert.equal(superGroup.submitted_by_admin_id, superAdmin.adminId);
+  assert.equal(superGroup.approved_by_admin_id, superAdmin.adminId);
+
+  // A former marks author stays disqualified after another lecturer takes over and submits.
+  await send(
+    'POST',
+    reviewGroup + '/reopen',
+    { reason: 'administrative_request' },
+    hod,
+  );
+  await assignRole(
+    '/v1/admin/admins/' + hodAdmin.adminId + '/roles',
+    lecturer.grant.roleId,
+    first.id,
+  );
+  await assignRole(
+    '/v1/admin/admins/' + receivingAdmin.adminId + '/roles',
+    lecturer.grant.roleId,
+    first.id,
+  );
+  const peerApproval = await createRole('peer-approval', ['approve_result']);
+  await assignRole(
+    '/v1/admin/admins/' + receivingAdmin.adminId + '/roles',
+    peerApproval.id,
+    first.id,
+  );
+  const originalOffering = catalog + '/offerings/' + enrolled.courses[0].offeringId;
+  await send('PATCH', originalOffering, { lecturerId: receivingAdmin.adminId });
+  const noOp = await send(
+    'PATCH',
+    lecturerGroup + '/marks',
+    {
+      marks: [{ enrollmentId: adaEnrollment, caScore: 24.5, examScore: 45.5 }],
+    },
+    receivingHod,
+  );
+  assert.equal(noOp.changedCount, 0);
+  const [noOpAudit] = await database.query(
+    `SELECT count(*)::int AS count FROM admin_audit_events
+    WHERE actor_admin_id = $1 AND action = 'result.marks.save' AND outcome = 'succeeded'
+      AND metadata->>'resultGroupId' = $2`,
+    [receivingAdmin.adminId, groupId],
+  );
+  assert.equal(noOpAudit.count, 0);
+  await send('PATCH', originalOffering, { lecturerId: hodAdmin.adminId });
+  await send('POST', lecturerGroup + '/submit', {}, hod);
+  const formerAuthor = await get(reviewGroup, teacher);
+  assert.notEqual(formerAuthor.lecturerId, lecturer.id);
+  assert.equal(formerAuthor.canApprove, false);
+  assert.match(formerAuthor.approvalBlockedReason, /entered marks for/);
+  const beforeFormerDenial = await approvalSnapshot();
+  await approve(teacher, 403);
+  assert.deepEqual(await approvalSnapshot(), beforeFormerDenial);
+  // An unchanged save is not authorship; this independent reviewer may approve.
+  const noOpReviewer = await get(reviewGroup, receivingHod);
+  assert.equal(noOpReviewer.canApprove, true);
+  assert.equal(noOpReviewer.approvalBlockedReason, null);
+  await approve(receivingHod);
   assert.equal((await get(studentResults, ada.token)).cgpa, 3.44);
 }

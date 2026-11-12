@@ -2,8 +2,12 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import type { EntityManager } from 'typeorm';
 import { ApplicationError } from '#core/http/application-error.js';
 import { AdminAuthorizationService } from '#shared/admin-authorization/admin-authorization.service.js';
-import { hasPrivilege } from '#shared/admin-authorization/privilege.js';
+import {
+  hasGlobalSuperAdmin,
+  hasPrivilege,
+} from '#shared/admin-authorization/privilege.js';
 import type { AdminAccess } from '#shared/admin-authorization/privilege.js';
+import type { ResultGroupDetailDto } from '../dtos/result-review.dto.js';
 import { ResultGroup } from '../entity/result-groups.entity.js';
 
 type ReviewPrivilege = 'approve_result' | 'review_result' | 'reopen_result';
@@ -102,6 +106,64 @@ export class ResultAccessService {
       );
     }
     return { actor, group, offering };
+  }
+
+  async approvalEligibility(
+    context: ResultContext,
+    manager: EntityManager,
+  ): Promise<Pick<ResultGroupDetailDto, 'canApprove' | 'approvalBlockedReason'>> {
+    const blocked = (approvalBlockedReason: string) => ({
+      canApprove: false,
+      approvalBlockedReason,
+    });
+    const { actor, group, offering } = context;
+    if (!hasPrivilege(actor, 'approve_result', offering.departmentId))
+      return blocked(
+        'You do not have permission to approve results in this department.',
+      );
+    if (group.status !== 'submitted')
+      return blocked('Only submitted results can be approved.');
+    if (hasGlobalSuperAdmin(actor))
+      return { canApprove: true, approvalBlockedReason: null };
+
+    const ownResults =
+      'You cannot approve results you taught, submitted, or entered marks for. Ask another authorized reviewer or a Super Admin to approve them.';
+    if (
+      offering.lecturerId === actor.adminId ||
+      group.lecturerId === actor.adminId ||
+      group.submittedByAdminId === actor.adminId
+    )
+      return blocked(ownResults);
+
+    // Reassignment must not let a former marks author approve their own work.
+    // Marks history commits with changed scores and is append-only; failed/no-op saves do not count.
+    const [history] = await manager.query<{ contributed: boolean }[]>(
+      `SELECT EXISTS (
+        SELECT 1 FROM admin_audit_events event
+        WHERE event.actor_admin_id = $1 AND event.action = 'result.marks.save'
+          AND event.outcome = 'succeeded' AND event.metadata->>'resultGroupId' = $2
+          AND (
+            event.changes #> '{before,caScore}' IS DISTINCT FROM event.changes #> '{after,caScore}'
+            OR event.changes #> '{before,examScore}' IS DISTINCT FROM event.changes #> '{after,examScore}'
+          )
+      ) AS contributed`,
+      [actor.adminId, group.id],
+    );
+    return history?.contributed
+      ? blocked(ownResults)
+      : { canApprove: true, approvalBlockedReason: null };
+  }
+
+  async requireApproval(
+    context: ResultContext,
+    manager: EntityManager,
+  ): Promise<void> {
+    const eligibility = await this.approvalEligibility(context, manager);
+    if (!eligibility.canApprove)
+      throw new ApplicationError(
+        HttpStatus.FORBIDDEN,
+        eligibility.approvalBlockedReason!,
+      );
   }
 
   private requireDepartmentReview(

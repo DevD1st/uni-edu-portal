@@ -701,6 +701,8 @@
       "enrolledCount",
       "markedCount",
       "averageScore",
+      "canApprove",
+      "approvalBlockedReason",
       "submissionReason",
       "approvalReason",
       "correctionRequestReason",
@@ -779,6 +781,13 @@
       },
       "averageScore": {
         "type": "number",
+        "nullable": true
+      },
+      "canApprove": {
+        "type": "boolean"
+      },
+      "approvalBlockedReason": {
+        "type": "string",
         "nullable": true
       },
       "submissionReason": {

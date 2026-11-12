@@ -4,6 +4,8 @@ Use this guide to explore the application and locate the supporting technical de
 
 The [main README](../README.md#run-the-complete-application) also provides the two-command local setup and local and hosted portal, Swagger, and OpenAPI URLs. The supplied `.env.example` contains working local configuration; no external services or host Node.js installation are needed for the Docker route.
 
+For requirement-by-requirement review, use the [Acceptance Criteria Evidence Mapping](acceptance-criteria.md). It connects each acceptance criterion and weighted evaluation area to the relevant screen, source module, and verification suite. Docker Compose needs only the root `.env`; frontend `.env.local` files are for [running the apps outside Docker](development.md#host-development).
+
 ## Delivered capabilities and evidence
 
 | Deliverable                                  | Where to review it                                                                                                                                                                                                                                         |
@@ -57,6 +59,8 @@ Before saving, edit a mark and try another route or sign-out to inspect the unsa
 ### 4. Department review and publication
 
 Sign in as `hod@demo.example.test`. Open Result review for Demo Computing. Approve `DEMO106`, or return a submitted group with feedback and correct/resubmit it as the lecturer. After approval, sign back in as Maya: the second result appears and her weighted GPA/CGPA changes to `4.40 / 5.00`.
+
+The seeded HOD is a different account from the submitting lecturer. A lecturer/HOD who also taught, entered, or submitted the result sees an explanation that another approver is required; the API rejects self-approval as well. Only a university-wide protected Super Admin role assignment permits self-approval. The [results verification fixture](../backend/test/integration/results-workflow-fixture.mjs) and [staff browser verification](../frontend/e2e/staff-verification.spec.ts) exercise this distinction with disposable records.
 
 An authorized reopening withdraws publication immediately while preserving entered marks and keeping registration closed. Resubmission and approval publish the results again. The [state model](workflows.md#marks-review-and-publication) documents each transition and required privilege.
 

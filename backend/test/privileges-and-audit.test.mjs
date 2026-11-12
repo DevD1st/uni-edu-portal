@@ -7,6 +7,7 @@ import {
   hasPrivilege,
   authorizedDepartments,
   canManageLecturerProfile,
+  hasGlobalSuperAdmin,
 } from '../dist/shared/admin-authorization/privilege.js';
 import {
   ADMIN_AUDIT_ACTIONS,
@@ -38,6 +39,28 @@ test('a privilege can only use the department scope of the grant that supplied i
   assert.deepEqual(authorizedDepartments(access, 'read_user'), ['math']);
   access.grants.push({ departmentId: null, privileges: ['read_user'] });
   assert.equal(authorizedDepartments(access, 'read_user'), null);
+});
+
+test('only the protected university-wide Super Admin grant supplies its exception', () => {
+  const grant = {
+    name: 'super-admin',
+    systemKey: null,
+    departmentId: null,
+    privileges: ['approve_result', 'manage_university', 'manage_roles'],
+  };
+  assert.equal(hasGlobalSuperAdmin({ grants: [grant] }), false);
+  assert.equal(
+    hasGlobalSuperAdmin({
+      grants: [{ ...grant, systemKey: 'super_admin', departmentId: 'computing' }],
+    }),
+    false,
+  );
+  assert.equal(
+    hasGlobalSuperAdmin({
+      grants: [{ ...grant, name: 'protected-role-label', systemKey: 'super_admin' }],
+    }),
+    true,
+  );
 });
 
 test('every account and admin mutation has a semantic audit action', () => {

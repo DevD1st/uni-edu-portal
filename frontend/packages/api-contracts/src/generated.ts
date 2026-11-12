@@ -2804,6 +2804,11 @@ export interface components {
         };
         ResultGroupDetailDto: {
             /**
+             * @description Public explanation when approval is unavailable to this viewer; null when approval is permitted.
+             * @example You cannot approve results you taught, submitted, or entered marks for. Ask another authorized reviewer or a Super Admin to approve them.
+             */
+            approvalBlockedReason: string | null;
+            /**
              * @description Optional note on the latest approval.
              * @example Department review completed.
              */
@@ -2819,6 +2824,11 @@ export interface components {
              * @example 73.5
              */
             averageScore: number | null;
+            /**
+             * @description Whether this viewer can approve the submitted group. Teaching, submission or marks authorship prevents self-approval unless the viewer has the protected university-wide Super Admin role; approval privilege in the owning department is still required.
+             * @example false
+             */
+            canApprove: boolean;
             /**
              * @description University catalog course code.
              * @example CSC101
